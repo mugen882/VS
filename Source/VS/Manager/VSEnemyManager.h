@@ -48,12 +48,14 @@ public:
     // 지정한 타입의 적 1마리를 링 영역에 스폰 (난이도 서브시스템이 호출)
     void SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult = 1.f);
 
-    void SpawnWave();
+    // 서브시스템이 웨이브 데이터 없이 임시로 스폰할 때 쓸 기본 타입
+    const UVSEnemyTypeData* GetDefaultEnemyType() const { return DefaultEnemyType; }
 
 public:
     UPROPERTY(VisibleAnywhere)
     UInstancedStaticMeshComponent* ISM;
 
+    // 웨이브 시스템이 붙기 전까지 임시로 사용하는 기본 적 타입
     UPROPERTY(EditAnywhere, Category="Enemy")
     TObjectPtr<UVSEnemyTypeData> DefaultEnemyType;
 
@@ -64,6 +66,8 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void Tick(float DeltaTime) override;
+
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 protected:
     UPROPERTY(EditAnywhere)
@@ -84,14 +88,7 @@ private:
 
     TObjectPtr<AVSGemManager> GemManager;
 
+    // 동시 최대 적 수 (SpawnEnemy 초입에서 검사하는 안전장치)
     UPROPERTY(EditAnywhere, Category="Spawn")
-    float SpawnInterval = 0.5f;      // 몇 초마다 스폰할지
-
-    UPROPERTY(EditAnywhere, Category="Spawn")
-    int32 SpawnPerInterval = 5;      // 한 번에 몇 마리
-
-    UPROPERTY(EditAnywhere, Category="Spawn")
-    int32 MaxEnemies = 500;          // 동시 최대 (상한)
-
-    FTimerHandle SpawnTimerHandle;
+    int32 MaxEnemies = 500;
 };

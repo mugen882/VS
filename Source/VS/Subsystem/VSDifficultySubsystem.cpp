@@ -1,16 +1,94 @@
 #include "Subsystem/VSDifficultySubsystem.h"
+#include "Manager/VSEnemyManager.h"
+#include "Data/VSWaveData.h"
+#include "Kismet/GameplayStatics.h"
+
+void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+    Super::Initialize(Collection);   // UWorldSubsystem 계통이라 Super 호출 OK
+
+    ElapsedTime = 0.f;
+    SpawnAccumulator = 0.f;
+    CurrentWaveIndex = 0;
+}
+
+void UVSDifficultySubsystem::SetWaveData(UVSWaveData* InWaveData)
+{
+    WaveData = InWaveData;
+}
+
+AVSEnemyManager* UVSDifficultySubsystem::GetEnemyManager()
+{
+    if (EnemyManager.IsValid())
+        return EnemyManager.Get();
+
+    if (UWorld* World = GetWorld())
+    {
+        AActor* Found = UGameplayStatics::GetActorOfClass(World, AVSEnemyManager::StaticClass());
+        EnemyManager = Cast<AVSEnemyManager>(Found);
+    }
+    return EnemyManager.Get();
+}
+
+const FVSWaveEntry* UVSDifficultySubsystem::ResolveCurrentWave()
+{
+    if (!WaveData || WaveData->Waves.Num() == 0)
+        return nullptr;
+
+    // 경과 시간이 다음 웨이브의 시작 시각을 넘으면 전환
+    while (CurrentWaveIndex + 1 < WaveData->Waves.Num()
+        && ElapsedTime >= WaveData->Waves[CurrentWaveIndex + 1].StartTime)
+    {
+        ++CurrentWaveIndex;
+    }
+
+    // 아직 첫 웨이브 StartTime 전이면 스폰 안 함
+    if (ElapsedTime < WaveData->Waves[CurrentWaveIndex].StartTime)
+        return nullptr;
+
+    return &WaveData->Waves[CurrentWaveIndex];
+}
 
 void UVSDifficultySubsystem::Tick(float DeltaTime)
 {
-	ElapsedTime += DeltaTime;
+    if (bRunCleared)
+    {
+        return;
+    }
+
+    ElapsedTime += DeltaTime;
+
+    // 클리어 판정
+    if (WaveData && ElapsedTime >= WaveData->TotalRunTime)
+    {
+        bRunCleared = true;
+        OnRunCleared.Broadcast();
+        return;
+    }
+
+    AVSEnemyManager* Mgr = GetEnemyManager();
+    if (!Mgr) return;
+
+    const FVSWaveEntry* Wave = ResolveCurrentWave();
+    if (!Wave || !Wave->EnemyType) return;
+
+    // 현재 웨이브의 간격으로 스폰
+    SpawnAccumulator += DeltaTime;
+    while (SpawnAccumulator >= Wave->SpawnInterval)
+    {
+        SpawnAccumulator -= Wave->SpawnInterval;
+
+        for (int32 i = 0; i < Wave->SpawnPerTick; ++i)
+            Mgr->SpawnEnemy(Wave->EnemyType, Wave->HealthMult);
+    }
 }
 
 TStatId UVSDifficultySubsystem::GetStatId() const
 {
-	RETURN_QUICK_DECLARE_CYCLE_STAT(UVSDifficultySubsystem, STATGROUP_Tickables);
+    RETURN_QUICK_DECLARE_CYCLE_STAT(UVSDifficultySubsystem, STATGROUP_Tickables);
 }
 
 bool UVSDifficultySubsystem::IsTickable() const
 {
-	return !IsTemplate();   // CDO(클래스 기본 객체)는 틱 안 하게
+    return !IsTemplate() && GetWorld() != nullptr && WaveData != nullptr;
 }

@@ -18,18 +18,11 @@ void AVSEnemyManager::BeginPlay()
 {
     Super::BeginPlay();
 
+    if (ISM)
+        ISM->ClearInstances();
     Enemies.Empty();
 
     GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
-
-    GetWorldTimerManager().SetTimer(
-        SpawnTimerHandle, this, &AVSEnemyManager::SpawnWave, SpawnInterval, /*bLoop=*/true);
-}
-
-void AVSEnemyManager::SpawnWave()
-{
-    for (int32 i = 0; i < SpawnPerInterval; ++i)
-        SpawnEnemy(DefaultEnemyType);
 }
 
 void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult)
@@ -80,6 +73,17 @@ void AVSEnemyManager::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
     UpdateEnemies(DeltaTime);
+}
+
+void AVSEnemyManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    UE_LOG(LogTemp, Warning, TEXT("EnemyManager EndPlay - clearing %d instances"), ISM ? ISM->GetInstanceCount() : -1);
+    if (ISM)
+        ISM->ClearInstances();
+
+    Enemies.Empty();
+
+    Super::EndPlay(EndPlayReason);
 }
 
 int32 AVSEnemyManager::FindNearestEnemy(const FVector& From, float MaxRange, FVector& OutLocation) const

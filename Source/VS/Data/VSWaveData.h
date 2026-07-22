@@ -21,5 +21,9 @@ class UVSWaveData : public UPrimaryDataAsset
 {
     GENERATED_BODY()
 public:
-    UPROPERTY(EditAnywhere) TArray<FVSWaveEntry> Waves;
+    UPROPERTY(EditAnywhere)
+    TArray<FVSWaveEntry> Waves;
+
+    UPROPERTY(EditAnywhere, Category="Difficulty")
+    float TotalRunTime = 1.f * 60.f;   // 분 * 초
 };

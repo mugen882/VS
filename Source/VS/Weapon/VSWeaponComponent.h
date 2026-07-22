@@ -45,7 +45,8 @@ struct FVSWeaponInstance
     float GetCooldown(const FVSStatModifiers& Mods) const
     {
         const float Base = Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
-        return Base * (1.f - Mods.Get("GlobalCooldown"));   // 감소니까 -
+        const float Reduced = Base * (1.f - Mods.Get("GlobalCooldown"));    // 감소니까 -
+        return FMath::Max(0.1f, Reduced);   // ← 최소 0.1초 보장
     }
 
     int32 GetProjectileCount() const

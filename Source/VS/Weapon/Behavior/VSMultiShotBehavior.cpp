@@ -27,15 +27,18 @@ void UVSMultiShotBehavior::FireMultiShot(UVSWeaponComponent* Comp, FVSWeaponInst
 
     const FVector OwnerLoc = Owner->GetActorLocation();
     const float Damage = Weapon.GetDamage(Mods);
-
-    // 기준 방향: 가장 가까운 적 (없으면 정면)
-    FVector BaseDir = Owner->GetActorForwardVector();
-    if (AVSEnemyManager* EnemyManager = Comp->GetEnemyManager())
+    
+    AVSEnemyManager* EnemyManager = Comp->GetEnemyManager();
+    if (!EnemyManager) return;
+    
+    FVector TargetLoc;
+    if (EnemyManager->FindNearestEnemy(OwnerLoc, Weapon.Data->BaseRange, TargetLoc) == INDEX_NONE)
     {
-        FVector TargetLoc;
-        if (EnemyManager->FindNearestEnemy(OwnerLoc, Weapon.Data->BaseRange, TargetLoc) != INDEX_NONE)
-            BaseDir = (TargetLoc - OwnerLoc).GetSafeNormal2D();
+        return;
     }
+
+    // 기준 방향: 가장 가까운 적
+    FVector BaseDir = (TargetLoc - OwnerLoc).GetSafeNormal2D();
 
     // 부채꼴로 여러 발
     const int32 Count = Weapon.Data->ProjectilesPerShot;

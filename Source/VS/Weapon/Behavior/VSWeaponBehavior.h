@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "Weapon/VSWeaponComponent.h"
+#include "Component/VSWeaponComponent.h"
 #include "VSWeaponBehavior.generated.h"
 
 class UVSWeaponComponent;

@@ -3,6 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "VSGemManager.h"
 #include "Character/VSCharacter.h"
+#include "Data/VSEnemyTypeData.h"
 
 AVSEnemyManager::AVSEnemyManager()
 {
@@ -10,7 +11,7 @@ AVSEnemyManager::AVSEnemyManager()
 
     ISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ISM"));
     RootComponent = ISM;
-    ISM->NumCustomDataFloats = 4; // 인스턴스당 커스텀 데이터 4개 (시간 오프셋)
+    ISM->NumCustomDataFloats = 7; // 인스턴스당 커스텀 데이터
 }
 
 void AVSEnemyManager::BeginPlay()
@@ -19,43 +20,66 @@ void AVSEnemyManager::BeginPlay()
 
     Enemies.Empty();
 
+    GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
+
+    GetWorldTimerManager().SetTimer(
+        SpawnTimerHandle, this, &AVSEnemyManager::SpawnWave, SpawnInterval, /*bLoop=*/true);
+}
+
+void AVSEnemyManager::SpawnWave()
+{
+    for (int32 i = 0; i < SpawnPerInterval; ++i)
+        SpawnEnemy(DefaultEnemyType);
+}
+
+void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult)
+{
+    if (!Type || !ISM) return;
+    if (Enemies.Num() >= MaxEnemies) return;
+
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
     const FVector Center = Player ? Player->GetActorLocation() : GetActorLocation();
 
-    for (int32 i = 0; i < InstanceCount; ++i)
-    {
-        // 링 영역에 스폰: 랜덤 각도 + 랜덤 거리(Min~Max)
-        const float Angle = FMath::FRandRange(0.f, 2.f * PI);
-        const float Dist = FMath::FRandRange(MinSpawnRadius, MaxSpawnRadius);
+    // 링 영역에 스폰: 랜덤 각도 + 랜덤 거리(Min~Max)
+    const float Angle = FMath::FRandRange(0.f, 2.f * PI);
+    const float Dist = FMath::FRandRange(MinSpawnRadius, MaxSpawnRadius);
 
-        const FVector Loc(
-            Center.X + FMath::Cos(Angle) * Dist,
-            Center.Y + FMath::Sin(Angle) * Dist,
-            0.f);
+    const FVector Loc(
+        Center.X + FMath::Cos(Angle) * Dist,
+        Center.Y + FMath::Sin(Angle) * Dist,
+        0.f);
 
-        const FTransform Xform(FRotator::ZeroRotator, Loc);
-        const int32 Index = ISM->AddInstance(Xform, /*bWorldSpace=*/true);
+    // 타입 크기 반영
+    const FTransform Xform(FRotator::ZeroRotator, Loc, FVector(Type->Scale));
+    const int32 Index = ISM->AddInstance(Xform, /*bWorldSpace=*/true);
 
-        ISM->SetCustomDataValue(Index, 0, FMath::FRand());  // 달리기 애니 시작 시간(0.6초짜리 애니일때 0.5면 0.5초부터 애니메이션)
-		ISM->SetCustomDataValue(Index, 1, 1.0f);            // 달리기 애니 속도 배율
-        ISM->SetCustomDataValue(Index, 2, 320.0f);          // 달리기 애니 시작 프레임
-        ISM->SetCustomDataValue(Index, 3, 338.0f);          // 달리기 애니 끝 프레임
+    // 애니메이션용 커스텀 데이터
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_StartTime, FMath::FRand());
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_Speed, 1.0f);          // 달리기 애니 속도 배율
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_StartFrame, 320.0f);   // 달리기 애니 시작 프레임
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_EndFrame, 338.0f);     // 달리기 애니 끝 프레임
+    // 틴트용 커스텀데이터
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Tint_R, Type->Tint.R);
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Tint_G, Type->Tint.G);
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Tint_B, Type->Tint.B, /*bMark*/ true);   // 마지막만 dirty
 
-        FEnemyData Enemy;
-        Enemy.Location = Loc;
-        Enemy.Health = EnemyMaxHealth;
+    // 개별 스탯을 타입에서 복사 (매 틱 데이터에셋 조회 없이 순회하려고)
+    FEnemyData Enemy;
+    Enemy.Location = Loc;
+    Enemy.Health = Type->MaxHealth * HealthMult;
+    Enemy.MoveSpeed = Type->MoveSpeed;
+    Enemy.ContactDamage = Type->ContactDamage;
+    Enemy.XPValue = Type->XPValue;
+    Enemy.Scale = Type->Scale;
 
-        Enemies.Add(Enemy);
-    }
-
-    GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
+    Enemies.Add(Enemy);
 }
 
 void AVSEnemyManager::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-	UpdateEnemies(DeltaTime);
+    UpdateEnemies(DeltaTime);
 }
 
 int32 AVSEnemyManager::FindNearestEnemy(const FVector& From, float MaxRange, FVector& OutLocation) const
@@ -98,7 +122,7 @@ void AVSEnemyManager::KillEnemy(int32 Index)
 
     const FVector DeathLoc = Enemies[Index].Location;
     if (GemManager)
-        GemManager->SpawnGem(DeathLoc, 1);
+        GemManager->SpawnGem(DeathLoc, Enemies[Index].XPValue);   // 타입별 젬 가치
 
     // 1. 배열을 swap-remove (마지막을 죽은 자리로, 마지막 제거)
     Enemies[Index] = Enemies[LastIndex];
@@ -147,21 +171,21 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
     {
         FVector& Loc = Enemies[i].Location;
 
-        // 플레이어 방향으로 이동
+        // 플레이어 방향으로 이동 (타입별 속도)
         const FVector Dir = (PlayerLoc - Loc).GetSafeNormal2D();
-        Loc += Dir * MoveSpeed * DeltaTime;
+        Loc += Dir * Enemies[i].MoveSpeed * DeltaTime;
 
         // 이동 방향 바라보게 회전
         FRotator Rot = Dir.Rotation();
         Rot.Yaw -= 90.f;
 
-        NewTransforms.Add(FTransform(Rot, Loc));
+        NewTransforms.Add(FTransform(Rot, Loc, FVector(Enemies[i].Scale)));
 
         // 플레이어 접촉 판정
         const float DistSq = FVector::DistSquared2D(Loc, PlayerLoc);
         if (DistSq < ContactRangeSq)
         {
-            Player->TakeDamageFromEnemy(ContactDamage * DeltaTime);  // 초당 대미지
+            Player->TakeDamageFromEnemy(Enemies[i].ContactDamage * DeltaTime);  // 초당 대미지 (타입별)
         }
     }
 

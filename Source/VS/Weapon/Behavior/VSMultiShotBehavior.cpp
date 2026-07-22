@@ -1,13 +1,18 @@
 #include "Weapon/Behavior/VSMultiShotBehavior.h"
 #include "Weapon/VSProjectile.h"
+#include "Character/VSCharacter.h"
 
 void UVSMultiShotBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)
 {
+    if (!Comp) return;
+
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
+
     W.CooldownTimer -= DeltaTime;
     if (W.CooldownTimer <= 0.f)
     {
         FireMultiShot(Comp, W);
-        W.CooldownTimer = W.GetCooldown();
+        W.CooldownTimer = W.GetCooldown(Mods);
     }
 }
 
@@ -17,8 +22,11 @@ void UVSMultiShotBehavior::FireMultiShot(UVSWeaponComponent* Comp, FVSWeaponInst
 
     AActor* Owner = Comp->GetOwner();
     if (!Owner) return;
+
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
+
     const FVector OwnerLoc = Owner->GetActorLocation();
-    const float Damage = Weapon.GetDamage();
+    const float Damage = Weapon.GetDamage(Mods);
 
     // 기준 방향: 가장 가까운 적 (없으면 정면)
     FVector BaseDir = Owner->GetActorForwardVector();

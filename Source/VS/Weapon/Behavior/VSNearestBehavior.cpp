@@ -1,8 +1,13 @@
 #include "Weapon/Behavior/VSNearestBehavior.h"
 #include "Weapon/VSProjectile.h"
+#include "Character/VSCharacter.h"
 
 void UVSNearestBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)
 {
+    if (!Comp) return;
+
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
+
     W.CooldownTimer -= DeltaTime;
     if (W.CooldownTimer <= 0.f)
     {
@@ -14,9 +19,9 @@ void UVSNearestBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, fl
                 Owner->GetActorLocation(),
                 W.Data->BaseRange,
                 W.Data->ProjectileClass,
-                W.GetDamage());
+                W.GetDamage(Mods));
         }
-        W.CooldownTimer = W.GetCooldown();
+        W.CooldownTimer = W.GetCooldown(Mods);
     }
 }
 

@@ -25,6 +25,8 @@ public:
 
     void RemoveGem(int32 Index);
 
+    void SetMagnetRangeMult(float Mult);   // 패시브 배율 반영
+
 protected:
     void BeginPlay() override;
     void Tick(float DeltaSeconds) override;
@@ -34,7 +36,7 @@ protected:
     float MeshScale = 0.3f;
 
     UPROPERTY(EditAnywhere)
-    float MagnetRange = 300.f;    // 이 안에 들면 흡수 시작
+    float BaseMagnetRange = 300.f;
 
     UPROPERTY(EditAnywhere)
     float CollectRange = 80.f;    // 이 안이면 획득 완료
@@ -50,4 +52,6 @@ private:
     UInstancedStaticMeshComponent* GemISM;
 
     TArray<FVSGemData> Gems;
+
+    float MagnetRange = 300.f;  // 실제 사용값 = Base × Mult
 };

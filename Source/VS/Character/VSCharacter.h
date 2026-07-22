@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Weapon/VSProjectile.h"
+#include "Character/VSStatModifiers.h"
 #include "VSCharacter.generated.h"
 
 class UInputAction;
@@ -14,6 +15,7 @@ class UVSUpgradeComponent;
 class UVSWeaponData;
 class UVSUpgradeSelectionWidget;
 class UVSUpgradeData;
+class AVSGemManager;
 
 UCLASS(Blueprintable)
 class VS_API AVSCharacter : public ACharacter
@@ -32,6 +34,9 @@ public:
 	UVSWeaponComponent* GetWeaponComponent() { return WeaponComp; }
 
 	bool IsDead() const { return bIsDead; }
+
+	void AddPassive(FName StatName, float Value);
+	const FVSStatModifiers& GetStatMods() const { return StatMods; }
 
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
@@ -83,6 +88,8 @@ private:
     UFUNCTION()
     void OnUpgradeChosen(UVSUpgradeData* Chosen);
 
+	void RecalculateStats();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
@@ -94,9 +101,21 @@ private:
 
 	TObjectPtr<AVSEnemyManager> EnemyManager;
 
+	UPROPERTY()
+	TObjectPtr<AVSGemManager> GemManager;
+
 	bool bIsDead = false;
 
 	UPROPERTY()
     TObjectPtr<UVSUpgradeSelectionWidget> ActiveUpgradeWidget;
+
+	UPROPERTY()
+    FVSStatModifiers StatMods;
+
+    // base 값(패시브 적용 전 원본) — 재계산의 기준
+    UPROPERTY(EditAnywhere, Category="Stats")
+    float BaseMoveSpeed = 600.f;
+    UPROPERTY(EditAnywhere, Category="Stats")
+    float BaseMaxHealth = 100.f;
 };
 

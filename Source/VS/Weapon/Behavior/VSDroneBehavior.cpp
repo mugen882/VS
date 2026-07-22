@@ -1,6 +1,7 @@
 #include "Weapon/Behavior/VSDroneBehavior.h"
 #include "Weapon/VSDrone.h"
 #include "Weapon/VSProjectile.h"
+#include "Character/VSCharacter.h"
 
 void UVSDroneBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 {
@@ -15,13 +16,15 @@ void UVSDroneBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, floa
 void UVSDroneBehavior::UpdateDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, float DeltaTime)
 {
     if (!Weapon.Drone || !Comp) return;
+
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
     
     PositionDrone(Comp, Weapon);
     Weapon.CooldownTimer -= DeltaTime;
     if (Weapon.CooldownTimer <= 0.f)
     {
         FireFromDrone(Comp, Weapon, Weapon.Drone);
-        Weapon.CooldownTimer = Weapon.GetCooldown();
+        Weapon.CooldownTimer = Weapon.GetCooldown(Mods);
     }
 }
 
@@ -69,8 +72,10 @@ void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
     if (EnemyManager->FindNearestEnemy(DroneLoc, Weapon.Data->BaseRange, TargetLoc) == INDEX_NONE)
         return;
 
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
+
     const FVector Dir = (TargetLoc - DroneLoc).GetSafeNormal2D();
-    const float Damage = Weapon.GetDamage();
+    const float Damage = Weapon.GetDamage(Mods);
     const int32 Count = Weapon.GetProjectileCount();
 
     // 발사 방향에 수직인 벡터 (옆으로 벌리기용)

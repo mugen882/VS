@@ -5,6 +5,7 @@
 #include "Weapon/VSDrone.h"
 #include "Weapon/VSShieldArea.h"
 #include "Weapon/Behavior/VSWeaponBehavior.h"
+#include "Character/VSCharacter.h"
 
 UVSWeaponComponent::UVSWeaponComponent()
 {
@@ -34,6 +35,16 @@ FVector UVSWeaponComponent::GetFloorLocation() const
 	Location.Z -= Owner->GetSimpleCollisionHalfHeight();
 
     return Location;
+}
+
+
+const FVSStatModifiers& UVSWeaponComponent::GetStatMods() const
+{
+    if (AVSCharacter* PC = Cast<AVSCharacter>(GetOwner()))
+        return PC->GetStatMods();
+
+    static const FVSStatModifiers Empty;   // owner가 캐릭터 아닐 때 안전한 기본값
+    return Empty;
 }
 
 void UVSWeaponComponent::AddWeapon(UVSWeaponData* WeaponData)

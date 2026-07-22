@@ -1,4 +1,5 @@
 #include "Weapon/Behavior/VSOrbitBehavior.h"
+#include "Character/VSCharacter.h"
 
 UVSOrbitBehavior::UVSOrbitBehavior()
 {
@@ -81,6 +82,10 @@ void UVSOrbitBehavior::CheckHits(UVSWeaponComponent* Comp, FVSWeaponInstance& We
     AActor* Owner = Comp->GetOwner();
     if (!Owner) return;
 
+    if (!Comp) return;
+
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
+
     for (AVSOrbitProjectile* Ball : Weapon.OrbitBalls)
     {
         if (!Ball) continue;
@@ -89,7 +94,7 @@ void UVSOrbitBehavior::CheckHits(UVSWeaponComponent* Comp, FVSWeaponInstance& We
         Comp->ApplyContinuousDamage(
             BallLoc,
             Ball->HitRadius,
-            Weapon.GetDamage(),
+            Weapon.GetDamage(Mods),
             DeltaTime);
     }
 }

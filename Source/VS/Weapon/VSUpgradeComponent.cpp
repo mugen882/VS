@@ -65,8 +65,9 @@ void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)
         break;
 
     case EVSUpgradeType::Passive:
-        // 나중에 (패시브 미룸)
-        UE_LOG(LogTemp, Warning, TEXT("Upgrade: Passive (미구현)"));
+        Player->AddPassive(Upgrade->PassiveStatName, Upgrade->PassiveValue);
+        UE_LOG(VSLog, Warning, TEXT("Upgrade: Passive %s +%.2f"),
+            *Upgrade->PassiveStatName.ToString(), Upgrade->PassiveValue);
         break;
     }
 }

@@ -16,6 +16,8 @@ AVSGemManager::AVSGemManager()
 void AVSGemManager::BeginPlay()
 {
     Super::BeginPlay();
+
+    SetMagnetRangeMult(1.f);
 }
 
 void AVSGemManager::Tick(float DeltaTime)
@@ -121,4 +123,9 @@ void AVSGemManager::UpdateGems(float DeltaTime)
     Collected.Sort([](int32 A, int32 B) { return A > B; });
     for (int32 Idx : Collected)
         RemoveGem(Idx);
+}
+
+void AVSGemManager::SetMagnetRangeMult(float Mult)
+{
+    MagnetRange = BaseMagnetRange * Mult;
 }

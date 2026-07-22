@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "Weapon/VSOrbitProjectile.h"
 #include "Manager/VSEnemyManager.h"
+#include "Character/VSStatModifiers.h"
 #include "VSWeaponComponent.generated.h"
 
 class AVSDrone;
@@ -36,13 +37,15 @@ struct FVSWeaponInstance
     TObjectPtr<UVSWeaponBehavior> Behavior = nullptr;
 
     // 현재 레벨 기준 실제 스탯 계산
-    float GetDamage() const
+    float GetDamage(const FVSStatModifiers& Mods) const
     {
-        return Data ? Data->BaseDamage + Data->DamagePerLevel * (Level - 1) : 0.f;
+        const float Base = Data ? Data->BaseDamage + Data->DamagePerLevel * (Level - 1) : 0.f;
+        return Base * (1.f + Mods.Get("GlobalDamage"));
     }
-    float GetCooldown() const
+    float GetCooldown(const FVSStatModifiers& Mods) const
     {
-        return Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
+        const float Base = Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
+        return Base * (1.f - Mods.Get("GlobalCooldown"));   // 감소니까 -
     }
 
     int32 GetProjectileCount() const
@@ -80,6 +83,8 @@ public:
     AVSEnemyManager* GetEnemyManager() const { return EnemyManager.Get(); }
 
     FVector GetFloorLocation() const;
+
+    const FVSStatModifiers& GetStatMods() const;
 
 protected:
     virtual void BeginPlay() override;

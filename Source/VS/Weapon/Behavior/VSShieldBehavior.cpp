@@ -1,5 +1,6 @@
 #include "Weapon/Behavior/VSShieldBehavior.h"
 #include "Weapon/VSShieldArea.h"
+#include "Character/VSCharacter.h"
 
 void UVSShieldBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 {
@@ -40,10 +41,12 @@ void UVSShieldBehavior::UpdateShield(UVSWeaponComponent* Comp, FVSWeaponInstance
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.ShieldActor) return;
 
+    const FVSStatModifiers& Mods = Comp->GetStatMods();
+
     Weapon.ShieldActor->SetActorLocation(Comp->GetFloorLocation());
     Comp->ApplyContinuousDamage(
         Owner->GetActorLocation(),
         Weapon.GetShieldRadius(),
-        Weapon.GetDamage(),
+        Weapon.GetDamage(Mods),
         DeltaTime);
 }

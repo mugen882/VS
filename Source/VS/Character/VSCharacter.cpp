@@ -16,6 +16,7 @@
 #include "Weapon/VSUpgradeComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/VSUpgradeSelectionWidget.h" 
+#include "Manager/VSGemManager.h"
 
 AVSCharacter::AVSCharacter()
 {
@@ -53,6 +54,7 @@ void AVSCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	EnemyManager = Cast<AVSEnemyManager>(UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
+	GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
 
 	if (WeaponComp)
 	{
@@ -110,6 +112,12 @@ void AVSCharacter::OnPlayerDeath()
 	// 게임오버 처리 (다음)
 }
 
+void AVSCharacter::AddPassive(FName StatName, float Value)
+{
+	StatMods.Add(StatName, Value);
+	RecalculateStats();   // 누적 후 재계산
+}
+
 void AVSCharacter::ShowUpgradeSelection()
 {
 	if (!UpgradeSelectionWidgetClass || !UpgradeComp) return;
@@ -155,4 +163,21 @@ void AVSCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 		PC->SetInputMode(FInputModeGameOnly());   // 다시 게임 입력
 	}
 	UGameplayStatics::SetGamePaused(this, false);
+}
+
+void AVSCharacter::RecalculateStats()
+{
+	// 플레이어 스탯: base × (1 + 누적배율)
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+		Move->MaxWalkSpeed = BaseMoveSpeed * (1.f + StatMods.Get("MoveSpeed"));
+
+	// 늘어난 최대치만큼 현재 체력도 더해줌(증가분 회복)
+	const float OldMax = MaxHealth;
+	MaxHealth = BaseMaxHealth * (1.f + StatMods.Get("MaxHealth"));
+	CurrentHealth += (MaxHealth - OldMax);
+	CurrentHealth = FMath::Min(CurrentHealth, MaxHealth);
+
+	// 픽업범위
+	if (GemManager)
+		GemManager->SetMagnetRangeMult(1.f + StatMods.Get("PickupRange"));
 }

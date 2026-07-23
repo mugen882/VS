@@ -23,7 +23,12 @@ void UVSWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
     for (FVSWeaponInstance& W : Weapons)
-        if (W.Behavior) W.Behavior->Tick(this, W, DeltaTime);
+    {
+        if (W.Behavior)
+        {
+            W.Behavior->Tick(this, W, DeltaTime);
+        }
+    }   
 }
 
 FVector UVSWeaponComponent::GetFloorLocation() const
@@ -43,7 +48,7 @@ const FVSStatModifiers& UVSWeaponComponent::GetStatMods() const
     if (AVSCharacter* PC = Cast<AVSCharacter>(GetOwner()))
         return PC->GetStatMods();
 
-    static const FVSStatModifiers Empty;   // owner가 캐릭터 아닐 때 안전한 기본값
+    static const FVSStatModifiers Empty;
     return Empty;
 }
 

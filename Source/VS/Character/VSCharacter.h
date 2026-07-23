@@ -17,6 +17,8 @@ class UVSUpgradeSelectionWidget;
 class UVSUpgradeData;
 class AVSGemManager;
 
+DECLARE_MULTICAST_DELEGATE(FOnPlayerDied);
+
 UCLASS(Blueprintable)
 class VS_API AVSCharacter : public ACharacter
 {
@@ -53,6 +55,8 @@ public:
 
     UPROPERTY(EditAnywhere, Category="Stats")
     float MaxHealth = 100.f;
+
+	FOnPlayerDied OnPlayerDied;
 
 protected:
 	virtual void BeginPlay() override;

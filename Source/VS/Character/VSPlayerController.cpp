@@ -10,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "VSCharacter.h"
+#include "Subsystem/VSDifficultySubsystem.h"
+#include "UI/VSGameOverWidget.h"
 
 AVSPlayerController::AVSPlayerController()
 {
@@ -37,6 +39,43 @@ void AVSPlayerController::Move(const FInputActionValue& Value)
 	VSChar->AddMovementInput(RightDir, MovementVector.X);
 }
 
+void AVSPlayerController::HandlePlayerDied()
+{
+    // 결과 수집: 생존 시간·처치 수·도달 웨이브 (서브시스템) + 레벨 (캐릭터)
+    float Survival = 0.f;
+    int32 Kills = 0;
+    int32 Wave = 1;
+    if (UWorld* World = GetWorld())
+    {
+        if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+        {
+            Survival = Diff->GetElapsedTime();
+            Kills    = Diff->GetKillCount();
+            Wave     = Diff->GetCurrentWaveNumber();
+        }
+    }
+
+    int32 Level = 1;
+    if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
+        Level = PC->CurrentLevel;
+
+    // 게임오버 위젯 생성 + 결과 전달 + 화면에 추가
+    if (GameOverWidgetClass)
+    {
+        UVSGameOverWidget* Widget = CreateWidget<UVSGameOverWidget>(this, GameOverWidgetClass);
+        if (Widget)
+        {
+            Widget->AddToViewport();
+            Widget->SetupResult(Survival, Kills, Level, Wave);
+        }
+    }
+
+    // 입력을 UI로 전환하고 게임 일시정지
+    bShowMouseCursor = true;
+    SetInputMode(FInputModeUIOnly());
+    SetPause(true);
+}
+
 void AVSPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -62,4 +101,7 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 			}
 		}
 	}
+
+	if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
+		PC->OnPlayerDied.AddUObject(this, &AVSPlayerController::HandlePlayerDied);
 }

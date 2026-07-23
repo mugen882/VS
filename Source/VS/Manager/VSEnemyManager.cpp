@@ -4,6 +4,7 @@
 #include "VSGemManager.h"
 #include "Character/VSCharacter.h"
 #include "Data/VSEnemyTypeData.h"
+#include "Subsystem/VSDifficultySubsystem.h"
 
 AVSEnemyManager::AVSEnemyManager()
 {
@@ -127,6 +128,13 @@ void AVSEnemyManager::KillEnemy(int32 Index)
     const FVector DeathLoc = Enemies[Index].Location;
     if (GemManager)
         GemManager->SpawnGem(DeathLoc, Enemies[Index].XPValue);   // 타입별 젬 가치
+
+    // 처치 수 통계 누적
+    if (UWorld* World = GetWorld())
+    {
+        if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+            Diff->AddKill();
+    }
 
     // 1. 배열을 swap-remove (마지막을 죽은 자리로, 마지막 제거)
     Enemies[Index] = Enemies[LastIndex];

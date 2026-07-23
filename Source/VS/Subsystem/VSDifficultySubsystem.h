@@ -5,9 +5,10 @@
 #include "Tickable.h"
 #include "VSDifficultySubsystem.generated.h"
 
-class UVSWaveData;
 struct FVSWaveEntry;
+class UVSWaveData;
 class AVSEnemyManager;
+class AVSCharacter;
 
 DECLARE_MULTICAST_DELEGATE(FOnRunCleared);
 
@@ -24,6 +25,17 @@ public:
 
     float GetElapsedTime() const { return ElapsedTime; }
 
+    // 처치 수 통계
+    void AddKill() { ++KillCount; }
+    int32 GetKillCount() const { return KillCount; }
+
+    // 도달 웨이브 (1-based, 결과 화면 표시용)
+    int32 GetCurrentWaveNumber() const { return CurrentWaveIndex + 1; }
+
+    void RegisterPlayerCharacter(AVSCharacter* InCharacter);
+    void SetUpgradeSelecting(bool bSelecting) { bUpgradeSelecting = bSelecting; }
+    void SetClearGame(bool bClear) { bClear = bGameClear; }
+
 public:
     FOnRunCleared OnRunCleared;
 
@@ -39,15 +51,24 @@ private:
     // ElapsedTime 기준으로 CurrentWaveIndex 갱신, 현재 웨이브 반환 (없으면 nullptr)
     const FVSWaveEntry* ResolveCurrentWave();
 
+    void HandlePlayerDied();
+
+    bool CanSpawn() const { return !bGameOver && !bUpgradeSelecting && !bGameClear; }
+
 private:
     float ElapsedTime = 0.f;
     int32 CurrentWaveIndex = 0;
     float SpawnAccumulator = 0.f;
+    int32 KillCount = 0;
 
     UPROPERTY()
     TObjectPtr<UVSWaveData> WaveData;   // 게임모드가 주입한 웨이브 정의
 
     TWeakObjectPtr<AVSEnemyManager> EnemyManager;
 
-    bool bRunCleared = false;
+    bool bGameOver = false;
+    bool bUpgradeSelecting = false;
+    bool bGameClear = false;
+
+    TWeakObjectPtr<AVSCharacter> PlayerCharacter;
 };

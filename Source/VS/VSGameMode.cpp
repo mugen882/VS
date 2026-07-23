@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "VSGameMode.h"
 #include "Character/VSPlayerController.h"
 #include "Character/VSCharacter.h"

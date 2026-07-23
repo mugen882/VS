@@ -23,6 +23,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MoveAction;
+
+	// 게임오버 시 띄울 위젯 클래스 (BP에서 지정)
+	UPROPERTY(EditAnywhere, Category="UI")
+	TSubclassOf<class UVSGameOverWidget> GameOverWidgetClass;
 	
 protected:
 	virtual void SetupInputComponent() override;
@@ -31,6 +35,9 @@ protected:
 	virtual void BeginPlay();
 
 	void Move(const FInputActionValue& Value);
+
+private:
+	void HandlePlayerDied();
 
 private:
 	FVector CachedDestination;

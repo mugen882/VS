@@ -5,6 +5,7 @@
 #include "Weapon/VSOrbitProjectile.h"
 #include "Manager/VSEnemyManager.h"
 #include "Character/VSStatModifiers.h"
+#include "Common/VSDefine.h"
 #include "VSWeaponComponent.generated.h"
 
 class AVSDrone;
@@ -36,31 +37,31 @@ struct FVSWeaponInstance
     UPROPERTY()
     TObjectPtr<UVSWeaponBehavior> Behavior = nullptr;
 
-    // 현재 레벨 기준 실제 스탯 계산
     float GetDamage(const FVSStatModifiers& Mods) const
     {
         const float Base = Data ? Data->BaseDamage + Data->DamagePerLevel * (Level - 1) : 0.f;
         return Base * (1.f + Mods.Get("GlobalDamage"));
     }
+
     float GetCooldown(const FVSStatModifiers& Mods) const
     {
         const float Base = Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
-        const float Reduced = Base * (1.f - Mods.Get("GlobalCooldown"));    // 감소니까 -
-        return FMath::Max(0.1f, Reduced);   // ← 최소 0.1초 보장
+        const float Reduced = Base * (1.f - Mods.Get("GlobalCooldown"));
+        return FMath::Max(MIN_COOLDOWN_TIME, Reduced);   // 최소 시간 보장
     }
 
     int32 GetProjectileCount() const
     {
         if (!Data) return 1;
         
-        return FMath::Min(Data->ProjectilesPerShot + (Level - 1), Data->DroneConfig.MaxProjCount); // 레벨당 발사 수
+        return FMath::Min(Data->ProjectilesPerShot + (Level - 1), Data->DroneConfig.MaxProjCount);
     }
 
     float GetShieldRadius() const
     {
         if (!Data) return 100.f;
 
-        return FMath::Min(Data->ShieldConfig.Radius + (Level - 1) * 50.f, Data->ShieldConfig.MaxRadius);  // 레벨당 +50
+        return FMath::Min(Data->ShieldConfig.Radius + (Level - 1) * ADD_SHIELD_RADIUS, Data->ShieldConfig.MaxRadius);
     }
 };
 

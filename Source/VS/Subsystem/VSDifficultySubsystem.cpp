@@ -2,14 +2,19 @@
 #include "Manager/VSEnemyManager.h"
 #include "Data/VSWaveData.h"
 #include "Kismet/GameplayStatics.h"
+#include "Character/VSCharacter.h"
 
 void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-    Super::Initialize(Collection);   // UWorldSubsystem 계통이라 Super 호출 OK
+    Super::Initialize(Collection);
 
     ElapsedTime = 0.f;
     SpawnAccumulator = 0.f;
     CurrentWaveIndex = 0;
+    KillCount = 0;
+    bGameOver = false;
+    bUpgradeSelecting = false;
+    bGameClear = false;
 }
 
 void UVSDifficultySubsystem::SetWaveData(UVSWaveData* InWaveData)
@@ -51,17 +56,14 @@ const FVSWaveEntry* UVSDifficultySubsystem::ResolveCurrentWave()
 
 void UVSDifficultySubsystem::Tick(float DeltaTime)
 {
-    if (bRunCleared)
-    {
-        return;
-    }
+    if (!CanSpawn()) return;
 
     ElapsedTime += DeltaTime;
 
     // 클리어 판정
     if (WaveData && ElapsedTime >= WaveData->TotalRunTime)
     {
-        bRunCleared = true;
+        bGameClear = true;
         OnRunCleared.Broadcast();
         return;
     }
@@ -91,4 +93,17 @@ TStatId UVSDifficultySubsystem::GetStatId() const
 bool UVSDifficultySubsystem::IsTickable() const
 {
     return !IsTemplate() && GetWorld() != nullptr && WaveData != nullptr;
+}
+
+void UVSDifficultySubsystem::HandlePlayerDied()
+{
+    bGameOver = true;
+}
+
+void UVSDifficultySubsystem::RegisterPlayerCharacter(AVSCharacter* InCharacter)
+{
+    if (!InCharacter) return;
+
+    PlayerCharacter = InCharacter;
+    InCharacter->OnPlayerDied.AddUObject(this, &UVSDifficultySubsystem::HandlePlayerDied);
 }

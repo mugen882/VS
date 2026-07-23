@@ -31,6 +31,7 @@ void UVSUpgradeCardWidget::SetupCard(UVSUpgradeData* InUpgrade)
             ButtonText->SetText(FText::FromString(strUpgrade));
             break;
 		case EVSUpgradeType::Passive:
+            ButtonText->SetText(FText::FromString(strUpgrade));
 			break;
 
         default:

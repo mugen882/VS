@@ -17,6 +17,7 @@
 #include "Blueprint/UserWidget.h"
 #include "UI/VSUpgradeSelectionWidget.h" 
 #include "Manager/VSGemManager.h"
+#include "Subsystem/VSDifficultySubsystem.h"
 
 AVSCharacter::AVSCharacter()
 {
@@ -64,7 +65,15 @@ void AVSCharacter::BeginPlay()
 	if (WeaponComp && StartingWeapon)
 	{
 		WeaponComp->AddWeapon(StartingWeapon);
-	}	
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Diff->RegisterPlayerCharacter(this);
+		}
+	}
 }
 
 void AVSCharacter::Tick(float DeltaSeconds)
@@ -108,8 +117,7 @@ void AVSCharacter::TakeDamageFromEnemy(float Damage)
 
 void AVSCharacter::OnPlayerDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PLAYER DIED - GAME OVER"));
-	// 게임오버 처리 (다음)
+	OnPlayerDied.Broadcast();
 }
 
 void AVSCharacter::AddPassive(FName StatName, float Value)
@@ -138,6 +146,8 @@ void AVSCharacter::ShowUpgradeSelection()
 	ActiveUpgradeWidget->AddToViewport();
 
 	UGameplayStatics::SetGamePaused(this, true); // 게임 정지
+	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
+		Diff->SetUpgradeSelecting(true);
 	// 마우스 입력 활성화
 	PC->SetShowMouseCursor(true);
 	PC->SetInputMode(FInputModeUIOnly());   // UI만 입력받기
@@ -163,6 +173,8 @@ void AVSCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 		PC->SetInputMode(FInputModeGameOnly());   // 다시 게임 입력
 	}
 	UGameplayStatics::SetGamePaused(this, false);
+	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
+		Diff->SetUpgradeSelecting(false);
 }
 
 void AVSCharacter::RecalculateStats()

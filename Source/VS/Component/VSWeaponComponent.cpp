@@ -3,7 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Weapon/VSProjectile.h"
 #include "Weapon/VSDrone.h"
-#include "Weapon/VSShieldArea.h"
+#include "Weapon/VSShieldAura.h"
 #include "Weapon/Behavior/VSWeaponBehavior.h"
 #include "Character/VSCharacter.h"
 

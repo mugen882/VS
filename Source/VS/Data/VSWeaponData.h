@@ -4,7 +4,7 @@
 #include "VSWeaponData.generated.h"
 
 class AVSOrbitProjectile;
-class AVSShieldArea;
+class AVSShieldAura;
 class AVSDrone;
 class AVSProjectile;
 class UVSWeaponBehavior;
@@ -55,7 +55,7 @@ struct FVSShieldConfig
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere) TSubclassOf<AVSShieldArea> ShieldClass;
+    UPROPERTY(EditAnywhere) TSubclassOf<AVSShieldAura> ShieldClass;
     UPROPERTY(EditAnywhere) float Radius = 300.f;
     UPROPERTY(EditAnywhere) float MaxRadius = 600.f;
 };

@@ -9,7 +9,7 @@
 #include "VSWeaponComponent.generated.h"
 
 class AVSDrone;
-class AVSShieldArea;
+class AVSShieldAura;
 
 USTRUCT()
 struct FVSWeaponInstance
@@ -29,7 +29,7 @@ struct FVSWeaponInstance
     TArray<TObjectPtr<AVSOrbitProjectile>> OrbitBalls;   // 이 무기의 구슬들
     // Orbit 무기용----------------------------------------------
 
-    TObjectPtr<AVSShieldArea> ShieldActor;
+    TObjectPtr<AVSShieldAura> ShieldActor;
 
     UPROPERTY()
     TObjectPtr<class AVSDrone> Drone;

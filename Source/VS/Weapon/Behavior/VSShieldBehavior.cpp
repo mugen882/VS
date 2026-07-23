@@ -1,5 +1,5 @@
 #include "Weapon/Behavior/VSShieldBehavior.h"
-#include "Weapon/VSShieldArea.h"
+#include "Weapon/VSShieldAura.h"
 #include "Character/VSCharacter.h"
 
 void UVSShieldBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
@@ -25,7 +25,7 @@ void UVSShieldBehavior::SpawnShield(UVSWeaponComponent* Comp, FVSWeaponInstance&
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.Data || !Weapon.Data->ShieldConfig.ShieldClass) return;
 
-    Weapon.ShieldActor = Comp->GetWorld()->SpawnActor<AVSShieldArea>(
+    Weapon.ShieldActor = Comp->GetWorld()->SpawnActor<AVSShieldAura>(
         Weapon.Data->ShieldConfig.ShieldClass,
         Comp->GetFloorLocation(),
         FRotator::ZeroRotator);

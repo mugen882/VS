@@ -4,21 +4,24 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
-#include "VSGameOverWidget.generated.h"
+#include "VSResultWidget.generated.h"
 
 /**
  * 게임오버 결과 화면.
   */
 UCLASS()
-class VS_API UVSGameOverWidget : public UUserWidget
+class VS_API UVSResultWidget : public UUserWidget
 {
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category="GameOver")
-    void SetupResult(float SurvivalSeconds, int32 KillCount, int32 ReachedLevel, int32 ReachedWave);
+    UFUNCTION(BlueprintCallable, Category="Result")
+    void SetupResult(bool bIsVictory, float SurvivalSeconds, int32 KillCount, int32 ReachedLevel, int32 ReachedWave);
 
 public:
+    UPROPERTY(meta=(BindWidget))
+    TObjectPtr<UTextBlock> TitleText;
+
     UPROPERTY(meta=(BindWidget))
     TObjectPtr<UTextBlock> SurvivalSecText;
 

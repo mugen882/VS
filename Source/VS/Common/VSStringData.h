@@ -6,3 +6,5 @@ const FText SurvivalSecFormat = FText::FromString(TEXT("생존시간 : {0}"));
 const FText KillCountFormat = FText::FromString(TEXT("KillCount : {0}"));
 const FText ReachedLevelFormat = FText::FromString(TEXT("레벨 : {0}"));
 const FText ReachedWaveFormat = FText::FromString(TEXT("웨이브 : {0}"));
+const FText VictoryTitle = FText::FromString(TEXT("YOU WIN"));
+const FText DefeatTitle = FText::FromString(TEXT("GAME OVER"));

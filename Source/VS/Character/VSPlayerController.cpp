@@ -11,7 +11,7 @@
 #include "Engine/LocalPlayer.h"
 #include "VSCharacter.h"
 #include "Subsystem/VSDifficultySubsystem.h"
-#include "UI/VSGameOverWidget.h"
+#include "UI/VSResultWidget.h"
 
 AVSPlayerController::AVSPlayerController()
 {
@@ -41,39 +41,44 @@ void AVSPlayerController::Move(const FInputActionValue& Value)
 
 void AVSPlayerController::HandlePlayerDied()
 {
-    // 결과 수집: 생존 시간·처치 수·도달 웨이브 (서브시스템) + 레벨 (캐릭터)
-    float Survival = 0.f;
-    int32 Kills = 0;
-    int32 Wave = 1;
-    if (UWorld* World = GetWorld())
-    {
-        if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
-        {
-            Survival = Diff->GetElapsedTime();
-            Kills    = Diff->GetKillCount();
-            Wave     = Diff->GetCurrentWaveNumber();
-        }
-    }
+	ShowResult(/*bIsVictory=*/false);
+}
 
-    int32 Level = 1;
-    if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
-        Level = PC->CurrentLevel;
+void AVSPlayerController::ShowResult(bool bIsVictory)
+{
+	// 결과 수집: 생존 시간·처치 수·도달 웨이브 (서브시스템) + 레벨 (캐릭터)
+	float Survival = 0.f;
+	int32 Kills = 0;
+	int32 Wave = 1;
+	if (UWorld* World = GetWorld())
+	{
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Survival = Diff->GetElapsedTime();
+			Kills = Diff->GetKillCount();
+			Wave = Diff->GetCurrentWaveNumber();
+		}
+	}
 
-    // 게임오버 위젯 생성 + 결과 전달 + 화면에 추가
-    if (GameOverWidgetClass)
-    {
-        UVSGameOverWidget* Widget = CreateWidget<UVSGameOverWidget>(this, GameOverWidgetClass);
-        if (Widget)
-        {
-            Widget->AddToViewport();
-            Widget->SetupResult(Survival, Kills, Level, Wave);
-        }
-    }
+	int32 Level = 1;
+	if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
+		Level = PC->CurrentLevel;
 
-    // 입력을 UI로 전환하고 게임 일시정지
-    bShowMouseCursor = true;
-    SetInputMode(FInputModeUIOnly());
-    SetPause(true);
+	// 결과 위젯 생성 + 결과 전달 (승/패 구분) + 화면에 추가
+	if (ResultWidgetClass)
+	{
+		UVSResultWidget* Widget = CreateWidget<UVSResultWidget>(this, ResultWidgetClass);
+		if (Widget)
+		{
+			Widget->AddToViewport();
+			Widget->SetupResult(bIsVictory, Survival, Kills, Level, Wave);
+		}
+	}
+
+	// 입력을 UI로 전환하고 게임 일시정지
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeUIOnly());
+	SetPause(true);
 }
 
 void AVSPlayerController::SetupInputComponent()

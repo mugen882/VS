@@ -23,15 +23,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="Wave")
 	TObjectPtr<UVSWaveData> WaveData;
 
-	UPROPERTY(EditDefaultsOnly, Category="UI")
-	TSubclassOf<UUserWidget> ResultWidgetClass;
-
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	void HandleRunCleared();
 };
-
-
-

@@ -36,20 +36,11 @@ void AVSGameMode::BeginPlay()
 	{
 		Diff->SetWaveData(WaveData);
 		Diff->OnRunCleared.AddUObject(this, &AVSGameMode::HandleRunCleared);
-	}	
+	}
 }
 
 void AVSGameMode::HandleRunCleared()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GAME CLEAR!!!"));
-
-	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
-	if (!PC) return;
-
-	if (UUserWidget* ResultWidget = CreateWidget<UUserWidget>(PC, ResultWidgetClass))
-	{
-		ResultWidget->AddToViewport();
-	}
-
-	UGameplayStatics::SetGamePaused(this, true);
+	if (AVSPlayerController* PC = Cast<AVSPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+		PC->ShowResult(/*bIsVictory=*/true);
 }

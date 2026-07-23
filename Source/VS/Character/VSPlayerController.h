@@ -24,9 +24,12 @@ public:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MoveAction;
 
-	// 게임오버 시 띄울 위젯 클래스 (BP에서 지정)
+	// 게임오버/클리어 공용 결과 위젯 클래스 (BP에서 지정)
 	UPROPERTY(EditAnywhere, Category="UI")
-	TSubclassOf<class UVSGameOverWidget> GameOverWidgetClass;
+	TSubclassOf<class UVSResultWidget> ResultWidgetClass;
+
+	// 결과 화면 표시 (게임오버·클리어 공용). bIsVictory로 승/패 구분
+	void ShowResult(bool bIsVictory);
 	
 protected:
 	virtual void SetupInputComponent() override;
@@ -42,5 +45,3 @@ private:
 private:
 	FVector CachedDestination;
 };
-
-

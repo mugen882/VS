@@ -1,23 +1,20 @@
 #include "VSPlayerController.h"
 #include "GameFramework/Pawn.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "NiagaraSystem.h"
-#include "NiagaraFunctionLibrary.h"
 #include "VSCharacter.h"
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
-#include "VSCharacter.h"
 #include "Subsystem/VSDifficultySubsystem.h"
 #include "UI/VSResultWidget.h"
+#include "UI/VSHUDWidget.h"
+#include "ViewModel/VSHUDViewModel.h"
 
 AVSPlayerController::AVSPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
-	CachedDestination = FVector::ZeroVector;
 }
 
 void AVSPlayerController::BeginPlay()
@@ -67,11 +64,13 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 	// 결과 위젯 생성 + 결과 전달 (승/패 구분) + 화면에 추가
 	if (ResultWidgetClass)
 	{
-		UVSResultWidget* Widget = CreateWidget<UVSResultWidget>(this, ResultWidgetClass);
-		if (Widget)
+		if (UClass* LoadedResultWidgetClass = ResultWidgetClass.LoadSynchronous())
 		{
-			Widget->AddToViewport();
-			Widget->SetupResult(bIsVictory, Survival, Kills, Level, Wave);
+			if (UVSResultWidget* Widget = CreateWidget<UVSResultWidget>(this, LoadedResultWidgetClass))
+			{
+				Widget->AddToViewport();
+				Widget->SetupResult(bIsVictory, Survival, Kills, Level, Wave);
+			}
 		}
 	}
 
@@ -109,4 +108,29 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 
 	if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
 		PC->OnPlayerDied.AddUObject(this, &AVSPlayerController::HandlePlayerDied);
+
+	SetupHUD();
+}
+
+void AVSPlayerController::SetupHUD()
+{
+	AVSCharacter* PC = Cast<AVSCharacter>(GetPawn());
+	if (!PC || !HUDWidgetClass) return;
+
+	UVSDifficultySubsystem* Diff = nullptr;
+	if (UWorld* World = GetWorld())
+		Diff = World->GetSubsystem<UVSDifficultySubsystem>();
+
+	HUDViewModel = NewObject<UVSHUDViewModel>(this);
+	HUDViewModel->BindModels(PC, Diff);
+
+	if (UClass* LoadedHUDWidgetClass = HUDWidgetClass.LoadSynchronous())
+	{
+		HUDWidget = CreateWidget<UVSHUDWidget>(this, LoadedHUDWidgetClass);
+		if (HUDWidget)
+		{
+			HUDWidget->SetViewModel(HUDViewModel);
+			HUDWidget->AddToViewport();
+		}
+	}
 }

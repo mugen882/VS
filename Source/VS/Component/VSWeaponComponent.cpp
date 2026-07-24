@@ -54,19 +54,18 @@ const FVSStatModifiers& UVSWeaponComponent::GetStatMods() const
 
 void UVSWeaponComponent::AddWeapon(UVSWeaponData* WeaponData)
 {
+    if (!WeaponData) return;
+
     FVSWeaponInstance W;
     W.Data = WeaponData;
     W.Level = 1;
     if (WeaponData->BehaviorClass)
         W.Behavior = NewObject<UVSWeaponBehavior>(this, WeaponData->BehaviorClass);
-    if (W.Behavior) W.Behavior->OnAdded(this, W);
-    Weapons.Add(W);
-}
 
-void UVSWeaponComponent::UpgradeWeapon(int32 WeaponIndex)
-{
-    if (Weapons.IsValidIndex(WeaponIndex))
-        Weapons[WeaponIndex].Level++;
+    const int32 Index = Weapons.Add(MoveTemp(W));
+    FVSWeaponInstance& Added = Weapons[Index];
+    if (Added.Behavior)
+        Added.Behavior->OnAdded(this, Added);
 }
 
 bool UVSWeaponComponent::UpgradeWeaponByData(UVSWeaponData* WeaponData)

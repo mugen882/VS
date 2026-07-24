@@ -11,6 +11,9 @@ class AVSEnemyManager;
 class AVSCharacter;
 
 DECLARE_MULTICAST_DELEGATE(FOnRunCleared);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnKillCountChanged, int32);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTimeChanged, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTotalRunTimeChanged, float);
 
 UCLASS()
 class UVSDifficultySubsystem : public UWorldSubsystem, public FTickableGameObject
@@ -26,18 +29,23 @@ public:
     float GetElapsedTime() const { return ElapsedTime; }
 
     // 처치 수 통계
-    void AddKill() { ++KillCount; }
+    void AddKill();
     int32 GetKillCount() const { return KillCount; }
 
     // 도달 웨이브 (1-based, 결과 화면 표시용)
     int32 GetCurrentWaveNumber() const { return CurrentWaveIndex + 1; }
 
+    // 목표 생존 시간 (HUD 진행바 계산용)
+    float GetTotalRunTime() const;
+
     void RegisterPlayerCharacter(AVSCharacter* InCharacter);
     void SetUpgradeSelecting(bool bSelecting) { bUpgradeSelecting = bSelecting; }
-    void SetClearGame(bool bClear) { bClear = bGameClear; }
 
 public:
     FOnRunCleared OnRunCleared;
+    FOnKillCountChanged OnKillCountChanged;
+    FOnTimeChanged OnTimeChanged;
+    FOnTotalRunTimeChanged OnTotalRuntimeChanged;
 
 protected:
     // FTickableGameObject

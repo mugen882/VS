@@ -1,4 +1,3 @@
-#include "VSOrbitProjectile.h"
 #include "Weapon/VSOrbitProjectile.h"
 
 AVSOrbitProjectile::AVSOrbitProjectile()

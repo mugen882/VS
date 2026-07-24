@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Data/VSWaveData.h"
-#include "Blueprint/UserWidget.h"
 #include "VSGameMode.generated.h"
 
 class AVSEnemyManager;

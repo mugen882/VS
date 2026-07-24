@@ -20,6 +20,19 @@ void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UVSDifficultySubsystem::SetWaveData(UVSWaveData* InWaveData)
 {
     WaveData = InWaveData;
+
+    OnTotalRuntimeChanged.Broadcast(GetTotalRunTime());
+}
+
+void UVSDifficultySubsystem::AddKill()
+{
+    ++KillCount;
+    OnKillCountChanged.Broadcast(KillCount);
+}
+
+float UVSDifficultySubsystem::GetTotalRunTime() const
+{
+    return WaveData ? WaveData->TotalRunTime : 0.f;
 }
 
 AVSEnemyManager* UVSDifficultySubsystem::GetEnemyManager()
@@ -59,6 +72,7 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
     if (!CanSpawn()) return;
 
     ElapsedTime += DeltaTime;
+    OnTimeChanged.Broadcast(ElapsedTime);
 
     // 클리어 판정
     if (WaveData && ElapsedTime >= WaveData->TotalRunTime)

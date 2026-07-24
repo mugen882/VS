@@ -21,6 +21,8 @@ void AVSProjectile::BeginPlay()
     {
         MeshComp->SetRelativeScale3D(FVector(MeshScale));
     }
+
+    SetLifeSpan(LifeSpanSeconds);
 }
 
 void AVSProjectile::Tick(float DeltaTime)

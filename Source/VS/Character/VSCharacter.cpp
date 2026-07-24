@@ -43,7 +43,7 @@ AVSCharacter::AVSCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false;
 
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	WeaponComp = CreateDefaultSubobject<UVSWeaponComponent>(TEXT("WeaponComp"));
@@ -76,16 +76,13 @@ void AVSCharacter::BeginPlay()
 	}
 }
 
-void AVSCharacter::Tick(float DeltaSeconds)
-{
-    Super::Tick(DeltaSeconds);
-}
-
 void AVSCharacter::LevelUp()
 {
 	CurrentLevel++;
 	XPToNextLevel = FMath::RoundToInt(XPToNextLevel * 1.2f);
 	UE_LOG(LogTemp, Warning, TEXT("LEVEL UP! Level=%d"), CurrentLevel);
+
+	OnLevelChanged.Broadcast(CurrentLevel);
 
 	ShowUpgradeSelection();
 }
@@ -100,6 +97,10 @@ void AVSCharacter::AddXP(int32 Amount)
 		CurrentXP -= XPToNextLevel;
 		LevelUp();
 	} 
+
+	// XP 비율 갱신 방송
+	const int32 Need = XPToNextLevel > 0 ? XPToNextLevel : 1;
+	OnXPChanged.Broadcast((float)CurrentXP / (float)Need);
 }
 
 void AVSCharacter::TakeDamageFromEnemy(float Damage)
@@ -107,6 +108,10 @@ void AVSCharacter::TakeDamageFromEnemy(float Damage)
 	if (bIsDead) return;
 
 	CurrentHealth -= Damage;
+
+	const float MaxHP = MaxHealth > 0.f ? MaxHealth : 1.f;
+	OnHealthChanged.Broadcast(FMath::Clamp(CurrentHealth / MaxHP, 0.f, 1.f));
+
 	if (CurrentHealth <= 0.f)
 	{
 		CurrentHealth = 0.f;

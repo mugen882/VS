@@ -48,19 +48,9 @@ public:
     // 지정한 타입의 적 1마리를 링 영역에 스폰 (난이도 서브시스템이 호출)
     void SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult = 1.f);
 
-    // 서브시스템이 웨이브 데이터 없이 임시로 스폰할 때 쓸 기본 타입
-    const UVSEnemyTypeData* GetDefaultEnemyType() const { return DefaultEnemyType; }
-
 public:
     UPROPERTY(VisibleAnywhere)
     UInstancedStaticMeshComponent* ISM;
-
-    // 웨이브 시스템이 붙기 전까지 임시로 사용하는 기본 적 타입
-    UPROPERTY(EditAnywhere, Category="Enemy")
-    TObjectPtr<UVSEnemyTypeData> DefaultEnemyType;
-
-    UPROPERTY(EditAnywhere)
-    float SpawnRadius = 2000.f;
 
 protected:
     virtual void BeginPlay() override;

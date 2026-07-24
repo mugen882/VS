@@ -8,19 +8,19 @@
 
 AVSGameMode::AVSGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Blueprints/BP_PlayerCharacter"));
-	if (PlayerPawnBPClass.Class != nullptr)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Blueprints/BP_PlayerCharacter"));
+	//if (PlayerPawnBPClass.Class != nullptr)
+	//{
+	//	DefaultPawnClass = PlayerPawnBPClass.Class;
+	//}
 
-	PlayerControllerClass = AVSPlayerController::StaticClass();
+	//PlayerControllerClass = AVSPlayerController::StaticClass();
 
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/Characters/Blueprints/BP_PlayerController"));
-	if (PlayerControllerBPClass.Succeeded())
-	{
-		PlayerControllerClass = PlayerControllerBPClass.Class;
-	}
+	//static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/Characters/Blueprints/BP_PlayerController"));
+	//if (PlayerControllerBPClass.Succeeded())
+	//{
+	//	PlayerControllerClass = PlayerControllerBPClass.Class;
+	//}
 }
 
 void AVSGameMode::BeginPlay()

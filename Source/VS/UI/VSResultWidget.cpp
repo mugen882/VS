@@ -3,7 +3,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Subsystem/VSDifficultySubsystem.h"
-#include "Common/VSStringData.h"
 
 void UVSResultWidget::NativeConstruct()
 {

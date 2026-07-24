@@ -6,7 +6,6 @@
 #include "InputActionValue.h"
 #include "VSPlayerController.generated.h"
 
-class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 
@@ -26,7 +25,11 @@ public:
 
 	// 게임오버/클리어 공용 결과 위젯 클래스 (BP에서 지정)
 	UPROPERTY(EditAnywhere, Category="UI")
-	TSubclassOf<class UVSResultWidget> ResultWidgetClass;
+	TSoftClassPtr<class UVSResultWidget> ResultWidgetClass;
+
+	// 인게임 HUD 위젯 클래스 (BP에서 지정)
+	UPROPERTY(EditAnywhere, Category="UI")
+	TSoftClassPtr<class UVSHUDWidget> HUDWidgetClass;
 
 	// 결과 화면 표시 (게임오버·클리어 공용). bIsVictory로 승/패 구분
 	void ShowResult(bool bIsVictory);
@@ -42,6 +45,13 @@ protected:
 private:
 	void HandlePlayerDied();
 
+	// 뷰모델 생성 → Model 연결 → HUD 위젯에 주입
+	void SetupHUD();
+
 private:
-	FVector CachedDestination;
+	UPROPERTY()
+	TObjectPtr<class UVSHUDWidget> HUDWidget;
+
+	UPROPERTY()
+	TObjectPtr<class UVSHUDViewModel> HUDViewModel;
 };

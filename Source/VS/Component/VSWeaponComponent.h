@@ -29,10 +29,11 @@ struct FVSWeaponInstance
     TArray<TObjectPtr<AVSOrbitProjectile>> OrbitBalls;   // 이 무기의 구슬들
     // Orbit 무기용----------------------------------------------
 
+    UPROPERTY()
     TObjectPtr<AVSShieldAura> ShieldActor;
 
     UPROPERTY()
-    TObjectPtr<class AVSDrone> Drone;
+    TObjectPtr<AVSDrone> Drone;
 
     UPROPERTY()
     TObjectPtr<UVSWeaponBehavior> Behavior = nullptr;
@@ -73,7 +74,6 @@ public:
     UVSWeaponComponent();
 
     void AddWeapon(UVSWeaponData* WeaponData);     // 새 무기 획득
-    void UpgradeWeapon(int32 WeaponIndex);         // 기존 무기 강화
     const TArray<FVSWeaponInstance>& GetWeapons() const { return Weapons; }
     bool UpgradeWeaponByData(UVSWeaponData* WeaponData);
     bool HasWeapon(UVSWeaponData* WeaponData) const;

@@ -18,6 +18,9 @@ class UVSUpgradeData;
 class AVSGemManager;
 
 DECLARE_MULTICAST_DELEGATE(FOnPlayerDied);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);   // 체력 비율 0~1
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnXPChanged, float);       // XP 비율 0~1
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelChanged, int32);    // 새 레벨
 
 UCLASS(Blueprintable)
 class VS_API AVSCharacter : public ACharacter
@@ -57,23 +60,16 @@ public:
     float MaxHealth = 100.f;
 
 	FOnPlayerDied OnPlayerDied;
+	FOnHealthChanged OnHealthChanged;
+	FOnXPChanged OnXPChanged;
+	FOnLevelChanged OnLevelChanged;
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 
 	void LevelUp();
 
 protected:
-    UPROPERTY(EditAnywhere, Category="Combat")
-    float FireInterval = 0.5f;      // 발사 주기(초)
-
-    UPROPERTY(EditAnywhere, Category="Combat")
-    float AttackRange = 1500.f;     // 사거리
-
-    UPROPERTY(EditAnywhere, Category="Combat")
-    TSubclassOf<class AVSProjectile> ProjectileClass;
-
 	UPROPERTY(VisibleAnywhere)
 	UVSWeaponComponent* WeaponComp;
 
@@ -101,8 +97,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
-    float FireTimer = 0.f;
-
+	UPROPERTY()
 	TObjectPtr<AVSEnemyManager> EnemyManager;
 
 	UPROPERTY()

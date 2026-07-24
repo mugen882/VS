@@ -41,13 +41,13 @@ struct FVSWeaponInstance
     float GetDamage(const FVSStatModifiers& Mods) const
     {
         const float Base = Data ? Data->BaseDamage + Data->DamagePerLevel * (Level - 1) : 0.f;
-        return Base * (1.f + Mods.Get("GlobalDamage"));
+        return Base * (1.f + Mods.Get(EVSStatType::GlobalDamage));
     }
 
     float GetCooldown(const FVSStatModifiers& Mods) const
     {
         const float Base = Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
-        const float Reduced = Base * (1.f - Mods.Get("GlobalCooldown"));
+        const float Reduced = Base * (1.f - Mods.Get(EVSStatType::GlobalCooldown));
         return FMath::Max(MIN_COOLDOWN_TIME, Reduced);   // 최소 시간 보장
     }
 

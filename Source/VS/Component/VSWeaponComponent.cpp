@@ -71,19 +71,28 @@ void UVSWeaponComponent::AddWeapon(UVSWeaponData* WeaponData)
 bool UVSWeaponComponent::UpgradeWeaponByData(UVSWeaponData* WeaponData)
 {
     for (FVSWeaponInstance& W : Weapons)
+    {
         if (W.Data == WeaponData)
         {
             W.Level++;
             if (W.Behavior) W.Behavior->OnUpgraded(this, W);
             return true;
         }
+    }
+        
     return false;
 }
 
 bool UVSWeaponComponent::HasWeapon(UVSWeaponData* WeaponData) const
 {
     for (const FVSWeaponInstance& W : Weapons)
-        if (W.Data == WeaponData) return true;
+    {
+        if (W.Data == WeaponData)
+        {
+            return true;
+        }
+    }
+        
     return false;
 }
 

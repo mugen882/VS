@@ -65,9 +65,9 @@ void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)
         break;
 
     case EVSUpgradeType::Passive:
-        Player->AddPassive(Upgrade->PassiveStatName, Upgrade->PassiveValue);
+        Player->AddPassive(Upgrade->PassiveStat, Upgrade->PassiveValue);
         UE_LOG(VSLog, Warning, TEXT("Upgrade: Passive %s +%.2f"),
-            *Upgrade->PassiveStatName.ToString(), Upgrade->PassiveValue);
+            *UEnum::GetValueAsString(Upgrade->PassiveStat), Upgrade->PassiveValue);
         break;
     }
 }

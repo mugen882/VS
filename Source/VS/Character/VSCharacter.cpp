@@ -125,9 +125,9 @@ void AVSCharacter::OnPlayerDeath()
 	OnPlayerDied.Broadcast();
 }
 
-void AVSCharacter::AddPassive(FName StatName, float Value)
+void AVSCharacter::AddPassive(EVSStatType StatType, float Value)
 {
-	StatMods.Add(StatName, Value);
+	StatMods.Add(StatType, Value);
 	RecalculateStats();   // 누적 후 재계산
 }
 
@@ -186,15 +186,15 @@ void AVSCharacter::RecalculateStats()
 {
 	// 플레이어 스탯: base × (1 + 누적배율)
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())
-		Move->MaxWalkSpeed = BaseMoveSpeed * (1.f + StatMods.Get("MoveSpeed"));
+		Move->MaxWalkSpeed = BaseMoveSpeed * (1.f + StatMods.Get(EVSStatType::MoveSpeed));
 
 	// 늘어난 최대치만큼 현재 체력도 더해줌(증가분 회복)
 	const float OldMax = MaxHealth;
-	MaxHealth = BaseMaxHealth * (1.f + StatMods.Get("MaxHealth"));
+	MaxHealth = BaseMaxHealth * (1.f + StatMods.Get(EVSStatType::MaxHealth));
 	CurrentHealth += (MaxHealth - OldMax);
 	CurrentHealth = FMath::Min(CurrentHealth, MaxHealth);
 
 	// 픽업범위
 	if (GemManager)
-		GemManager->SetMagnetRangeMult(1.f + StatMods.Get("PickupRange"));
+		GemManager->SetMagnetRangeMult(1.f + StatMods.Get(EVSStatType::PickupRange));
 }

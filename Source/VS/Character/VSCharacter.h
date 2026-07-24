@@ -40,7 +40,7 @@ public:
 
 	bool IsDead() const { return bIsDead; }
 
-	void AddPassive(FName StatName, float Value);
+	void AddPassive(EVSStatType StatType, float Value);
 	const FVSStatModifiers& GetStatMods() const { return StatMods; }
 
 public:

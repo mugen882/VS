@@ -1,7 +1,7 @@
 #include "VSUpgradeComponent.h"
 #include "Data/VSUpgradeData.h"
 #include "VSWeaponComponent.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 #include "Common/VSLog.h"
 
 TArray<UVSUpgradeData*> UVSUpgradeComponent::RollUpgrades()
@@ -9,7 +9,7 @@ TArray<UVSUpgradeData*> UVSUpgradeComponent::RollUpgrades()
     TArray<UVSUpgradeData*> Result;
     TArray<UVSUpgradeData*> Pool;
 
-    AVSCharacter* Player = Cast<AVSCharacter>(GetOwner());
+    AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOwner());
     UVSWeaponComponent* WC = Player ? Player->GetWeaponComponent() : nullptr;
 
     for (UVSUpgradeData* U : AllUpgrades)
@@ -44,7 +44,7 @@ void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)
 {
     if (!Upgrade) return;
 
-    AVSCharacter* Player = Cast<AVSCharacter>(GetOwner());
+    AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOwner());
     if (!Player) return;
 
     UVSWeaponComponent* WeaponComp = Player->GetWeaponComponent();

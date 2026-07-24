@@ -1,6 +1,6 @@
 #include "Weapon/Behavior/VSMultiShotBehavior.h"
 #include "Weapon/VSProjectile.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 void UVSMultiShotBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)
 {

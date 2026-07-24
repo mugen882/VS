@@ -5,7 +5,7 @@
 #include "Weapon/VSDrone.h"
 #include "Weapon/VSShieldAura.h"
 #include "Weapon/Behavior/VSWeaponBehavior.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 UVSWeaponComponent::UVSWeaponComponent()
 {
@@ -45,7 +45,7 @@ FVector UVSWeaponComponent::GetFloorLocation() const
 
 const FVSStatModifiers& UVSWeaponComponent::GetStatMods() const
 {
-    if (AVSCharacter* PC = Cast<AVSCharacter>(GetOwner()))
+    if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetOwner()))
         return PC->GetStatMods();
 
     static const FVSStatModifiers Empty;

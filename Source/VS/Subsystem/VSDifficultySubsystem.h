@@ -8,7 +8,7 @@
 struct FVSWaveEntry;
 class UVSWaveData;
 class AVSEnemyManager;
-class AVSCharacter;
+class AVSPlayerCharacter;
 
 DECLARE_MULTICAST_DELEGATE(FOnRunCleared);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnKillCountChanged, int32);
@@ -38,7 +38,7 @@ public:
     // 목표 생존 시간 (HUD 진행바 계산용)
     float GetTotalRunTime() const;
 
-    void RegisterPlayerCharacter(AVSCharacter* InCharacter);
+    void RegisterPlayerCharacter(AVSPlayerCharacter* InCharacter);
     void SetUpgradeSelecting(bool bSelecting) { bUpgradeSelecting = bSelecting; }
 
 public:
@@ -78,5 +78,5 @@ private:
     bool bUpgradeSelecting = false;
     bool bGameClear = false;
 
-    TWeakObjectPtr<AVSCharacter> PlayerCharacter;
+    TWeakObjectPtr<AVSPlayerCharacter> PlayerCharacter;
 };

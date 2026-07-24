@@ -4,7 +4,7 @@
 #include "MVVMViewModelBase.h"
 #include "VSHUDViewModel.generated.h"
 
-class AVSCharacter;
+class AVSPlayerCharacter;
 class UVSDifficultySubsystem;
 
 /**
@@ -18,7 +18,7 @@ class UVSHUDViewModel : public UMVVMViewModelBase
 
 public:
     // Model들과 연결 (컨트롤러가 호출): 초기값 세팅 + 델리게이트 구독
-    void BindModels(AVSCharacter* InCharacter, UVSDifficultySubsystem* InDifficulty);
+    void BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultySubsystem* InDifficulty);
 
     // --- FieldNotify 프로퍼티 (뷰가 바인딩) ---
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)

@@ -1,5 +1,5 @@
 #include "Weapon/Behavior/VSOrbitBehavior.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 UVSOrbitBehavior::UVSOrbitBehavior()
 {

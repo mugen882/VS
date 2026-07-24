@@ -1,6 +1,6 @@
 #include "VSPlayerController.h"
 #include "GameFramework/Pawn.h"
-#include "VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
@@ -24,7 +24,7 @@ void AVSPlayerController::BeginPlay()
 
 void AVSPlayerController::Move(const FInputActionValue& Value)
 {
-	AVSCharacter* VSChar = Cast<AVSCharacter>(GetPawn());
+	AVSPlayerCharacter* VSChar = Cast<AVSPlayerCharacter>(GetPawn());
 	if (VSChar == nullptr) return;
 
 	const FVector2D MovementVector = Value.Get<FVector2D>();
@@ -58,7 +58,7 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 	}
 
 	int32 Level = 1;
-	if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
+	if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn()))
 		Level = PC->CurrentLevel;
 
 	// 결과 위젯 생성 + 결과 전달 (승/패 구분) + 화면에 추가
@@ -106,7 +106,7 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 		}
 	}
 
-	if (AVSCharacter* PC = Cast<AVSCharacter>(GetPawn()))
+	if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn()))
 		PC->OnPlayerDied.AddUObject(this, &AVSPlayerController::HandlePlayerDied);
 
 	SetupHUD();
@@ -114,7 +114,7 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 
 void AVSPlayerController::SetupHUD()
 {
-	AVSCharacter* PC = Cast<AVSCharacter>(GetPawn());
+	AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn());
 	if (!PC || !HUDWidgetClass) return;
 
 	UVSDifficultySubsystem* Diff = nullptr;

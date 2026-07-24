@@ -1,6 +1,6 @@
 #include "Weapon/Behavior/VSNearestBehavior.h"
 #include "Weapon/VSProjectile.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 void UVSNearestBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)
 {

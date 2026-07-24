@@ -2,7 +2,7 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "VSGemManager.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 #include "Data/VSEnemyTypeData.h"
 #include "Subsystem/VSDifficultySubsystem.h"
 
@@ -163,7 +163,7 @@ void AVSEnemyManager::KillEnemy(int32 Index)
 void AVSEnemyManager::UpdateEnemies(float DeltaTime)
 {
     // 플레이어 위치
-    AVSCharacter* Player = Cast<AVSCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+    AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
     if (!Player) return;
     const FVector PlayerLoc = Player->GetActorLocation();
 

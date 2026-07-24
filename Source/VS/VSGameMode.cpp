@@ -1,6 +1,6 @@
 #include "VSGameMode.h"
 #include "Character/VSPlayerController.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Manager/VSEnemyManager.h"
 #include "Subsystem/VSDifficultySubsystem.h"

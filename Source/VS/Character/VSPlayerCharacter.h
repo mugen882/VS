@@ -5,7 +5,7 @@
 #include "InputActionValue.h"
 #include "Weapon/VSProjectile.h"
 #include "Character/VSStatModifiers.h"
-#include "VSCharacter.generated.h"
+#include "VSPlayerCharacter.generated.h"
 
 class UInputAction;
 class UInputMappingContext;
@@ -23,12 +23,12 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnXPChanged, float);       // XP 비율 0~1
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelChanged, int32);    // 새 레벨
 
 UCLASS(Blueprintable)
-class VS_API AVSCharacter : public ACharacter
+class VS_API AVSPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	AVSCharacter();
+	AVSPlayerCharacter();
 
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

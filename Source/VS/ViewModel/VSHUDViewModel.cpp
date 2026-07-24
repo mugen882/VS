@@ -1,8 +1,8 @@
 #include "ViewModel/VSHUDViewModel.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 #include "Subsystem/VSDifficultySubsystem.h"
 
-void UVSHUDViewModel::BindModels(AVSCharacter* InCharacter, UVSDifficultySubsystem* InDifficulty)
+void UVSHUDViewModel::BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultySubsystem* InDifficulty)
 {
     if (InCharacter)
     {

@@ -1,4 +1,4 @@
-#include "VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -19,7 +19,7 @@
 #include "Manager/VSGemManager.h"
 #include "Subsystem/VSDifficultySubsystem.h"
 
-AVSCharacter::AVSCharacter()
+AVSPlayerCharacter::AVSPlayerCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -50,7 +50,7 @@ AVSCharacter::AVSCharacter()
 	UpgradeComp = CreateDefaultSubobject<UVSUpgradeComponent>(TEXT("UpgradeComp"));
 }
 
-void AVSCharacter::BeginPlay()
+void AVSPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -76,7 +76,7 @@ void AVSCharacter::BeginPlay()
 	}
 }
 
-void AVSCharacter::LevelUp()
+void AVSPlayerCharacter::LevelUp()
 {
 	CurrentLevel++;
 	XPToNextLevel = FMath::RoundToInt(XPToNextLevel * 1.2f);
@@ -87,7 +87,7 @@ void AVSCharacter::LevelUp()
 	ShowUpgradeSelection();
 }
 
-void AVSCharacter::AddXP(int32 Amount)
+void AVSPlayerCharacter::AddXP(int32 Amount)
 {
 	CurrentXP += Amount;
 	
@@ -103,7 +103,7 @@ void AVSCharacter::AddXP(int32 Amount)
 	OnXPChanged.Broadcast((float)CurrentXP / (float)Need);
 }
 
-void AVSCharacter::TakeDamageFromEnemy(float Damage)
+void AVSPlayerCharacter::TakeDamageFromEnemy(float Damage)
 {
 	if (bIsDead) return;
 
@@ -120,18 +120,18 @@ void AVSCharacter::TakeDamageFromEnemy(float Damage)
 	}
 }
 
-void AVSCharacter::OnPlayerDeath()
+void AVSPlayerCharacter::OnPlayerDeath()
 {
 	OnPlayerDied.Broadcast();
 }
 
-void AVSCharacter::AddPassive(EVSStatType StatType, float Value)
+void AVSPlayerCharacter::AddPassive(EVSStatType StatType, float Value)
 {
 	StatMods.Add(StatType, Value);
 	RecalculateStats();   // 누적 후 재계산
 }
 
-void AVSCharacter::ShowUpgradeSelection()
+void AVSPlayerCharacter::ShowUpgradeSelection()
 {
 	if (!UpgradeSelectionWidgetClass || !UpgradeComp) return;
 
@@ -147,7 +147,7 @@ void AVSCharacter::ShowUpgradeSelection()
 	if (!ActiveUpgradeWidget) return;
 
 	ActiveUpgradeWidget->SetupChoices(Choices);
-	ActiveUpgradeWidget->OnUpgradeChosen.AddDynamic(this, &AVSCharacter::OnUpgradeChosen);
+	ActiveUpgradeWidget->OnUpgradeChosen.AddDynamic(this, &AVSPlayerCharacter::OnUpgradeChosen);
 	ActiveUpgradeWidget->AddToViewport();
 
 	UGameplayStatics::SetGamePaused(this, true); // 게임 정지
@@ -158,7 +158,7 @@ void AVSCharacter::ShowUpgradeSelection()
 	PC->SetInputMode(FInputModeUIOnly());   // UI만 입력받기
 }
 
-void AVSCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
+void AVSPlayerCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 {
 	// 선택한 업그레이드 적용
 	if (UpgradeComp)
@@ -182,7 +182,7 @@ void AVSCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 		Diff->SetUpgradeSelecting(false);
 }
 
-void AVSCharacter::RecalculateStats()
+void AVSPlayerCharacter::RecalculateStats()
 {
 	// 플레이어 스탯: base × (1 + 누적배율)
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())

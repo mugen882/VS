@@ -2,7 +2,7 @@
 #include "Manager/VSEnemyManager.h"
 #include "Data/VSWaveData.h"
 #include "Kismet/GameplayStatics.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -114,7 +114,7 @@ void UVSDifficultySubsystem::HandlePlayerDied()
     bGameOver = true;
 }
 
-void UVSDifficultySubsystem::RegisterPlayerCharacter(AVSCharacter* InCharacter)
+void UVSDifficultySubsystem::RegisterPlayerCharacter(AVSPlayerCharacter* InCharacter)
 {
     if (!InCharacter) return;
 

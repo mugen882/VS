@@ -1,7 +1,7 @@
 #include "VSGemManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/InstancedStaticMeshComponent.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 AVSGemManager::AVSGemManager()
 {
@@ -104,7 +104,7 @@ void AVSGemManager::UpdateGems(float DeltaTime)
             if (DistSq < CollectRange * CollectRange)
             {
                 APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
-                if (AVSCharacter* PC = Cast<AVSCharacter>(PlayerPawn))
+                if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(PlayerPawn))
                 {
                     PC->AddXP(Gems[i].XPValue);
                 }

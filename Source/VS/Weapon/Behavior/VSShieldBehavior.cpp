@@ -1,6 +1,6 @@
 #include "Weapon/Behavior/VSShieldBehavior.h"
 #include "Weapon/VSShieldAura.h"
-#include "Character/VSCharacter.h"
+#include "Character/VSPlayerCharacter.h"
 
 void UVSShieldBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 {

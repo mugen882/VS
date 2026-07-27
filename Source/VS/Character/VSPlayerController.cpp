@@ -43,7 +43,7 @@ void AVSPlayerController::HandlePlayerDied()
 
 void AVSPlayerController::ShowResult(bool bIsVictory)
 {
-	// 결과 수집: 생존 시간·처치 수·도달 웨이브 (서브시스템) + 레벨 (캐릭터)
+	// 결과 수집
 	float Survival = 0.f;
 	int32 Kills = 0;
 	int32 Wave = 1;
@@ -61,7 +61,7 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 	if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn()))
 		Level = PC->CurrentLevel;
 
-	// 결과 위젯 생성 + 결과 전달 (승/패 구분) + 화면에 추가
+	// 결과 위젯 생성 + 결과 전달 (승/패 구분)
 	if (ResultWidgetClass)
 	{
 		if (UClass* LoadedResultWidgetClass = ResultWidgetClass.LoadSynchronous())

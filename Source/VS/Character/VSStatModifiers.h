@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "VSStatModifiers.generated.h"
 
-// 패시브가 수정할 수 있는 스탯 종류. 새 패시브 추가 시 여기에 항목 추가
+// 패시브가 수정할 수 있는 스탯 종류.
 UENUM(BlueprintType)
 enum class EVSStatType : uint8
 {

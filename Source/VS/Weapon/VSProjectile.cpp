@@ -42,7 +42,7 @@ void AVSProjectile::Tick(float DeltaTime)
         if (Idx != INDEX_NONE)
         {
             EnemyManager->ApplyDamageToEnemy(Idx, Damage);
-            Destroy();   // 명중하면 소멸 (관통 없음)
+            Destroy();
             return;
         }
     }

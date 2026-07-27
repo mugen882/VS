@@ -2,6 +2,7 @@
 #include "Weapon/VSDrone.h"
 #include "Weapon/VSProjectile.h"
 #include "Character/VSPlayerCharacter.h"
+#include "Common/VSLog.h"
 
 void UVSDroneBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 {

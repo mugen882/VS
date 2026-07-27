@@ -10,10 +10,6 @@ class VS_API UVSEnemyTypeData : public UPrimaryDataAsset
     GENERATED_BODY()
 
 public:
-    // 식별용 (로그/디버그/추후 타입 분기)
-    UPROPERTY(EditAnywhere, Category="Enemy")
-    FName TypeId = "Default";
-
     UPROPERTY(EditAnywhere, Category="Enemy|Stats")
     float MaxHealth = 30.f;
 
@@ -23,7 +19,7 @@ public:
     UPROPERTY(EditAnywhere, Category="Enemy|Stats")
     float ContactDamage = 10.f;
 
-    // 처치 시 젬 가치
+    // 처치 시 젬으로 획득하는 XP
     UPROPERTY(EditAnywhere, Category="Enemy|Stats")
     int32 XPValue = 1;
 

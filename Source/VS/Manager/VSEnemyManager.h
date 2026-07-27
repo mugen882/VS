@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Common/VSDefine.h"
 #include "VSEnemyManager.generated.h"
 
 class UInstancedStaticMeshComponent;
@@ -61,13 +62,13 @@ protected:
 
 protected:
     UPROPERTY(EditAnywhere)
-    float MinSpawnRadius = 1500.f;  // 이 안쪽엔 스폰 안 함 (플레이어 근처 보호)
+    float MinSpawnRadius = MIN_SPAWN_RADIUS;  // 이 안쪽엔 스폰 안 함
 
     UPROPERTY(EditAnywhere)
-    float MaxSpawnRadius = 3000.f;  // 이 바깥으로도 스폰 안 함
+    float MaxSpawnRadius = MAX_SPAWN_RADIUS;  // 이 바깥으로도 스폰 안 함
 
     UPROPERTY(EditAnywhere, Category="Combat")
-    float ContactRange = 100.f;      // 플레이어 타격 거리 (모든 타입 공통)
+    float ContactRange = ATTACK_RANGE;      // 플레이어 타격 거리
 
 private:
     void KillEnemy(int32 Index);
@@ -78,7 +79,7 @@ private:
 
     TObjectPtr<AVSGemManager> GemManager;
 
-    // 동시 최대 적 수 (SpawnEnemy 초입에서 검사하는 안전장치)
+    // 동시 최대 적 수
     UPROPERTY(EditAnywhere, Category="Spawn")
-    int32 MaxEnemies = 500;
+    int32 MaxEnemies = MAX_ENEMY;
 };

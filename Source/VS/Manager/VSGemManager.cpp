@@ -48,7 +48,7 @@ void AVSGemManager::SpawnGem(const FVector& Location, int32 XPValue)
     Data.bBeingCollected = false;
     Gems.Add(Data);
 
-    // ISM 인스턴스 추가 (데이터와 같은 인덱스)
+    // ISM 인스턴스 추가
     const FTransform Xform(FRotator::ZeroRotator, Data.Location, FVector(MeshScale));
     GemISM->AddInstance(Xform, /*bWorldSpace=*/true);
 }
@@ -62,7 +62,7 @@ void AVSGemManager::RemoveGem(int32 Index)
     // 데이터 배열 swap-remove
     Gems.RemoveAtSwap(Index);
 
-    // ISM도 동일하게: 마지막 인스턴스를 죽은 자리로 옮기고 마지막 제거
+    // ISM도 마지막 인스턴스를 죽은 자리로 옮기고 마지막 제거
     if (Index != LastIndex)
     {
         FTransform LastXform;

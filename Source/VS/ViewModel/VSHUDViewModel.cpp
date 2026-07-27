@@ -11,7 +11,7 @@ void UVSHUDViewModel::BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultyS
         InCharacter->OnXPChanged.AddUObject(this, &UVSHUDViewModel::HandleXPChanged);
         InCharacter->OnLevelChanged.AddUObject(this, &UVSHUDViewModel::HandleLevelChanged);
 
-        // 초기값 반영 (구독 전에 이미 세팅된 상태를 한 번 당겨옴)
+        // 초기값 반영
         const float MaxHP = InCharacter->MaxHealth > 0.f ? InCharacter->MaxHealth : 1.f;
         SetHealthPercent(InCharacter->CurrentHealth / MaxHP);
         const int32 XPNeed = InCharacter->XPToNextLevel > 0 ? InCharacter->XPToNextLevel : 1;
@@ -30,7 +30,6 @@ void UVSHUDViewModel::BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultyS
     }
 }
 
-// --- Setters: 값이 실제로 바뀔 때만 FieldNotify 발생 ---
 void UVSHUDViewModel::SetHealthPercent(float V)
 {
     UE_MVVM_SET_PROPERTY_VALUE(HealthPercent, V);
@@ -83,7 +82,7 @@ void UVSHUDViewModel::HandleKillCountChanged(int32 InKills)
 
 void UVSHUDViewModel::HandleTimeChanged(float ElapsedSeconds)
 {
-    // 진행바: 매 프레임 부드럽게
+    // 진행바: 매 프레임
     const float Progress = (TotalRunTime > 0.f)
         ? FMath::Clamp(ElapsedSeconds / TotalRunTime, 0.f, 1.f)
         : 0.f;

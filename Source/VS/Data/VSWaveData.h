@@ -13,7 +13,7 @@ struct FVSWaveEntry
     UPROPERTY(EditAnywhere) TObjectPtr<UVSEnemyTypeData> EnemyType;
     UPROPERTY(EditAnywhere) float SpawnInterval = 1.f;  // 스폰 간격
     UPROPERTY(EditAnywhere) int32 SpawnPerTick = 3;     // 한 번에 몇 마리
-    UPROPERTY(EditAnywhere) float HealthMult = 1.f;     // 시간 경과 체력 배율
+    UPROPERTY(EditAnywhere) float HealthMult = 1.f;     // 이 웨이브 적의 체력 배율 (MaxHealth에 곱하는 값)
 };
 
 UCLASS(BlueprintType)

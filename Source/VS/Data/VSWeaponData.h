@@ -16,7 +16,7 @@ enum class EVSFirePattern : uint8
     MultiShot UMETA(DisplayName = "샷건"),             // 여러 방향 산탄
     Orbit UMETA(DisplayName = "파이어볼"),             // 주위를 도는 오브젝트
     AreaAroundPlayer UMETA(DisplayName = "실드"),      // 플레이어 주변 장판
-	SummonDrone   UMETA(DisplayName = "발사 드론"),     // 드론 소환(드론이 발사체를 발사)
+	SummonDrone UMETA(DisplayName = "발사 드론"),      // 드론 소환(드론이 발사체를 발사)
 };
 
 USTRUCT(BlueprintType)
@@ -80,7 +80,7 @@ public:
     UPROPERTY(EditAnywhere, Category="Upgrade") float DamagePerLevel = 5.f;
     UPROPERTY(EditAnywhere, Category="Upgrade") float CooldownReductionPerLevel = 0.05f;
 
-    // 무기별 옵션 구조체
+    // 무기별 옵션 구조체-----------------------------------------
     UPROPERTY(EditAnywhere, Category="MultiShot", meta=(EditCondition="FirePattern==EVSFirePattern::MultiShot", EditConditionHides))
 	FVSMultiShotConfig MultiShotConfig;
     
@@ -92,6 +92,7 @@ public:
 
     UPROPERTY(EditAnywhere, Category="Area", meta=(EditCondition="FirePattern==EVSFirePattern::AreaAroundPlayer", EditConditionHides))
     FVSShieldConfig ShieldConfig;
+    // 무기별 옵션 구조체-----------------------------------------
 
     UPROPERTY(EditDefaultsOnly, Category="Behavior")
     TSubclassOf<UVSWeaponBehavior> BehaviorClass;

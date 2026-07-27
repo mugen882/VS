@@ -23,11 +23,11 @@ public:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MoveAction;
 
-	// 게임오버/클리어 공용 결과 위젯 클래스 (BP에서 지정)
+	// 게임오버/클리어 공용 결과 위젯 클래스
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSoftClassPtr<class UVSResultWidget> ResultWidgetClass;
 
-	// 인게임 HUD 위젯 클래스 (BP에서 지정)
+	// 인게임 HUD 위젯 클래스
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSoftClassPtr<class UVSHUDWidget> HUDWidgetClass;
 

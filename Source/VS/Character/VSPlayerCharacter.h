@@ -5,6 +5,7 @@
 #include "InputActionValue.h"
 #include "Weapon/VSProjectile.h"
 #include "Character/VSStatModifiers.h"
+#include "Common/VSDefine.h"
 #include "VSPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -51,13 +52,19 @@ public:
     int32 CurrentLevel = 1;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
-    int32 XPToNextLevel = 5;   // 다음 레벨까지 필요 XP
+    int32 XPToNextLevel = NEXT_LEVEL_XP;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
-    float CurrentHealth = 100.f;
+    float CurrentHealth = DEFAULT_HEALTH;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
+    float MaxHealth = DEFAULT_HEALTH;
+
+	// base 값(패시브 적용 전 원본)
     UPROPERTY(EditAnywhere, Category="Stats")
-    float MaxHealth = 100.f;
+    float BaseMoveSpeed = DEFAULT_SPEED;
+    UPROPERTY(EditAnywhere, Category="Stats")
+    float BaseMaxHealth = DEFAULT_HEALTH;
 
 	FOnPlayerDied OnPlayerDied;
 	FOnHealthChanged OnHealthChanged;
@@ -110,11 +117,5 @@ private:
 
 	UPROPERTY()
     FVSStatModifiers StatMods;
-
-    // base 값(패시브 적용 전 원본) — 재계산의 기준
-    UPROPERTY(EditAnywhere, Category="Stats")
-    float BaseMoveSpeed = 600.f;
-    UPROPERTY(EditAnywhere, Category="Stats")
-    float BaseMaxHealth = 100.f;
 };
 

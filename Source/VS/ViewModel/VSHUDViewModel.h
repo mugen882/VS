@@ -20,7 +20,7 @@ public:
     // Model들과 연결 (컨트롤러가 호출): 초기값 세팅 + 델리게이트 구독
     void BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultySubsystem* InDifficulty);
 
-    // --- FieldNotify 프로퍼티 (뷰가 바인딩) ---
+    // --- FieldNotify 프로퍼티 ---
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     float HealthPercent = 1.f;
 
@@ -37,7 +37,7 @@ public:
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     float TimeProgress = 0.f;
 
-    // 텍스트용: "MM:SS" (초가 바뀔 때만 실제 갱신)
+    // 텍스트용: "MM:SS" (초가 바뀔 때만 갱신)
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     FText SurvivalTimeText;
 

@@ -5,6 +5,7 @@
 #include "Character/VSPlayerCharacter.h"
 #include "Data/VSEnemyTypeData.h"
 #include "Subsystem/VSDifficultySubsystem.h"
+#include "Common/VSLog.h"
 
 AVSEnemyManager::AVSEnemyManager()
 {
@@ -78,7 +79,7 @@ void AVSEnemyManager::Tick(float DeltaTime)
 
 void AVSEnemyManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    UE_LOG(LogTemp, Warning, TEXT("EnemyManager EndPlay - clearing %d instances"), ISM ? ISM->GetInstanceCount() : -1);
+    UE_LOG(VSLog, Warning, TEXT("EnemyManager EndPlay - clearing %d instances"), ISM ? ISM->GetInstanceCount() : -1);
     if (ISM)
         ISM->ClearInstances();
 
@@ -136,11 +137,9 @@ void AVSEnemyManager::KillEnemy(int32 Index)
             Diff->AddKill();
     }
 
-    // 1. 배열을 swap-remove (마지막을 죽은 자리로, 마지막 제거)
     Enemies[Index] = Enemies[LastIndex];
     Enemies.RemoveAt(LastIndex);
 
-    // 2. ISM도 똑같이: 마지막 인스턴스의 트랜스폼을 죽은 자리로 복사
     if (Index != LastIndex)
     {
         FTransform LastXform;
@@ -156,13 +155,11 @@ void AVSEnemyManager::KillEnemy(int32 Index)
         }
     }
 
-    // 3. ISM의 마지막 인스턴스 제거
     ISM->RemoveInstance(LastIndex);
 }
 
 void AVSEnemyManager::UpdateEnemies(float DeltaTime)
 {
-    // 플레이어 위치
     AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
     if (!Player) return;
     const FVector PlayerLoc = Player->GetActorLocation();
@@ -171,10 +168,9 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
     TArray<FTransform> NewTransforms;
     NewTransforms.Reserve(Count);
 
-    // 캐시 크기가 인스턴스 수와 다르면 스킵
     if (Enemies.Num() != Count)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Mismatch: Locations=%d, Instances=%d"), Enemies.Num(), Count);
+        UE_LOG(VSLog, Warning, TEXT("Mismatch: Locations=%d, Instances=%d"), Enemies.Num(), Count);
         return;
     }
 
@@ -183,7 +179,7 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
     {
         FVector& Loc = Enemies[i].Location;
 
-        // 플레이어 방향으로 이동 (타입별 속도)
+        // 플레이어 방향으로 이동
         const FVector Dir = (PlayerLoc - Loc).GetSafeNormal2D();
         Loc += Dir * Enemies[i].MoveSpeed * DeltaTime;
 

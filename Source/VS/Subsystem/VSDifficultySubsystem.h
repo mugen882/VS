@@ -20,10 +20,9 @@ class UVSDifficultySubsystem : public UWorldSubsystem, public FTickableGameObjec
 {
     GENERATED_BODY()
 public:
-    // UWorldSubsystem
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-    // 게임모드가 웨이브 정의를 주입 (push)
+    // 게임모드가 웨이브 정의를 주입
     void SetWaveData(UVSWaveData* InWaveData);
 
     float GetElapsedTime() const { return ElapsedTime; }
@@ -56,7 +55,7 @@ protected:
 private:
     AVSEnemyManager* GetEnemyManager();
 
-    // ElapsedTime 기준으로 CurrentWaveIndex 갱신, 현재 웨이브 반환 (없으면 nullptr)
+    // ElapsedTime 기준으로 CurrentWaveIndex 갱신, 현재 웨이브 반환
     const FVSWaveEntry* ResolveCurrentWave();
 
     void HandlePlayerDied();

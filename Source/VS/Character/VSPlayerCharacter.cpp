@@ -74,6 +74,9 @@ void AVSPlayerCharacter::BeginPlay()
 			Diff->RegisterPlayerCharacter(this);
 		}
 	}
+
+	RecalculateStats();
+	CurrentHealth = MaxHealth;
 }
 
 void AVSPlayerCharacter::LevelUp()
@@ -91,14 +94,14 @@ void AVSPlayerCharacter::AddXP(int32 Amount)
 {
 	CurrentXP += Amount;
 	
-	// 레벨업 체크 (여러 레벨 동시에 오를 수도 있으니 while)
+	// 레벨업 체크
 	while (CurrentXP >= XPToNextLevel)
 	{
 		CurrentXP -= XPToNextLevel;
 		LevelUp();
 	} 
 
-	// XP 비율 갱신 방송
+	// XP 비율 갱신
 	const int32 Need = XPToNextLevel > 0 ? XPToNextLevel : 1;
 	OnXPChanged.Broadcast((float)CurrentXP / (float)Need);
 }
@@ -128,7 +131,7 @@ void AVSPlayerCharacter::OnPlayerDeath()
 void AVSPlayerCharacter::AddPassive(EVSStatType StatType, float Value)
 {
 	StatMods.Add(StatType, Value);
-	RecalculateStats();   // 누적 후 재계산
+	RecalculateStats();
 }
 
 void AVSPlayerCharacter::ShowUpgradeSelection()
@@ -139,7 +142,6 @@ void AVSPlayerCharacter::ShowUpgradeSelection()
 	TArray<UVSUpgradeData*> Choices = UpgradeComp->RollUpgrades();
 	if (Choices.Num() == 0) return;
 
-	// 위젯 생성
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC) return;
 
@@ -188,7 +190,7 @@ void AVSPlayerCharacter::RecalculateStats()
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())
 		Move->MaxWalkSpeed = BaseMoveSpeed * (1.f + StatMods.Get(EVSStatType::MoveSpeed));
 
-	// 늘어난 최대치만큼 현재 체력도 더해줌(증가분 회복)
+	// 늘어난 최대치만큼 현재 체력도 더해줌
 	const float OldMax = MaxHealth;
 	MaxHealth = BaseMaxHealth * (1.f + StatMods.Get(EVSStatType::MaxHealth));
 	CurrentHealth += (MaxHealth - OldMax);

@@ -26,7 +26,7 @@ struct FVSWeaponInstance
     float OrbitAngle = 0.f;   // 현재 회전 각도
 
     UPROPERTY()
-    TArray<TObjectPtr<AVSOrbitProjectile>> OrbitBalls;   // 이 무기의 구슬들
+    TArray<TObjectPtr<AVSOrbitProjectile>> OrbitBalls;
     // Orbit 무기용----------------------------------------------
 
     UPROPERTY()
@@ -73,7 +73,7 @@ class UVSWeaponComponent : public UActorComponent
 public:
     UVSWeaponComponent();
 
-    void AddWeapon(UVSWeaponData* WeaponData);     // 새 무기 획득
+    void AddWeapon(UVSWeaponData* WeaponData);
     const TArray<FVSWeaponInstance>& GetWeapons() const { return Weapons; }
     bool UpgradeWeaponByData(UVSWeaponData* WeaponData);
     bool HasWeapon(UVSWeaponData* WeaponData) const;

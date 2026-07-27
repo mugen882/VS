@@ -8,7 +8,7 @@ class UButton;
 class UTextBlock;
 class UImage;
 
-// 카드 선택 시 알림용 델리게이트
+// 카드 선택 시 알림용
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeCardSelected, UVSUpgradeData*, SelectedUpgrade);
 
 UCLASS()
@@ -25,7 +25,6 @@ public:
 protected:
     virtual void NativeConstruct() override;
 
-    // BP 디자이너에서 만든 위젯과 바인딩 (이름 일치 필수)
     UPROPERTY(meta=(BindWidget))
     TObjectPtr<UButton> SelectButton;
 

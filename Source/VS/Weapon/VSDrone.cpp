@@ -3,7 +3,7 @@
 
 AVSDrone::AVSDrone()
 {
-    PrimaryActorTick.bCanEverTick = false;   // 위치/발사는 WeaponComponent가
+    PrimaryActorTick.bCanEverTick = false;   // 위치/발사는 UVSDroneBehavior가
 
     Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     RootComponent = Mesh;

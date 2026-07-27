@@ -15,7 +15,7 @@ public:
     UPROPERTY(EditAnywhere, Category="Upgrade")
     TArray<TObjectPtr<UVSUpgradeData>> AllUpgrades;
 
-    // 풀에서 랜덤 ChoiceCount만큼 추출
+    // 풀에서 랜덤으로 ChoiceCount만큼 추출
     TArray<UVSUpgradeData*> RollUpgrades();
 
     // 선택한 업그레이드 적용

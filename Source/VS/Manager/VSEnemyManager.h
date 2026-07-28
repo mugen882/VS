@@ -9,6 +9,10 @@ class AVSGemManager;
 class UVSEnemyTypeData;
 class AVSBossEnemy;
 
+// FindNearestEnemy가 "보스가 최근접 타겟"임을 알리는 특수 인덱스
+// (ISM 적 인덱스 0..N, INDEX_NONE(-1)과 겹치지 않는 값)
+static constexpr int32 BOSS_TARGET_INDEX = -2;
+
 enum EEnemyCustomData
 {
     Anim_StartTime = 0,
@@ -40,14 +44,18 @@ class VS_API AVSEnemyManager : public AActor
 public:
     AVSEnemyManager();
 
-    // 가장 가까운 살아있는 적 찾기 (플레이어가 호출)
+    // 가장 가까운 살아있는 적 찾기
     int32 FindNearestEnemy(const FVector& From, float MaxRange, FVector& OutLocation) const;
 
-    // 적에게 대미지 (투사체가 호출)
+    // 적에게 대미지
     void ApplyDamageToEnemy(int32 Index, float Damage);
     void ApplyDamageInRadius(const FVector& Center, float Radius, float Damage);
 
-    // 지정한 타입의 적 1마리를 링 영역에 스폰 (난이도 서브시스템이 호출)
+    void RegisterBoss(AVSBossEnemy* Boss);
+    void UnregisterBoss(AVSBossEnemy* Boss);
+    // 범위 내 최근접 보스 찾음
+    AVSBossEnemy* FindNearestBoss(const FVector& From, float MaxRange, float& OutDistSq) const;
+
     void SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult = 1.f);
 
 public:

@@ -9,3 +9,4 @@ const float ATTACK_RANGE = 100.f;
 const float MIN_SPAWN_RADIUS = 1500.f;
 const float MAX_SPAWN_RADIUS = 3000.f;
 const int32 MAX_ENEMY = 500.f;
+const float XP_TO_NEXTLV_MULIPLY = 1.2f;

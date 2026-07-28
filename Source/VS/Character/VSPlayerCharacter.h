@@ -114,5 +114,7 @@ private:
 
 	UPROPERTY()
     FVSPassiveStatModifiers StatMods;
+
+	int32 PendingLevelUps = 0;
 };
 

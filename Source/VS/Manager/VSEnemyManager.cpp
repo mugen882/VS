@@ -4,6 +4,7 @@
 #include "VSGemManager.h"
 #include "Character/VSPlayerCharacter.h"
 #include "Data/VSEnemyTypeData.h"
+#include "Enemy/VSBossEnemy.h"
 #include "Subsystem/VSDifficultySubsystem.h"
 #include "Common/VSLog.h"
 
@@ -105,7 +106,49 @@ int32 AVSEnemyManager::FindNearestEnemy(const FVector& From, float MaxRange, FVe
             OutLocation = Enemies[i].Location;
         }
     }
+
+    // 보스도 후보에 포함 (조준용 위치). 보스가 더 가까우면 위치를 덮되,
+    // 유효 타겟 신호를 위해 BestIndex를 BOSS_TARGET_INDEX로 표시
+    float BossDistSq;
+    if (AVSBossEnemy* Boss = FindNearestBoss(From, MaxRange, BossDistSq))
+    {
+        if (BossDistSq < BestDistSq)
+        {
+            OutLocation = Boss->GetActorLocation();
+            BestIndex = BOSS_TARGET_INDEX;
+        }
+    }
     return BestIndex;
+}
+
+void AVSEnemyManager::RegisterBoss(AVSBossEnemy* Boss)
+{
+    if (Boss)
+        Bosses.AddUnique(Boss);
+}
+
+void AVSEnemyManager::UnregisterBoss(AVSBossEnemy* Boss)
+{
+    Bosses.Remove(Boss);
+}
+
+AVSBossEnemy* AVSEnemyManager::FindNearestBoss(const FVector& From, float MaxRange, float& OutDistSq) const
+{
+    AVSBossEnemy* Best = nullptr;
+    float BestDistSq = MaxRange * MaxRange;
+
+    for (AVSBossEnemy* Boss : Bosses)
+    {
+        if (!IsValid(Boss)) continue;
+        const float DistSq = FVector::DistSquared2D(From, Boss->GetActorLocation());
+        if (DistSq < BestDistSq)
+        {
+            BestDistSq = DistSq;
+            Best = Boss;
+        }
+    }
+    OutDistSq = BestDistSq;
+    return Best;
 }
 
 void AVSEnemyManager::ApplyDamageToEnemy(int32 Index, float Damage)
@@ -228,4 +271,13 @@ void AVSEnemyManager::ApplyDamageInRadius(const FVector& Center, float Radius, f
     PendingKills.Sort([](int32 A, int32 B) { return A > B; });
     for (int32 Idx : PendingKills)
         KillEnemy(Idx);
+
+    // 범위 내 보스도 타격
+    const float RadiusSqForBoss = Radius * Radius;
+    for (AVSBossEnemy* Boss : Bosses)
+    {
+        if (!IsValid(Boss)) continue;
+        if (FVector::DistSquared2D(Center, Boss->GetActorLocation()) <= RadiusSqForBoss)
+            Boss->ReceiveDamage(Damage);
+    }
 }

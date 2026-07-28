@@ -1,5 +1,6 @@
 #include "VSProjectile.h"
 #include "Manager/VSEnemyManager.h"
+#include "Enemy/VSBossEnemy.h"
 #include "Character/VSPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -57,7 +58,18 @@ void AVSProjectile::Tick(float DeltaTime)
         {
             FVector HitLoc;
             const int32 Idx = EnemyManager->FindNearestEnemy(GetActorLocation(), HitRadius, HitLoc);
-            if (Idx != INDEX_NONE)
+            if (Idx == BOSS_TARGET_INDEX)
+            {
+                // 보스가 최근접 타겟
+                float BossDistSq;
+                if (AVSBossEnemy* Boss = EnemyManager->FindNearestBoss(GetActorLocation(), HitRadius, BossDistSq))
+                {
+                    Boss->ReceiveDamage(Damage);
+                    Destroy();
+                    return;
+                }
+            }
+            else if (Idx != INDEX_NONE)
             {
                 EnemyManager->ApplyDamageToEnemy(Idx, Damage);
                 Destroy();

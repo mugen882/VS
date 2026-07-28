@@ -82,28 +82,32 @@ void AVSPlayerCharacter::BeginPlay()
 void AVSPlayerCharacter::LevelUp()
 {
 	CurrentLevel++;
-	XPToNextLevel = FMath::RoundToInt(XPToNextLevel * 1.2f);
+	XPToNextLevel = FMath::RoundToInt(XPToNextLevel * XP_TO_NEXTLV_MULIPLY);
 	UE_LOG(LogTemp, Warning, TEXT("LEVEL UP! Level=%d"), CurrentLevel);
 
 	OnLevelChanged.Broadcast(CurrentLevel);
-
-	ShowUpgradeSelection();
 }
 
 void AVSPlayerCharacter::AddXP(int32 Amount)
 {
 	CurrentXP += Amount;
 	
-	// 레벨업 체크
+	// 레벨업 체크 (여러 레벨 동시 상승 가능)
 	while (CurrentXP >= XPToNextLevel)
 	{
 		CurrentXP -= XPToNextLevel;
 		LevelUp();
+		++PendingLevelUps;   // 처리 대기 큐에 누적
 	} 
 
 	// XP 비율 갱신
 	const int32 Need = XPToNextLevel > 0 ? XPToNextLevel : 1;
 	OnXPChanged.Broadcast((float)CurrentXP / (float)Need);
+
+	// 지금 업그레이드 선택 중이 아니면 하나 시작.
+	// (선택 중이면 OnUpgradeChosen이 끝날 때 다음 걸 이어서 처리)
+	if (PendingLevelUps > 0 && !ActiveUpgradeWidget)
+		ShowUpgradeSelection();
 }
 
 void AVSPlayerCharacter::TakeDamageFromEnemy(float Damage)
@@ -166,13 +170,22 @@ void AVSPlayerCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 	if (UpgradeComp)
 		UpgradeComp->ApplyUpgrade(Chosen);
 
-	// 위젯 제거 + 게임 재개
+	// 위젯 제거
 	if (ActiveUpgradeWidget)
 	{
 		ActiveUpgradeWidget->RemoveFromParent();
 		ActiveUpgradeWidget = nullptr;
 	}
 
+	--PendingLevelUps;
+	// 대기 중인 레벨업 창 띄움
+	if (PendingLevelUps > 0)
+	{
+		ShowUpgradeSelection();
+		return;
+	}
+
+	// 게임 재개
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (PC)
 	{

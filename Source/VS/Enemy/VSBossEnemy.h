@@ -39,9 +39,11 @@ public:
     FOnBossHealthChanged OnBossHealthChanged;
 
 protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void Tick(float DeltaTime) override;
 
-    // 공통: 플레이어를 향해 이동 (돌진). 이동 안 하는 보스는 오버라이드로 비움
+    // 공통: 플레이어를 향해 이동. 이동 안 하는 보스는 오버라이드로 비움
     virtual void MoveTowardPlayer(float DeltaTime);
 
     // 파생이 구현하는 공격 패턴
@@ -56,5 +58,10 @@ protected:
     UPROPERTY()
     TObjectPtr<UVSBossData> Data;
 
+    UPROPERTY()
+    TWeakObjectPtr<class AVSEnemyManager> EnemyManager;
+
+private:
     float Health = 0.f;
+    const float RotSpeed = 360.f;
 };

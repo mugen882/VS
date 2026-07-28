@@ -2,8 +2,10 @@
 #include "Data/VSBossData.h"
 #include "Character/VSPlayerCharacter.h"
 #include "Manager/VSGemManager.h"
+#include "Manager/VSEnemyManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Component/VSWeaponComponent.h"
 
 AVSBossEnemy::AVSBossEnemy()
 {
@@ -69,7 +71,7 @@ void AVSBossEnemy::Tick(float DeltaTime)
     if (Health <= 0.f) return;
 
     MoveTowardPlayer(DeltaTime);
-    UpdateAttack(DeltaTime);   // 파생 공격 패턴
+    UpdateAttack(DeltaTime);
 }
 
 void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
@@ -89,8 +91,9 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
     // 이동 방향을 바라보게 회전
     if (!Dir.IsNearlyZero())
     {
+        const FRotator CurrentRot = GetActorRotation();
         const FRotator TargetRot = Dir.Rotation();
-        SetActorRotation(TargetRot);
+        SetActorRotation(FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, RotSpeed));
     }
 
     // 접촉 데미지 (초당)
@@ -101,9 +104,31 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
     }
 }
 
+void AVSBossEnemy::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0)))
+    {
+        if (UVSWeaponComponent* WeaponComp = Player->GetWeaponComponent())
+        {
+            EnemyManager = WeaponComp->GetEnemyManager();
+            if (EnemyManager.IsValid())
+                EnemyManager->RegisterBoss(this);
+        }
+    }
+}
+
+void AVSBossEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (EnemyManager.IsValid())
+        EnemyManager->UnregisterBoss(this);
+
+    Super::EndPlay(EndPlayReason);
+}
+
 void AVSBossEnemy::OnDeath()
 {
-    // 큰 젬 드롭
     if (Data)
     {
         if (AVSGemManager* GemMgr = Cast<AVSGemManager>(

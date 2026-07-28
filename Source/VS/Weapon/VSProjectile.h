@@ -24,6 +24,10 @@ public:
     UPROPERTY(EditAnywhere)
     float MeshScale = 0.3f;
 
+    // true면 플레이어 타격(보스/적 투사체), false면 적 타격(무기 투사체)
+    UPROPERTY(EditAnywhere)
+    bool bHitsPlayer = false;
+
 protected:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;

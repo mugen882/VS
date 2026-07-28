@@ -1,6 +1,7 @@
 #include "Subsystem/VSDifficultySubsystem.h"
 #include "Manager/VSEnemyManager.h"
 #include "Data/VSWaveData.h"
+#include "Enemy/VSBossEnemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/VSPlayerCharacter.h"
 
@@ -58,6 +59,7 @@ const FVSWaveEntry* UVSDifficultySubsystem::ResolveCurrentWave()
         && ElapsedTime >= WaveData->Waves[CurrentWaveIndex + 1].StartTime)
     {
         ++CurrentWaveIndex;
+        SpawnWaveBoss(WaveData->Waves[CurrentWaveIndex]);   // 새 웨이브 진입 시 보스 1회 스폰
     }
 
     // 아직 첫 웨이브 StartTime 전이면 스폰 안 함
@@ -65,6 +67,33 @@ const FVSWaveEntry* UVSDifficultySubsystem::ResolveCurrentWave()
         return nullptr;
 
     return &WaveData->Waves[CurrentWaveIndex];
+}
+
+void UVSDifficultySubsystem::SpawnWaveBoss(const FVSWaveEntry& Wave)
+{
+    if (!Wave.BossClass) return;
+
+    UWorld* World = GetWorld();
+    if (!World) return;
+
+    // 플레이어 주변 링 영역에 스폰
+    FVector SpawnLoc = FVector::ZeroVector;
+    if (APawn* Player = UGameplayStatics::GetPlayerPawn(World, 0))
+    {
+        const float Angle = FMath::FRandRange(0.f, 2.f * PI);
+        const float Dist = 1000.f;
+        SpawnLoc = Player->GetActorLocation()
+            + FVector(FMath::Cos(Angle) * Dist, FMath::Sin(Angle) * Dist, 0.f);
+
+        SpawnLoc.Z -= Player->GetSimpleCollisionHalfHeight();
+    }
+
+    AVSBossEnemy* Boss = World->SpawnActor<AVSBossEnemy>(Wave.BossClass, SpawnLoc, FRotator::ZeroRotator);
+    if (Boss)
+    {
+        Boss->InitBoss(Wave.BossData);
+        OnBossSpawned.Broadcast(Boss);   // HUD 체력바가 구독
+    }
 }
 
 void UVSDifficultySubsystem::Tick(float DeltaTime)
@@ -86,16 +115,19 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
     if (!Mgr) return;
 
     const FVSWaveEntry* Wave = ResolveCurrentWave();
-    if (!Wave || !Wave->EnemyType) return;
+    if (!Wave) return;
 
-    // 현재 웨이브의 간격으로 스폰
-    SpawnAccumulator += DeltaTime;
-    while (SpawnAccumulator >= Wave->SpawnInterval)
+    // 일반 적 스폰 (EnemyType이 있을 때만. 보스는 ResolveCurrentWave에서 웨이브 진입 시 이미 스폰됨)
+    if (Wave->EnemyType)
     {
-        SpawnAccumulator -= Wave->SpawnInterval;
+        SpawnAccumulator += DeltaTime;
+        while (SpawnAccumulator >= Wave->SpawnInterval)
+        {
+            SpawnAccumulator -= Wave->SpawnInterval;
 
-        for (int32 i = 0; i < Wave->SpawnPerTick; ++i)
-            Mgr->SpawnEnemy(Wave->EnemyType, Wave->HealthMult);
+            for (int32 i = 0; i < Wave->SpawnPerTick; ++i)
+                Mgr->SpawnEnemy(Wave->EnemyType, Wave->HealthMult);
+        }
     }
 }
 

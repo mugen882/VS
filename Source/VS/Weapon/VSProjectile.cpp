@@ -1,5 +1,6 @@
 #include "VSProjectile.h"
 #include "Manager/VSEnemyManager.h"
+#include "Character/VSPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 AVSProjectile::AVSProjectile()
@@ -11,7 +12,6 @@ AVSProjectile::AVSProjectile()
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     RootComponent = MeshComp;
 }
-
 
 void AVSProjectile::BeginPlay()
 {
@@ -33,17 +33,36 @@ void AVSProjectile::Tick(float DeltaTime)
     const FVector NewLoc = GetActorLocation() + GetActorForwardVector() * Speed * DeltaTime;
     SetActorLocation(NewLoc);
 
-    // 근처 적 검사
-    AVSEnemyManager* EnemyManager = Cast<AVSEnemyManager>(UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
-    if (EnemyManager)
+    if (bHitsPlayer)
     {
-        FVector HitLoc;
-        const int32 Idx = EnemyManager->FindNearestEnemy(GetActorLocation(), HitRadius, HitLoc);
-        if (Idx != INDEX_NONE)
+        // 보스/적 투사체: 플레이어 타격
+        APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
+        if (Player)
         {
-            EnemyManager->ApplyDamageToEnemy(Idx, Damage);
-            Destroy();
-            return;
+            const float DistSq = FVector::DistSquared(GetActorLocation(), Player->GetActorLocation());
+            if (DistSq < HitRadius * HitRadius)
+            {
+                if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(Player))
+                    PC->TakeDamageFromEnemy(Damage);
+                Destroy();
+                return;
+            }
+        }
+    }
+    else
+    {
+        // 무기 투사체: 가장 가까운 적 타격
+        AVSEnemyManager* EnemyManager = Cast<AVSEnemyManager>(UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
+        if (EnemyManager)
+        {
+            FVector HitLoc;
+            const int32 Idx = EnemyManager->FindNearestEnemy(GetActorLocation(), HitRadius, HitLoc);
+            if (Idx != INDEX_NONE)
+            {
+                EnemyManager->ApplyDamageToEnemy(Idx, Damage);
+                Destroy();
+                return;
+            }
         }
     }
 }

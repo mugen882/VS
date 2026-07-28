@@ -7,6 +7,7 @@
 class UInstancedStaticMeshComponent;
 class AVSGemManager;
 class UVSEnemyTypeData;
+class AVSBossEnemy;
 
 enum EEnemyCustomData
 {
@@ -78,6 +79,8 @@ private:
     TArray<FEnemyData> Enemies;
 
     TObjectPtr<AVSGemManager> GemManager;
+
+    TArray<AVSBossEnemy*> Bosses;
 
     // 동시 최대 적 수
     UPROPERTY(EditAnywhere, Category="Spawn")

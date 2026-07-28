@@ -6,6 +6,7 @@
 #include "VSDifficultySubsystem.generated.h"
 
 struct FVSWaveEntry;
+class AVSBossEnemy;
 class UVSWaveData;
 class AVSEnemyManager;
 class AVSPlayerCharacter;
@@ -14,6 +15,7 @@ DECLARE_MULTICAST_DELEGATE(FOnRunCleared);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnKillCountChanged, int32);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTimeChanged, float);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTotalRunTimeChanged, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, AVSBossEnemy*);
 
 UCLASS()
 class UVSDifficultySubsystem : public UWorldSubsystem, public FTickableGameObject
@@ -42,6 +44,7 @@ public:
 
 public:
     FOnRunCleared OnRunCleared;
+    FOnBossSpawned OnBossSpawned;
     FOnKillCountChanged OnKillCountChanged;
     FOnTimeChanged OnTimeChanged;
     FOnTotalRunTimeChanged OnTotalRuntimeChanged;
@@ -57,6 +60,7 @@ private:
 
     // ElapsedTime 기준으로 CurrentWaveIndex 갱신, 현재 웨이브 반환
     const FVSWaveEntry* ResolveCurrentWave();
+    void SpawnWaveBoss(const FVSWaveEntry& Wave);
 
     void HandlePlayerDied();
 

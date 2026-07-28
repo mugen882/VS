@@ -105,7 +105,6 @@ void AVSPlayerCharacter::AddXP(int32 Amount)
 	OnXPChanged.Broadcast((float)CurrentXP / (float)Need);
 
 	// 지금 업그레이드 선택 중이 아니면 하나 시작.
-	// (선택 중이면 OnUpgradeChosen이 끝날 때 다음 걸 이어서 처리)
 	if (PendingLevelUps > 0 && !ActiveUpgradeWidget)
 		ShowUpgradeSelection();
 }

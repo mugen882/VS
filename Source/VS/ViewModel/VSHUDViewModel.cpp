@@ -1,6 +1,8 @@
 #include "ViewModel/VSHUDViewModel.h"
 #include "Character/VSPlayerCharacter.h"
 #include "Subsystem/VSDifficultySubsystem.h"
+#include "Enemy/VSBossEnemy.h"
+#include "Data/VSBossData.h"
 
 void UVSHUDViewModel::BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultySubsystem* InDifficulty)
 {
@@ -24,6 +26,7 @@ void UVSHUDViewModel::BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultyS
         InDifficulty->OnKillCountChanged.AddUObject(this, &UVSHUDViewModel::HandleKillCountChanged);
         InDifficulty->OnTimeChanged.AddUObject(this, &UVSHUDViewModel::HandleTimeChanged);
         InDifficulty->OnTotalRuntimeChanged.AddUObject(this, &UVSHUDViewModel::HandleTotalRunTimeChanged);
+        InDifficulty->OnBossSpawned.AddUObject(this, &UVSHUDViewModel::HandleBossSpawned);
 
         SetKillCount(InDifficulty->GetKillCount());
         HandleTimeChanged(InDifficulty->GetElapsedTime());
@@ -103,4 +106,45 @@ void UVSHUDViewModel::HandleTimeChanged(float ElapsedSeconds)
 void UVSHUDViewModel::HandleTotalRunTimeChanged(float InTotalRuntime)
 {
     TotalRunTime = InTotalRuntime;
+}
+
+// --- 보스 ---
+void UVSHUDViewModel::SetBossBarVisibility(ESlateVisibility V)
+{
+    UE_MVVM_SET_PROPERTY_VALUE(BossBarVisibility, V);
+}
+
+void UVSHUDViewModel::SetBossHealthPercent(float V)
+{
+    UE_MVVM_SET_PROPERTY_VALUE(BossHealthPercent, V);
+}
+
+void UVSHUDViewModel::SetBossName(FText V)
+{
+    UE_MVVM_SET_PROPERTY_VALUE(BossName, V);
+}
+
+void UVSHUDViewModel::HandleBossSpawned(AVSBossEnemy* Boss)
+{
+    if (!Boss) return;
+
+    // 보스 체력 변경·사망 구독
+    Boss->OnBossHealthChanged.AddUObject(this, &UVSHUDViewModel::HandleBossHealthChanged);
+    Boss->OnBossDied.AddUObject(this, &UVSHUDViewModel::HandleBossDied);
+
+    // 초기값 + 바 표시
+    SetBossHealthPercent(Boss->GetHealthPercent());
+    if (UVSBossData* Data = Boss->GetData())
+        SetBossName(Data->DisplayName);
+    SetBossBarVisibility(ESlateVisibility::Visible);   // 바 표시
+}
+
+void UVSHUDViewModel::HandleBossHealthChanged(float InPercent)
+{
+    SetBossHealthPercent(FMath::Clamp(InPercent, 0.f, 1.f));
+}
+
+void UVSHUDViewModel::HandleBossDied()
+{
+    SetBossBarVisibility(ESlateVisibility::Collapsed);   // 바 숨김
 }

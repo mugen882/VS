@@ -2,10 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "MVVMViewModelBase.h"
+#include "Components/SlateWrapperTypes.h"
 #include "VSHUDViewModel.generated.h"
 
 class AVSPlayerCharacter;
 class UVSDifficultySubsystem;
+class AVSBossEnemy;
 
 /**
  * HUD 뷰모델.
@@ -41,6 +43,17 @@ public:
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     FText SurvivalTimeText;
 
+    // --- 보스 체력바 (보스 있을 때만 표시) ---
+    // 위젯 Visibility에 직접 바인딩 (변환 불필요). 등장=Visible, 없음/사망=Collapsed
+    UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
+    ESlateVisibility BossBarVisibility = ESlateVisibility::Collapsed;
+
+    UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
+    float BossHealthPercent = 1.f;
+
+    UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
+    FText BossName;
+
     // --- Getter / Setter ---
     float GetHealthPercent() const { return HealthPercent; }
     void  SetHealthPercent(float V);
@@ -60,6 +73,15 @@ public:
     FText GetSurvivalTimeText() const { return SurvivalTimeText; }
     void  SetSurvivalTimeText(FText V);
 
+    ESlateVisibility GetBossBarVisibility() const { return BossBarVisibility; }
+    void  SetBossBarVisibility(ESlateVisibility V);
+
+    float GetBossHealthPercent() const { return BossHealthPercent; }
+    void  SetBossHealthPercent(float V);
+
+    FText GetBossName() const { return BossName; }
+    void  SetBossName(FText V);
+
 private:
     // Model 변경 델리게이트 핸들러
     void HandleHealthChanged(float InPercent);
@@ -68,6 +90,11 @@ private:
     void HandleKillCountChanged(int32 InKills);
     void HandleTimeChanged(float ElapsedSeconds);
     void HandleTotalRunTimeChanged(float InTotalRuntime);
+
+    // 보스 등장/체력/사망
+    void HandleBossSpawned(AVSBossEnemy* Boss);
+    void HandleBossHealthChanged(float InPercent);
+    void HandleBossDied();
 
 private:
     float TotalRunTime = 1.f;      // 목표 시간 (진행바 계산용)

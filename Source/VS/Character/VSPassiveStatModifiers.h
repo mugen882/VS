@@ -1,10 +1,9 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "VSStatModifiers.generated.h"
+#include "VSPassiveStatModifiers.generated.h"
 
-// 패시브가 수정할 수 있는 스탯 종류.
 UENUM(BlueprintType)
-enum class EVSStatType : uint8
+enum class EVSPassiveStatType : uint8
 {
     MoveSpeed       UMETA(DisplayName="이동 속도"),
     MaxHealth       UMETA(DisplayName="최대 체력"),
@@ -14,21 +13,21 @@ enum class EVSStatType : uint8
 };
 
 USTRUCT()
-struct FVSStatModifiers
+struct FVSPassiveStatModifiers
 {
     GENERATED_BODY()
 
     // StatType → 누적 값. 예: GlobalDamage → 0.30 (=+30%)
     UPROPERTY()
-    TMap<EVSStatType, float> Values;
+    TMap<EVSPassiveStatType, float> Values;
 
-    float Get(EVSStatType Key) const
+    float Get(EVSPassiveStatType Key) const
     {
         const float* Found = Values.Find(Key);
         return Found ? *Found : 0.f;
     }
 
-    void Add(EVSStatType Key, float Delta)
+    void Add(EVSPassiveStatType Key, float Delta)
     {
         Values.FindOrAdd(Key) += Delta;
     }

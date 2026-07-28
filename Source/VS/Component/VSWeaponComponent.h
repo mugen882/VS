@@ -4,7 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "Weapon/VSOrbitProjectile.h"
 #include "Manager/VSEnemyManager.h"
-#include "Character/VSStatModifiers.h"
+#include "Character/VSPassiveStatModifiers.h"
 #include "Common/VSDefine.h"
 #include "VSWeaponComponent.generated.h"
 
@@ -38,16 +38,16 @@ struct FVSWeaponInstance
     UPROPERTY()
     TObjectPtr<UVSWeaponBehavior> Behavior = nullptr;
 
-    float GetDamage(const FVSStatModifiers& Mods) const
+    float GetDamage(const FVSPassiveStatModifiers& Mods) const
     {
         const float Base = Data ? Data->BaseDamage + Data->DamagePerLevel * (Level - 1) : 0.f;
-        return Base * (1.f + Mods.Get(EVSStatType::GlobalDamage));
+        return Base * (1.f + Mods.Get(EVSPassiveStatType::GlobalDamage));
     }
 
-    float GetCooldown(const FVSStatModifiers& Mods) const
+    float GetCooldown(const FVSPassiveStatModifiers& Mods) const
     {
         const float Base = Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
-        const float Reduced = Base * (1.f - Mods.Get(EVSStatType::GlobalCooldown));
+        const float Reduced = Base * (1.f - Mods.Get(EVSPassiveStatType::GlobalCooldown));
         return FMath::Max(MIN_COOLDOWN_TIME, Reduced);   // 최소 시간 보장
     }
 
@@ -66,7 +66,7 @@ struct FVSWeaponInstance
     }
 };
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(VS), meta=(BlueprintSpawnableComponent))
 class UVSWeaponComponent : public UActorComponent
 {
     GENERATED_BODY()
@@ -86,7 +86,7 @@ public:
 
     FVector GetFloorLocation() const;
 
-    const FVSStatModifiers& GetStatMods() const;
+    const FVSPassiveStatModifiers& GetStatMods() const;
 
 protected:
     virtual void BeginPlay() override;

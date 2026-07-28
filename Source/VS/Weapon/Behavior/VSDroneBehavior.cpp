@@ -18,7 +18,7 @@ void UVSDroneBehavior::UpdateDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& 
 {
     if (!Weapon.Drone || !Comp) return;
 
-    const FVSStatModifiers& Mods = Comp->GetStatMods();
+    const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
     
     PositionDrone(Comp, Weapon);
     Weapon.CooldownTimer -= DeltaTime;
@@ -73,7 +73,7 @@ void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
     if (EnemyManager->FindNearestEnemy(DroneLoc, Weapon.Data->BaseRange, TargetLoc) == INDEX_NONE)
         return;
 
-    const FVSStatModifiers& Mods = Comp->GetStatMods();
+    const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
     const FVector Dir = (TargetLoc - DroneLoc).GetSafeNormal2D();
     const float Damage = Weapon.GetDamage(Mods);

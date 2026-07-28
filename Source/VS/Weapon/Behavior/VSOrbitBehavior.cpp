@@ -56,20 +56,22 @@ AVSOrbitProjectile* UVSOrbitBehavior::SpawnSingleBall(UVSWeaponComponent* Comp, 
 void UVSOrbitBehavior::PositionBalls(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon)
 {
     if (!Comp) return;
-
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.Data) return;
 
     const FVector Center = Owner->GetActorLocation();
     const int32 Count = Weapon.OrbitBalls.Num();
+    if (Count <= 0) return;
+
     const float Radius = Weapon.Data->OrbitConfig.Radius;
+    const float AngleStep = 360.f / Count;
 
     for (int32 i = 0; i < Count; ++i)
     {
         if (!Weapon.OrbitBalls[i]) continue;
 
         // 구슬들을 원형으로 균등 분배 + 현재 회전각 적용
-        const float AngleDeg = Weapon.OrbitAngle + (360.f / Count) * i;
+        const float AngleDeg = Weapon.OrbitAngle + AngleStep * i;
         const float Rad = FMath::DegreesToRadians(AngleDeg);
         const FVector Offset(FMath::Cos(Rad) * Radius, FMath::Sin(Rad) * Radius, 0.f);
 
@@ -84,7 +86,7 @@ void UVSOrbitBehavior::CheckHits(UVSWeaponComponent* Comp, FVSWeaponInstance& We
 
     if (!Comp) return;
 
-    const FVSStatModifiers& Mods = Comp->GetStatMods();
+    const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
     for (AVSOrbitProjectile* Ball : Weapon.OrbitBalls)
     {

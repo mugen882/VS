@@ -41,7 +41,7 @@ void UVSShieldBehavior::UpdateShield(UVSWeaponComponent* Comp, FVSWeaponInstance
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.ShieldActor) return;
 
-    const FVSStatModifiers& Mods = Comp->GetStatMods();
+    const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
     Weapon.ShieldActor->SetActorLocation(Comp->GetFloorLocation());
     Comp->ApplyContinuousDamage(

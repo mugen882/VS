@@ -4,7 +4,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Weapon/VSProjectile.h"
-#include "Character/VSStatModifiers.h"
+#include "Character/VSPassiveStatModifiers.h"
 #include "Common/VSDefine.h"
 #include "VSPlayerCharacter.generated.h"
 
@@ -41,8 +41,8 @@ public:
 
 	bool IsDead() const { return bIsDead; }
 
-	void AddPassive(EVSStatType StatType, float Value);
-	const FVSStatModifiers& GetStatMods() const { return StatMods; }
+	void AddPassive(EVSPassiveStatType StatType, float Value);
+	const FVSPassiveStatModifiers& GetStatMods() const { return StatMods; }
 
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
@@ -54,10 +54,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
     int32 XPToNextLevel = NEXT_LEVEL_XP;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
     float CurrentHealth = DEFAULT_HEALTH;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
     float MaxHealth = DEFAULT_HEALTH;
 
 	// base 값(패시브 적용 전 원본)
@@ -116,6 +113,6 @@ private:
     TObjectPtr<UVSUpgradeSelectionWidget> ActiveUpgradeWidget;
 
 	UPROPERTY()
-    FVSStatModifiers StatMods;
+    FVSPassiveStatModifiers StatMods;
 };
 

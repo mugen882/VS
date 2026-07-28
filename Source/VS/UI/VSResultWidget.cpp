@@ -50,12 +50,11 @@ void UVSResultWidget::OnQuitClicked()
 }
 
 void UVSResultWidget::RestartGame()
-{
-    // 일시정지 해제
+{   
     if (APlayerController* PC = GetOwningPlayer())
     {
-        PC->SetPause(false);
-        PC->SetInputMode(FInputModeGameOnly());
+        PC->SetPause(false);    // 일시정지 해제
+        PC->SetInputMode(FInputModeGameOnly()); // 다시 게임 입력
     }   
 
     RemoveFromParent();

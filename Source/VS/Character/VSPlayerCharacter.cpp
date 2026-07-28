@@ -128,7 +128,7 @@ void AVSPlayerCharacter::OnPlayerDeath()
 	OnPlayerDied.Broadcast();
 }
 
-void AVSPlayerCharacter::AddPassive(EVSStatType StatType, float Value)
+void AVSPlayerCharacter::AddPassive(EVSPassiveStatType StatType, float Value)
 {
 	StatMods.Add(StatType, Value);
 	RecalculateStats();
@@ -138,7 +138,7 @@ void AVSPlayerCharacter::ShowUpgradeSelection()
 {
 	if (!UpgradeSelectionWidgetClass || !UpgradeComp) return;
 
-	// 후보 3개 뽑기
+	// 후보 n개 뽑기
 	TArray<UVSUpgradeData*> Choices = UpgradeComp->RollUpgrades();
 	if (Choices.Num() == 0) return;
 
@@ -152,10 +152,10 @@ void AVSPlayerCharacter::ShowUpgradeSelection()
 	ActiveUpgradeWidget->OnUpgradeChosen.AddDynamic(this, &AVSPlayerCharacter::OnUpgradeChosen);
 	ActiveUpgradeWidget->AddToViewport();
 
-	UGameplayStatics::SetGamePaused(this, true); // 게임 정지
+	UGameplayStatics::SetGamePaused(this, true); // 일시정지
 	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
 		Diff->SetUpgradeSelecting(true);
-	// 마우스 입력 활성화
+
 	PC->SetShowMouseCursor(true);
 	PC->SetInputMode(FInputModeUIOnly());   // UI만 입력받기
 }
@@ -179,7 +179,7 @@ void AVSPlayerCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 		PC->SetShowMouseCursor(false);
 		PC->SetInputMode(FInputModeGameOnly());   // 다시 게임 입력
 	}
-	UGameplayStatics::SetGamePaused(this, false);
+	UGameplayStatics::SetGamePaused(this, false);	// 일시정지 해제
 	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
 		Diff->SetUpgradeSelecting(false);
 }
@@ -188,15 +188,14 @@ void AVSPlayerCharacter::RecalculateStats()
 {
 	// 플레이어 스탯: base × (1 + 누적배율)
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())
-		Move->MaxWalkSpeed = BaseMoveSpeed * (1.f + StatMods.Get(EVSStatType::MoveSpeed));
-
-	// 늘어난 최대치만큼 현재 체력도 더해줌
+		Move->MaxWalkSpeed = BaseMoveSpeed * (1.f + StatMods.Get(EVSPassiveStatType::MoveSpeed));
+	
 	const float OldMax = MaxHealth;
-	MaxHealth = BaseMaxHealth * (1.f + StatMods.Get(EVSStatType::MaxHealth));
-	CurrentHealth += (MaxHealth - OldMax);
+	MaxHealth = BaseMaxHealth * (1.f + StatMods.Get(EVSPassiveStatType::MaxHealth));	// 최대체력 계산
+	CurrentHealth += (MaxHealth - OldMax);	// 늘어난 최대치만큼 현재 체력도 더해줌
 	CurrentHealth = FMath::Min(CurrentHealth, MaxHealth);
 
 	// 픽업범위
 	if (GemManager)
-		GemManager->SetMagnetRangeMult(1.f + StatMods.Get(EVSStatType::PickupRange));
+		GemManager->SetMagnetRangeMult(1.f + StatMods.Get(EVSPassiveStatType::PickupRange));
 }

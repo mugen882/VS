@@ -74,10 +74,9 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 		}
 	}
 
-	// 입력을 UI로 전환하고 게임 일시정지
 	bShowMouseCursor = true;
-	SetInputMode(FInputModeUIOnly());
-	SetPause(true);
+	SetInputMode(FInputModeUIOnly());	// UI만 입력받기
+	SetPause(true);	// 일시정지
 }
 
 void AVSPlayerController::SetupInputComponent()

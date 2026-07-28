@@ -43,12 +43,12 @@ FVector UVSWeaponComponent::GetFloorLocation() const
 }
 
 
-const FVSStatModifiers& UVSWeaponComponent::GetStatMods() const
+const FVSPassiveStatModifiers& UVSWeaponComponent::GetStatMods() const
 {
     if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetOwner()))
         return PC->GetStatMods();
 
-    static const FVSStatModifiers Empty;
+    static const FVSPassiveStatModifiers Empty;
     return Empty;
 }
 

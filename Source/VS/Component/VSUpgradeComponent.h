@@ -6,7 +6,7 @@
 
 class UVSUpgradeData;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(VS), meta=(BlueprintSpawnableComponent))
 class VS_API UVSUpgradeComponent : public UActorComponent
 {
     GENERATED_BODY()

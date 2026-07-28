@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Character/VSStatModifiers.h"
+#include "Character/VSPassiveStatModifiers.h"
 #include "VSUpgradeData.generated.h"
 
 class UVSWeaponData;
@@ -43,7 +43,7 @@ public:
     // --- Passive: 어떤 스탯을 얼마나 ---
     UPROPERTY(EditAnywhere, Category="Upgrade",
         meta=(EditCondition="Type == EVSUpgradeType::Passive", EditConditionHides))
-    EVSStatType PassiveStat = EVSStatType::MoveSpeed;
+    EVSPassiveStatType PassiveStatType = EVSPassiveStatType::MoveSpeed;
 
     UPROPERTY(EditAnywhere, Category="Upgrade",
         meta=(EditCondition="Type == EVSUpgradeType::Passive", EditConditionHides))

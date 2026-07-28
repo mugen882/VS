@@ -6,7 +6,7 @@ void UVSMultiShotBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, 
 {
     if (!Comp) return;
 
-    const FVSStatModifiers& Mods = Comp->GetStatMods();
+    const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
     W.CooldownTimer -= DeltaTime;
     if (W.CooldownTimer <= 0.f)
@@ -23,7 +23,7 @@ void UVSMultiShotBehavior::FireMultiShot(UVSWeaponComponent* Comp, FVSWeaponInst
     AActor* Owner = Comp->GetOwner();
     if (!Owner) return;
 
-    const FVSStatModifiers& Mods = Comp->GetStatMods();
+    const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
     const FVector OwnerLoc = Owner->GetActorLocation();
     const float Damage = Weapon.GetDamage(Mods);

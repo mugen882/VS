@@ -77,6 +77,7 @@ private:
     float Health = 0.f;
     const float RotSpeed = 360.f;
 
+    // 체력바를 화면상 위로 밀 거리 (카메라 up 방향)
     UPROPERTY(EditAnywhere, Category="Boss|HealthBar")
-    float ScreenUpOffset = 120.f;  // 화면상 위로 밀 거리 (카메라 up 방향)
+    float ScreenUpOffset = 120.f;
 };

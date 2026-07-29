@@ -89,22 +89,20 @@ void AVSBossEnemy::Tick(float DeltaTime)
 
 void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
 {
-    if (!HealthBarWidget) return;
+    if (!HealthBarWidget || !MeshComp) return;
 
     APlayerCameraManager* Cam = UGameplayStatics::GetPlayerCameraManager(this, 0);
     if (!Cam) return;
 
-    // 카메라의 "위쪽" 방향 = 화면 세로축. 이 방향으로 밀면 카메라 각도와 무관하게 화면상 위로 간다.
     const FVector CamUp = Cam->GetCameraRotation().RotateVector(FVector::UpVector);
 
     const float MeshHeight = MeshComp->Bounds.BoxExtent.Z * 2.f;
-
-    // 보스 머리 근처 + 화면상 위로 오프셋
+    
+    // 보스 머리 + 화면상 위로 오프셋
     const FVector TargetLoc = GetActorLocation()
-        + FVector(0.f, 0.f, MeshHeight)   // 머리 높이
-        + CamUp * ScreenUpOffset;         // 카메라 기준 화면상 위로
+        + FVector(0.f, 0.f, MeshHeight)
+        + CamUp * ScreenUpOffset;
 
-    // 부드럽게 이동 (급격한 튐/흔들림 방지)
     const FVector Current = HealthBarWidget->GetComponentLocation();
     HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, 20.f));
 }

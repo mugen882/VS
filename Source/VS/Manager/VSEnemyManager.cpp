@@ -222,11 +222,19 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
     {
         FVector& Loc = Enemies[i].Location;
 
-        // 플레이어 방향으로 이동
-        const FVector Dir = (PlayerLoc - Loc).GetSafeNormal2D();
-        Loc += Dir * Enemies[i].MoveSpeed * DeltaTime;
+        // 플레이어 방향
+        const FVector ToPlayer = PlayerLoc - Loc;
+        const FVector Dir = ToPlayer.GetSafeNormal2D();
+        const float DistToPlayer = ToPlayer.Size2D();
 
-        // 이동 방향 바라보게 회전
+        // 너무 가까우면 이동을 멈춘다 (오버슈트로 인한 좌우 요동 방지).
+        // 접촉 사거리 안이면 어차피 접촉 대미지가 들어가므로 더 파고들 필요가 없다.
+        if (DistToPlayer > ContactRange)
+        {
+            Loc += Dir * Enemies[i].MoveSpeed * DeltaTime;
+        }
+
+        // 회전은 항상 플레이어를 바라보게
         FRotator Rot = Dir.Rotation();
         Rot.Yaw -= 90.f;
 

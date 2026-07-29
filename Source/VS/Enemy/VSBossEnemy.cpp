@@ -94,32 +94,38 @@ void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
     APlayerCameraManager* Cam = UGameplayStatics::GetPlayerCameraManager(this, 0);
     if (!Cam) return;
 
+    // 카메라의 "위쪽" 방향으로 밀면 화면상 위로 간다.
     const FVector CamUp = Cam->GetCameraRotation().RotateVector(FVector::UpVector);
 
     const float MeshHeight = MeshComp->Bounds.BoxExtent.Z * 2.f;
-    
-    // 보스 머리 + 화면상 위로 오프셋
-    const FVector TargetLoc = GetActorLocation()
-        + FVector(0.f, 0.f, MeshHeight)
-        + CamUp * ScreenUpOffset;
 
+    // 보스 머리 근처 + 화면상 위로 오프셋
+    const FVector TargetLoc = GetActorLocation()
+        + FVector(0.f, 0.f, MeshHeight)   // 머리 높이
+        + CamUp * ScreenUpOffset;         // 카메라 기준 화면상 위로
+
+    // 부드럽게 이동 (급격한 튐/흔들림 방지)
     const FVector Current = HealthBarWidget->GetComponentLocation();
     HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, 20.f));
 }
 
 void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
 {
-    if (!Data) return;
+    if (!Data || !MeshComp) return;
 
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
     if (!Player) return;
 
     const FVector MyLoc = GetActorLocation();
     const FVector PlayerLoc = Player->GetActorLocation();
-    const FVector Dir = (PlayerLoc - MyLoc).GetSafeNormal2D();
+    const FVector ToPlayer = PlayerLoc - MyLoc;
+    const FVector Dir = ToPlayer.GetSafeNormal2D();
 
-    // 이동
-    SetActorLocation(MyLoc + Dir * Data->MoveSpeed * DeltaTime);
+    // 너무 가까우면 이동 멈춤 (오버슈트로 인한 요동 방지)
+    if (ToPlayer.Size2D() > Data->ContactRange)
+    {
+        SetActorLocation(MyLoc + Dir * Data->MoveSpeed * DeltaTime);
+    }
 
     // 이동 방향을 바라보게 메시만 회전
     if (!Dir.IsNearlyZero())

@@ -43,6 +43,12 @@ void AVSPlayerController::HandlePlayerDied()
 
 void AVSPlayerController::ShowResult(bool bIsVictory)
 {
+	if (ResultWidgetClass.IsNull())
+	{
+		UE_LOG(LogTemp, Error, TEXT("ShowResult: ResultWidgetClass가 지정되지 않음"));
+		return;
+	}
+
 	// 결과 수집
 	float Survival = 0.f;
 	int32 Kills = 0;
@@ -62,15 +68,12 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 		Level = PC->CurrentLevel;
 
 	// 결과 위젯 생성 + 결과 전달 (승/패 구분)
-	if (ResultWidgetClass)
+	if (UClass* LoadedResultWidgetClass = ResultWidgetClass.LoadSynchronous())
 	{
-		if (UClass* LoadedResultWidgetClass = ResultWidgetClass.LoadSynchronous())
+		if (UVSResultWidget* Widget = CreateWidget<UVSResultWidget>(this, LoadedResultWidgetClass))
 		{
-			if (UVSResultWidget* Widget = CreateWidget<UVSResultWidget>(this, LoadedResultWidgetClass))
-			{
-				Widget->AddToViewport();
-				Widget->SetupResult(bIsVictory, Survival, Kills, Level, Wave);
-			}
+			Widget->AddToViewport();
+			Widget->SetupResult(bIsVictory, Survival, Kills, Level, Wave);
 		}
 	}
 
@@ -114,7 +117,7 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 void AVSPlayerController::SetupHUD()
 {
 	AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn());
-	if (!PC || !HUDWidgetClass) return;
+	if (!PC || HUDWidgetClass.IsNull()) return;
 
 	UVSDifficultySubsystem* Diff = nullptr;
 	if (UWorld* World = GetWorld())

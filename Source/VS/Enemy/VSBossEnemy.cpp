@@ -18,7 +18,7 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->SetupAttachment(Root);
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     MeshComp->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
-    MeshComp->SetWorldScale3D(FVector(1.5f));
+    MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
     MeshComp->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 }
 

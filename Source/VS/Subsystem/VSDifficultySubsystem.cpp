@@ -11,6 +11,7 @@ void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
     ElapsedTime = 0.f;
     SpawnAccumulator = 0.f;
+    EliteAccumulator = 0.f;
     CurrentWaveIndex = 0;
     KillCount = 0;
     bGameOver = false;
@@ -59,6 +60,7 @@ const FVSWaveEntry* UVSDifficultySubsystem::ResolveCurrentWave()
         && ElapsedTime >= WaveData->Waves[CurrentWaveIndex + 1].StartTime)
     {
         ++CurrentWaveIndex;
+        EliteAccumulator = 0.f;
         SpawnWaveBoss(WaveData->Waves[CurrentWaveIndex]);   // 새 웨이브 진입 시 보스 1회 스폰
     }
 
@@ -117,8 +119,8 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
     const FVSWaveEntry* Wave = ResolveCurrentWave();
     if (!Wave) return;
 
-    // 일반 적 스폰 (EnemyType이 있을 때만. 보스는 ResolveCurrentWave에서 웨이브 진입 시 이미 스폰됨)
-    if (Wave->EnemyType)
+    // 일반 적 스폰
+    if (Wave->EnemyType && Wave->SpawnInterval > 0.f)
     {
         SpawnAccumulator += DeltaTime;
         while (SpawnAccumulator >= Wave->SpawnInterval)
@@ -127,6 +129,17 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
 
             for (int32 i = 0; i < Wave->SpawnPerTick; ++i)
                 Mgr->SpawnEnemy(Wave->EnemyType, Wave->HealthMult);
+        }
+    }
+
+    // 엘리트 적 스폰
+    if (Wave->EliteType && Wave->EliteInterval > 0.f)
+    {
+        EliteAccumulator += DeltaTime;
+        if (EliteAccumulator >= Wave->EliteInterval)
+        {
+            EliteAccumulator -= Wave->EliteInterval;
+            Mgr->SpawnEnemy(Wave->EliteType, Wave->HealthMult);
         }
     }
 }

@@ -17,6 +17,12 @@ struct FVSWaveEntry
     UPROPERTY(EditAnywhere) int32 SpawnPerTick = 3;     // 한 번에 몇 마리
     UPROPERTY(EditAnywhere) float HealthMult = 1.f;     // 이 웨이브 적의 체력 배율 (MaxHealth에 곱하는 값)
 
+    UPROPERTY(EditAnywhere, Category="Elite")
+    TObjectPtr<UVSEnemyTypeData> EliteType;   // 섞어 스폰할 엘리트 (없으면 안 나옴)
+
+    UPROPERTY(EditAnywhere, Category="Elite")
+    float EliteInterval = 0.f;   // 엘리트 스폰 간격(초). 0이면 엘리트 없음
+
     UPROPERTY(EditAnywhere, Category="Boss") TSubclassOf<AVSBossEnemy> BossClass;
     UPROPERTY(EditAnywhere, Category="Boss") TObjectPtr<UVSBossData> BossData;
 };

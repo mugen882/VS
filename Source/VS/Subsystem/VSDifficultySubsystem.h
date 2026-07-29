@@ -69,6 +69,7 @@ private:
 private:
     float ElapsedTime = 0.f;
     int32 CurrentWaveIndex = 0;
+    int32 LastBossWaveIndex = -1;
     float SpawnAccumulator = 0.f;
     float EliteAccumulator = 0.f;
     int32 KillCount = 0;

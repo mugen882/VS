@@ -61,7 +61,13 @@ const FVSWaveEntry* UVSDifficultySubsystem::ResolveCurrentWave()
     {
         ++CurrentWaveIndex;
         EliteAccumulator = 0.f;
-        SpawnWaveBoss(WaveData->Waves[CurrentWaveIndex]);   // 새 웨이브 진입 시 보스 1회 스폰
+    }
+
+    // 현재 웨이브가 이전에 보스 스폰한 웨이브와 다르면 스폰
+    if (CurrentWaveIndex != LastBossWaveIndex)
+    {
+        LastBossWaveIndex = CurrentWaveIndex;
+        SpawnWaveBoss(WaveData->Waves[CurrentWaveIndex]);
     }
 
     // 아직 첫 웨이브 StartTime 전이면 스폰 안 함

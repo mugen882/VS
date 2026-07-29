@@ -16,7 +16,7 @@ static constexpr int32 BOSS_TARGET_INDEX = -2;
 enum EEnemyCustomData
 {
     Anim_StartTime = 0,
-    Anim_Speed = 1,
+    Anim_Speed_Rate = 1,
     Anim_StartFrame = 2,
     Anim_EndFrame = 3,
     Tint_R = 4,

@@ -46,12 +46,13 @@ void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult)
         0.f);
 
     // 타입 크기 반영
-    const FTransform Xform(FRotator::ZeroRotator, Loc, FVector(Type->Scale));
+    float Scale = FMath::Min(Type->Scale, BOSS_ENEMY_SCALE);
+    const FTransform Xform(FRotator::ZeroRotator, Loc, FVector(Scale));
     const int32 Index = ISM->AddInstance(Xform, /*bWorldSpace=*/true);
 
     // 애니메이션용 커스텀 데이터
     ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_StartTime, FMath::FRand());
-    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_Speed, 1.0f);          // 달리기 애니 속도 배율
+    ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_Speed_Rate, 1.0f);
     ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_StartFrame, 320.0f);   // 달리기 애니 시작 프레임
     ISM->SetCustomDataValue(Index, (int32)EEnemyCustomData::Anim_EndFrame, 338.0f);     // 달리기 애니 끝 프레임
     // 틴트용 커스텀데이터

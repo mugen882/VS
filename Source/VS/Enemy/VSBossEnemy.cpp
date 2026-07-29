@@ -4,6 +4,9 @@
 #include "Manager/VSGemManager.h"
 #include "Manager/VSEnemyManager.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/VSBossHeadBarWidget.h"
+#include "ViewModel/VSBossHeadBarViewModel.h"
 #include "Kismet/GameplayStatics.h"
 #include "Component/VSWeaponComponent.h"
 
@@ -20,6 +23,13 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
     MeshComp->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
+    // 머리 위 체력바 — 화면을 향하는 위젯. 위젯 클래스는 BP에서 지정
+    HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
+    HealthBarWidget->SetupAttachment(Root);
+    HealthBarWidget->SetWidgetSpace(EWidgetSpace::Screen);   // 항상 카메라 향함
+    HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 330.f));   // 기본 머리 높이 (Tick에서 카메라 기준 보정)
+    HealthBarWidget->SetDrawAtDesiredSize(true);
 }
 
 void AVSBossEnemy::InitBoss(UVSBossData* InData)
@@ -50,6 +60,7 @@ void AVSBossEnemy::ReceiveDamage(float Damage)
 
     Health -= Damage;
     OnBossHealthChanged.Broadcast(GetHealthPercent());
+    OnBossDamaged.Broadcast(this);   // 화면 상단 바가 "마지막 타격 보스"로 이 보스를 추적
 
     if (Health <= 0.f)
     {
@@ -72,6 +83,30 @@ void AVSBossEnemy::Tick(float DeltaTime)
 
     MoveTowardPlayer(DeltaTime);
     UpdateAttack(DeltaTime);
+
+    UpdateHealthBarPosition(DeltaTime);
+}
+
+void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
+{
+    if (!HealthBarWidget) return;
+
+    APlayerCameraManager* Cam = UGameplayStatics::GetPlayerCameraManager(this, 0);
+    if (!Cam) return;
+
+    // 카메라의 "위쪽" 방향 = 화면 세로축. 이 방향으로 밀면 카메라 각도와 무관하게 화면상 위로 간다.
+    const FVector CamUp = Cam->GetCameraRotation().RotateVector(FVector::UpVector);
+
+    const float MeshHeight = MeshComp->Bounds.BoxExtent.Z * 2.f;
+
+    // 보스 머리 근처 + 화면상 위로 오프셋
+    const FVector TargetLoc = GetActorLocation()
+        + FVector(0.f, 0.f, MeshHeight)   // 머리 높이
+        + CamUp * ScreenUpOffset;         // 카메라 기준 화면상 위로
+
+    // 부드럽게 이동 (급격한 튐/흔들림 방지)
+    const FVector Current = HealthBarWidget->GetComponentLocation();
+    HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, 20.f));
 }
 
 void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
@@ -88,12 +123,13 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
     // 이동
     SetActorLocation(MyLoc + Dir * Data->MoveSpeed * DeltaTime);
 
-    // 이동 방향을 바라보게 회전
+    // 이동 방향을 바라보게 메시만 회전
     if (!Dir.IsNearlyZero())
     {
-        const FRotator CurrentRot = GetActorRotation();
-        const FRotator TargetRot = Dir.Rotation();
-        SetActorRotation(FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, RotSpeed));
+        FRotator TargetRot = Dir.Rotation();
+        TargetRot.Yaw -= 90.f;   // Manny 메시 정면 축 보정
+        const FRotator CurrentRot = MeshComp->GetComponentRotation();
+        MeshComp->SetWorldRotation(FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, RotSpeed));
     }
 
     // 접촉 데미지 (초당)
@@ -117,6 +153,18 @@ void AVSBossEnemy::BeginPlay()
                 EnemyManager->RegisterBoss(this);
         }
     }
+
+    // 머리 위 체력바: 뷰모델 생성 → 자기 보스와 연결 → 위젯에 주입
+    if (HealthBarWidget)
+    {
+        HealthBarWidget->InitWidget();   // 위젯이 아직 생성 전일 수 있어 강제 초기화
+        if (UVSBossHeadBarWidget* HeadBar = Cast<UVSBossHeadBarWidget>(HealthBarWidget->GetWidget()))
+        {
+            UVSBossHeadBarViewModel* VM = NewObject<UVSBossHeadBarViewModel>(this);
+            VM->BindBoss(this);
+            HeadBar->SetViewModel(VM);   // → OnViewModelSet
+        }
+    }
 }
 
 void AVSBossEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -138,6 +186,6 @@ void AVSBossEnemy::OnDeath()
         }
     }
 
-    OnBossDied.Broadcast();
+    OnBossDied.Broadcast(this);
     Destroy();
 }

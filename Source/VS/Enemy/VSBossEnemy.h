@@ -8,10 +8,14 @@ class UVSBossData;
 class USkeletalMeshComponent;
 class AVSGemManager;
 
-// 보스 사망 알림 (웨이브/HUD가 구독)
-DECLARE_MULTICAST_DELEGATE(FOnBossDied);
-// 체력 변경 알림 (0~1 비율) — 화면 상단 체력바가 구독
+class AVSBossEnemy;
+
+// 보스 사망 알림 (웨이브/HUD가 구독). 어느 보스가 죽었는지 전달
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDied, AVSBossEnemy*);
+// 체력 변경 알림 (0~1 비율) — 체력바가 구독
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossHealthChanged, float);
+// 피격 알림 (this) — 화면 상단 바가 "마지막 타격 보스"를 추적하는 데 사용
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDamaged, AVSBossEnemy*);
 
 /**
  * 보스 베이스. 모든 보스가 공유하는 이동·체력·사망을 처리한다.
@@ -37,6 +41,7 @@ public:
 
     FOnBossDied OnBossDied;
     FOnBossHealthChanged OnBossHealthChanged;
+    FOnBossDamaged OnBossDamaged;
 
 protected:
     virtual void BeginPlay() override;
@@ -51,9 +56,16 @@ protected:
 
     virtual void OnDeath();
 
+    // 체력바를 카메라 기준 "화면상 위"에 배치 (탑다운 대각선 카메라 대응)
+    void UpdateHealthBarPosition(float DeltaTime);
+
 protected:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USkeletalMeshComponent> MeshComp;
+
+    // 머리 위 체력바 (각 보스가 자기 것을 소유. 위젯 클래스는 BP에서 지정)
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<class UWidgetComponent> HealthBarWidget;
 
     UPROPERTY()
     TObjectPtr<UVSBossData> Data;
@@ -64,4 +76,7 @@ protected:
 private:
     float Health = 0.f;
     const float RotSpeed = 360.f;
+
+    UPROPERTY(EditAnywhere, Category="Boss|HealthBar")
+    float ScreenUpOffset = 120.f;  // 화면상 위로 밀 거리 (카메라 up 방향)
 };

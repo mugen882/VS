@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Common/VSDefine.h"
@@ -10,7 +10,6 @@ class UVSEnemyTypeData;
 class AVSBossEnemy;
 
 // FindNearestEnemy가 "보스가 최근접 타겟"임을 알리는 특수 인덱스
-// (ISM 적 인덱스 0..N, INDEX_NONE(-1)과 겹치지 않는 값)
 static constexpr int32 BOSS_TARGET_INDEX = -2;
 
 enum EEnemyCustomData
@@ -88,7 +87,8 @@ private:
 
     TObjectPtr<AVSGemManager> GemManager;
 
-    TArray<AVSBossEnemy*> Bosses;
+    UPROPERTY()
+    TArray<TObjectPtr<AVSBossEnemy>> Bosses;
 
     // 동시 최대 적 수
     UPROPERTY(EditAnywhere, Category="Spawn")

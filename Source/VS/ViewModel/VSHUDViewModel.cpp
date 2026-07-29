@@ -128,23 +128,34 @@ void UVSHUDViewModel::HandleBossSpawned(AVSBossEnemy* Boss)
 {
     if (!Boss) return;
 
-    // 보스 체력 변경·사망 구독
-    Boss->OnBossHealthChanged.AddUObject(this, &UVSHUDViewModel::HandleBossHealthChanged);
+    // 상단 바 표시는 플레이어가 이 보스를 때렸을 때(HandleBossDamaged) 시작.
+    Boss->OnBossDamaged.AddUObject(this, &UVSHUDViewModel::HandleBossDamaged);
     Boss->OnBossDied.AddUObject(this, &UVSHUDViewModel::HandleBossDied);
+}
 
-    // 초기값 + 바 표시
+void UVSHUDViewModel::HandleBossDamaged(AVSBossEnemy* Boss)
+{
+    if (!Boss) return;
+
+    // 마지막 타격 보스를 상단 바 대상으로 (다른 보스였으면 전환)
+    if (CurrentTargetBoss != Boss)
+    {
+        CurrentTargetBoss = Boss;
+        if (UVSBossData* Data = Boss->GetData())
+            SetBossName(Data->DisplayName);
+        SetBossBarVisibility(ESlateVisibility::Visible);
+    }
+
+    // 현재 타겟 보스의 체력 반영
     SetBossHealthPercent(Boss->GetHealthPercent());
-    if (UVSBossData* Data = Boss->GetData())
-        SetBossName(Data->DisplayName);
-    SetBossBarVisibility(ESlateVisibility::Visible);   // 바 표시
 }
 
-void UVSHUDViewModel::HandleBossHealthChanged(float InPercent)
+void UVSHUDViewModel::HandleBossDied(AVSBossEnemy* Boss)
 {
-    SetBossHealthPercent(FMath::Clamp(InPercent, 0.f, 1.f));
-}
-
-void UVSHUDViewModel::HandleBossDied()
-{
-    SetBossBarVisibility(ESlateVisibility::Collapsed);   // 바 숨김
+    // 죽은 게 현재 상단 바 대상이면 바를 숨긴다
+    if (CurrentTargetBoss == Boss)
+    {
+        CurrentTargetBoss = nullptr;
+        SetBossBarVisibility(ESlateVisibility::Collapsed);
+    }
 }

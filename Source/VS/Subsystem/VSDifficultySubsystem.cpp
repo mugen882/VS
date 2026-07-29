@@ -129,7 +129,7 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
     if (Wave->EnemyType && Wave->SpawnInterval > 0.f)
     {
         SpawnAccumulator += DeltaTime;
-        while (SpawnAccumulator >= Wave->SpawnInterval)
+        if (SpawnAccumulator >= Wave->SpawnInterval)
         {
             SpawnAccumulator -= Wave->SpawnInterval;
 

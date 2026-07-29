@@ -138,7 +138,7 @@ AVSBossEnemy* AVSEnemyManager::FindNearestBoss(const FVector& From, float MaxRan
     AVSBossEnemy* Best = nullptr;
     float BestDistSq = MaxRange * MaxRange;
 
-    for (AVSBossEnemy* Boss : Bosses)
+    for (const TObjectPtr<AVSBossEnemy>& Boss : Bosses)
     {
         if (!IsValid(Boss)) continue;
         const float DistSq = FVector::DistSquared2D(From, Boss->GetActorLocation());
@@ -156,7 +156,6 @@ void AVSEnemyManager::ApplyDamageToEnemy(int32 Index, float Damage)
 {
     if (!Enemies.IsValidIndex(Index)) return;
     if (Enemies[Index].Health <= 0.f) return;
-    if (!GemManager) return;
 
     Enemies[Index].Health -= Damage;
     if (Enemies[Index].Health <= 0.f)
@@ -253,7 +252,6 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
 void AVSEnemyManager::ApplyDamageInRadius(const FVector& Center, float Radius, float Damage)
 {
     const float RadiusSq = Radius * Radius;
-    int32 HitCount = 0;
     TArray<int32> PendingKills;
 
     for (int32 i = 0; i < Enemies.Num(); ++i)
@@ -263,7 +261,6 @@ void AVSEnemyManager::ApplyDamageInRadius(const FVector& Center, float Radius, f
         if (DistSq <= RadiusSq)
         {
             Enemies[i].Health -= Damage;
-            HitCount++;
             if (Enemies[i].Health <= 0.f)
                 PendingKills.Add(i);
         }
@@ -273,12 +270,24 @@ void AVSEnemyManager::ApplyDamageInRadius(const FVector& Center, float Radius, f
     for (int32 Idx : PendingKills)
         KillEnemy(Idx);
 
-    // 범위 내 보스도 타격
-    const float RadiusSqForBoss = Radius * Radius;
-    for (AVSBossEnemy* Boss : Bosses)
+    // 범위 내 보스 타격
+    // 바로 데미지 적용해서 사망처리하면 삭제되면서 Ensure 발생할 수 있어서
+    // 대상 수집 후 별도 루프에서 타격
+    TArray<AVSBossEnemy*, TInlineAllocator<4>> BossTargets;
+    for (const TObjectPtr<AVSBossEnemy>& Boss : Bosses)
     {
         if (!IsValid(Boss)) continue;
-        if (FVector::DistSquared2D(Center, Boss->GetActorLocation()) <= RadiusSqForBoss)
-            Boss->ReceiveDamage(Damage);
+        if (FVector::DistSquared2D(Center, Boss->GetActorLocation()) <= RadiusSq)
+        {
+            // 대상을 수집
+            BossTargets.Add(Boss);
+        }   
+    }
+
+    // 보스 타격
+    for (AVSBossEnemy* Boss : BossTargets)
+    {
+        if (!IsValid(Boss)) continue;
+        Boss->ReceiveDamage(Damage);
     }
 }

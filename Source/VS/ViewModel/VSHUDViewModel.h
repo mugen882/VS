@@ -93,8 +93,13 @@ private:
 
     // 보스 등장/체력/사망
     void HandleBossSpawned(AVSBossEnemy* Boss);
-    void HandleBossHealthChanged(float InPercent);
-    void HandleBossDied();
+    void HandleBossDamaged(AVSBossEnemy* Boss);   // 마지막 타격 보스로 상단 바 전환
+    void HandleBossDied(AVSBossEnemy* Boss);
+
+private:
+    // 화면 상단 바가 추적하는 "마지막 타격 보스"
+    UPROPERTY()
+    TObjectPtr<AVSBossEnemy> CurrentTargetBoss;
 
 private:
     float TotalRunTime = 1.f;      // 목표 시간 (진행바 계산용)

@@ -40,7 +40,7 @@ void AVSProjectile::Tick(float DeltaTime)
         APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
         if (Player)
         {
-            const float DistSq = FVector::DistSquared(GetActorLocation(), Player->GetActorLocation());
+            const float DistSq = FVector::DistSquared2D(GetActorLocation(), Player->GetActorLocation());
             if (DistSq < HitRadius * HitRadius)
             {
                 if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(Player))

@@ -89,7 +89,7 @@ void UVSDifficultySubsystem::SpawnWaveBoss(const FVSWaveEntry& Wave)
     if (APawn* Player = UGameplayStatics::GetPlayerPawn(World, 0))
     {
         const float Angle = FMath::FRandRange(0.f, 2.f * PI);
-        const float Dist = 1000.f;
+        const float Dist = BOSS_SPAWN_DIST;
         SpawnLoc = Player->GetActorLocation()
             + FVector(FMath::Cos(Angle) * Dist, FMath::Sin(Angle) * Dist, 0.f);
 

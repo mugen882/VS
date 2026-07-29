@@ -11,3 +11,5 @@ const float MAX_SPAWN_RADIUS = 3000.f;
 const int32 MAX_ENEMY = 500.f;
 const float XP_TO_NEXTLV_MULIPLY = 1.2f;
 const float BOSS_ENEMY_SCALE = 1.8f;
+const float BOSS_SPAWN_DIST = 2000.f;
+const float BOSS_ATTACK_START_TIME = 3.f;

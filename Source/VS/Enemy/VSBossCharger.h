@@ -15,6 +15,7 @@ class VS_API AVSBossCharger : public AVSBossEnemy
     GENERATED_BODY()
 
 protected:
+    virtual void BeginPlay() override;
     virtual void UpdateAttack(float DeltaTime) override;
 
 private:

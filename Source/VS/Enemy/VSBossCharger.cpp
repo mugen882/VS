@@ -2,11 +2,20 @@
 #include "Data/VSBossData.h"
 #include "Weapon/VSProjectile.h"
 #include "Kismet/GameplayStatics.h"
+#include "Common/VSDefine.h"
+
+void AVSBossCharger::BeginPlay()
+{
+    Super::BeginPlay();
+
+    // 스폰 후 일정 시간뒤부터 Projectile발사
+    FireTimer = BOSS_ATTACK_START_TIME;
+}
 
 void AVSBossCharger::UpdateAttack(float DeltaTime)
 {
     UVSBossData* BossData = GetData();
-    if (!BossData || !BossData->ProjectileClass) return;
+    if (!BossData) return;
 
     FireTimer -= DeltaTime;
     if (FireTimer <= 0.f)
@@ -19,7 +28,7 @@ void AVSBossCharger::UpdateAttack(float DeltaTime)
 void AVSBossCharger::FireAtPlayer()
 {
     UVSBossData* BossData = GetData();
-    if (!BossData) return;
+    if (!BossData || !BossData->ProjectileClass) return;
 
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
     if (!Player) return;

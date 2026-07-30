@@ -22,7 +22,8 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     MeshComp->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
-    MeshComp->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+    // 메시 정면 축 보정. 회전은 액터가 담당하므로 보정은 여기 한 곳에만 존재한다
+    MeshComp->SetRelativeRotation(FRotator(0.f, -MESH_YAW_OFFSET, 0.f));
 
     // 머리 위 체력바 — 화면을 향하는 위젯. 위젯 클래스는 BP에서 지정
     HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
@@ -111,37 +112,78 @@ void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
 
 void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
 {
-    if (!Data || !MeshComp) return;
+    if (!Data) return;
+
+    const FVSBossPlayerInfo Info = QueryPlayer();
+    if (!Info.IsValid()) return;
+
+    // 접촉 사거리 밖일 때만 접근 (오버슈트로 인한 요동 방지)
+    if (Info.Dist > Data->ContactRange)
+        MoveInDirection(Info.Dir, Data->MoveSpeed, DeltaTime);
+
+    FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
+    ApplyContactDamage(Info, DeltaTime);
+}
+
+FVSBossPlayerInfo AVSBossEnemy::QueryPlayer() const
+{
+    FVSBossPlayerInfo Info;
 
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
-    if (!Player) return;
+    if (!Player) return Info;
 
-    const FVector MyLoc = GetActorLocation();
-    const FVector PlayerLoc = Player->GetActorLocation();
-    const FVector ToPlayer = PlayerLoc - MyLoc;
-    const FVector Dir = ToPlayer.GetSafeNormal2D();
+    const FVector ToPlayer = Player->GetActorLocation() - GetActorLocation();
+    Info.Pawn = Player;
+    Info.Dir  = ToPlayer.GetSafeNormal2D();
+    Info.Dist = ToPlayer.Size2D();
+    return Info;
+}
 
-    // 너무 가까우면 이동 멈춤 (오버슈트로 인한 요동 방지)
-    if (ToPlayer.Size2D() > Data->ContactRange)
+void AVSBossEnemy::MoveInDirection(const FVector& Dir, float Speed, float DeltaTime)
+{
+    if (Dir.IsNearlyZero()) return;
+    SetActorLocation(GetActorLocation() + Dir * Speed * DeltaTime);
+}
+
+void AVSBossEnemy::ApplyKiting(const FVSBossPlayerInfo& Info, float DeltaTime)
+{
+    if (!Data || !Info.IsValid()) return;
+
+    FVector MoveDir = FVector::ZeroVector;
+    if (Info.Dist < Data->FleeRange)
     {
-        SetActorLocation(MyLoc + Dir * Data->MoveSpeed * DeltaTime);
+        MoveDir = -Info.Dir;          // 너무 가까움 -> 물러남
     }
-
-    // 이동 방향을 바라보게 메시만 회전
-    if (!Dir.IsNearlyZero())
+    else if (Info.Dist > Data->KeepDistance)
     {
-        FRotator TargetRot = Dir.Rotation();
-        TargetRot.Yaw -= 90.f;   // Manny 메시 정면 축 보정
-        const FRotator CurrentRot = MeshComp->GetComponentRotation();
-        MeshComp->SetWorldRotation(FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, RotSpeed));
+        MoveDir = Info.Dir;           // 너무 멈 -> 다가감
     }
+    // 그 사이면 정지 (적정 거리 유지)
 
-    // 접촉 데미지 (초당)
-    if (FVector::DistSquared2D(MyLoc, PlayerLoc) < Data->ContactRange * Data->ContactRange)
-    {
-        if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(Player))
-            PC->TakeDamageFromEnemy(Data->ContactDamage * DeltaTime);
-    }
+    MoveInDirection(MoveDir, Data->MoveSpeed, DeltaTime);
+}
+
+void AVSBossEnemy::FaceDirection(const FVector& Dir, float DegPerSec, float DeltaTime)
+{
+    if (Dir.IsNearlyZero()) return;
+
+    // 등속 회전(도/초).
+    const FRotator TargetRot = Dir.Rotation();
+    SetActorRotation(FMath::RInterpConstantTo(GetActorRotation(), TargetRot, DeltaTime, DegPerSec));
+}
+
+void AVSBossEnemy::ApplyContactDamage(const FVSBossPlayerInfo& Info, float DeltaTime, float DamageMult)
+{
+    if (!Data || !Info.IsValid()) return;
+    if (Info.Dist >= Data->ContactRange) return;
+
+    if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(Info.Pawn))
+        PC->TakeDamageFromEnemy(Data->ContactDamage * DamageMult * DeltaTime);
+}
+
+float AVSBossEnemy::GetRotateSpeedDeg() const
+{
+    return Data ? Data->RotateSpeedDeg : BOSS_ROTATE_SPEED_DEG;
 }
 
 void AVSBossEnemy::BeginPlay()
@@ -166,7 +208,7 @@ void AVSBossEnemy::BeginPlay()
         {
             UVSBossHeadBarViewModel* VM = NewObject<UVSBossHeadBarViewModel>(this);
             VM->BindBoss(this);
-            HeadBar->SetViewModel(VM);   // → OnViewModelSet
+            HeadBar->SetViewModel(VM);
         }
     }
 }

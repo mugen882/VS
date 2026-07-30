@@ -126,20 +126,19 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
     if (!Wave) return;
 
     // 일반 적 스폰
-    if (Wave->EnemyType && Wave->SpawnInterval > 0.f)
+    if (Wave->EnemyType && Wave->SpawnInterval > 0.f && Wave->SpawnInterval != 0)
     {
         SpawnAccumulator += DeltaTime;
         if (SpawnAccumulator >= Wave->SpawnInterval)
         {
             SpawnAccumulator -= Wave->SpawnInterval;
-
             for (int32 i = 0; i < Wave->SpawnPerTick; ++i)
                 Mgr->SpawnEnemy(Wave->EnemyType, Wave->HealthMult);
         }
     }
 
     // 엘리트 적 스폰
-    if (Wave->EliteType && Wave->EliteInterval > 0.f)
+    if (Wave->EliteType && Wave->EliteInterval > 0.f && Wave->EliteInterval != 0)
     {
         EliteAccumulator += DeltaTime;
         if (EliteAccumulator >= Wave->EliteInterval)

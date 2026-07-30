@@ -11,6 +11,19 @@ class AVSGemManager;
 
 class AVSBossEnemy;
 
+/**
+ * 매 틱 반복되는 플레이어 조회 결과를 한 번에 담는 값 타입.
+ * 모든 보스가 "방향 + 거리"를 똑같이 필요로 하므로 베이스에서 한 번만 계산한다.
+ */
+struct FVSBossPlayerInfo
+{
+    APawn* Pawn = nullptr;
+    FVector Dir = FVector::ZeroVector;   // 보스 -> 플레이어
+    float Dist = 0.f;                    // 2D 거리
+
+    bool IsValid() const { return Pawn != nullptr; }
+};
+
 // 보스 사망 알림 (웨이브/HUD가 구독). 어느 보스가 죽었는지 전달
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDied, AVSBossEnemy*);
 // 체력 변경 알림 (0~1 비율) — 체력바가 구독
@@ -21,7 +34,6 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDamaged, AVSBossEnemy*);
 /**
  * 보스 베이스. 모든 보스가 공유하는 이동·체력·사망을 처리한다.
  * 공격 패턴은 파생 클래스가 UpdateAttack을 오버라이드해 구현한다.
- * (무기는 컴포지션 strategy, 보스는 상속 — 개체마다 메시·전체가 다르므로)
  */
 UCLASS(Abstract)
 class VS_API AVSBossEnemy : public AActor
@@ -45,8 +57,6 @@ public:
     FOnBossHealthChanged OnBossHealthChanged;
     FOnBossDamaged OnBossDamaged;
 
-    const float RotSpeed = BOSSCHARGE_ROTATE_SPEED;
-
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -59,6 +69,26 @@ protected:
     virtual void UpdateAttack(float DeltaTime) {}
 
     virtual void OnDeath();
+
+    // --- 파생 보스가 공유하는 행동 블록 ---
+
+    // 플레이어 방향/거리를 한 번에 조회 (Data 또는 플레이어가 없으면 IsValid()==false)
+    FVSBossPlayerInfo QueryPlayer() const;
+
+    // 지정 방향으로 이동 (Speed 단위: cm/s)
+    void MoveInDirection(const FVector& Dir, float Speed, float DeltaTime);
+
+    // 카이팅: FleeRange보다 가까우면 물러나고, KeepDistance보다 멀면 다가감
+    void ApplyKiting(const FVSBossPlayerInfo& Info, float DeltaTime);
+
+    // 액터를 Dir 방향으로 등속 회전(도/초). 메시 축 보정은 생성자에서 1회만 처리한다
+    void FaceDirection(const FVector& Dir, float DegPerSec, float DeltaTime);
+
+    // 접촉 사거리 안이면 초당 데미지 적용
+    void ApplyContactDamage(const FVSBossPlayerInfo& Info, float DeltaTime, float DamageMult = 1.f);
+
+    // 데이터의 선회 속도(도/초). 데이터가 없으면 기본값
+    float GetRotateSpeedDeg() const;
 
     // 체력바를 카메라 기준 "화면상 위"에 배치 (탑다운 대각선 카메라 대응)
     void UpdateHealthBarPosition(float DeltaTime);

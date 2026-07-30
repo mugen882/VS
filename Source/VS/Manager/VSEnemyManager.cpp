@@ -28,22 +28,27 @@ void AVSEnemyManager::BeginPlay()
     GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
 }
 
-void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult)
+void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult, const FVector* MinionLoc)
 {
     if (!Type || !ISM) return;
     if (Enemies.Num() >= MaxEnemies) return;
 
-    APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
-    const FVector Center = Player ? Player->GetActorLocation() : GetActorLocation();
-
-    // 링 영역에 스폰: 랜덤 각도 + 랜덤 거리(Min~Max)
-    const float Angle = FMath::FRandRange(0.f, 2.f * PI);
-    const float Dist = FMath::FRandRange(MinSpawnRadius, MaxSpawnRadius);
-
-    const FVector Loc(
-        Center.X + FMath::Cos(Angle) * Dist,
-        Center.Y + FMath::Sin(Angle) * Dist,
-        0.f);
+    FVector Loc = FVector::ZeroVector;
+    if (MinionLoc)
+    {
+        Loc = *MinionLoc;
+    }
+    else
+    {
+        APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
+        FVector SpawnCenter = Player ? Player->GetActorLocation() : GetActorLocation();
+        // 링 영역에 스폰: 랜덤 각도 + 랜덤 거리(Min~Max)
+        float Dist = FMath::FRandRange(MinSpawnRadius, MaxSpawnRadius);
+        float Angle = FMath::FRandRange(0.f, 2.f * PI);
+        Loc = FVector(SpawnCenter.X + FMath::Cos(Angle) * Dist,
+            SpawnCenter.Y + FMath::Sin(Angle) * Dist,
+            0.f);
+    }
 
     // 타입 크기 반영
     float Scale = FMath::Min(Type->Scale, BOSS_ENEMY_SCALE);
@@ -236,7 +241,7 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
 
         // 회전은 항상 플레이어를 바라보게
         FRotator Rot = Dir.Rotation();
-        Rot.Yaw -= 90.f;
+        Rot.Yaw -= MESH_YAW_OFFSET;
 
         NewTransforms.Add(FTransform(Rot, Loc, FVector(Enemies[i].Scale)));
 

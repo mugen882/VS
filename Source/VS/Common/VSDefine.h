@@ -13,4 +13,6 @@ const float XP_TO_NEXTLV_MULIPLY = 1.2f;
 const float BOSS_ENEMY_SCALE = 1.8f;
 const float BOSS_SPAWN_DIST = 2000.f;
 const float BOSS_ATTACK_START_TIME = 3.f;
-const float BOSSCHARGE_ROTATE_SPEED = 30.f;
+const float MESH_YAW_OFFSET = 90.f;
+const float BOSS_ROTATE_SPEED_DEG = 240.f;      // 보스 기본 선회 속도 (도/초)
+const float BOSS_AIM_ROTATE_SPEED_DEG = 120.f;  // 돌진 조준 중 선회 속도 (낮을수록 회피 쉬움)

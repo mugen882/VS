@@ -25,5 +25,5 @@ protected:
 private:
     void FireRadialBurst();
 
-    float FireTimer = 0.f;   // 다음 탄막까지 남은 시간
+    float FireTimer = BOSS_ATTACK_START_TIME;   // 다음 탄막까지 남은 시간(등장 직후엔 유예)
 };

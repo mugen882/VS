@@ -4,10 +4,21 @@
 #include "Enemy/VSBossEnemy.h"
 #include "VSBossCharger.generated.h"
 
+// 돌진 보스의 상태
+UENUM()
+enum class EChargerState : uint8
+{
+    Chase,    // 추격: 플레이어를 천천히 쫓음
+    Aim,      // 조준: 멈춰서 방향 고정 (곧 돌진 신호)
+    Charge,   // 돌진: 고정한 방향으로 빠르게 직진
+    Recover   // 회복: 돌진 후 잠시 멈춤
+};
+
 /**
- * 돌진 + 원거리 투사체 보스.
- * 이동(돌진)은 베이스 MoveTowardPlayer를 그대로 사용하고,
- * UpdateAttack에서 쿨다운마다 플레이어를 향해 투사체를 발사한다.
+ * 돌진 보스.
+ * 평소엔 추격하다가, 플레이어가 사거리 안에 들어오고 쿨다운이 끝나면
+ * 조준(방향 고정) -> 돌진(직진) -> 회복 순서로 행동한다.
+ * 돌진 방향은 조준 시점에 고정되므로 플레이어가 옆으로 피할 수 있다.
  */
 UCLASS()
 class VS_API AVSBossCharger : public AVSBossEnemy
@@ -15,11 +26,14 @@ class VS_API AVSBossCharger : public AVSBossEnemy
     GENERATED_BODY()
 
 protected:
-    virtual void BeginPlay() override;
-    virtual void UpdateAttack(float DeltaTime) override;
+    // 베이스의 단순 추격 대신 상태 머신으로 이동을 제어
+    virtual void MoveTowardPlayer(float DeltaTime) override;
 
 private:
-    void FireAtPlayer();
+    void EnterState(EChargerState NewState);
 
-    float FireTimer = 0.f;
+    EChargerState State = EChargerState::Chase;
+    float StateTimer = 0.f;          // 현재 상태 경과 시간
+    float CooldownTimer = 0.f;       // 다음 돌진까지 남은 쿨다운
+    FVector ChargeDir = FVector::ZeroVector;   // 조준 시점에 고정된 돌진 방향
 };

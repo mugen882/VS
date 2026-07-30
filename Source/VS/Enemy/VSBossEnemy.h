@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Common/VSDefine.h"
 #include "VSBossEnemy.generated.h"
 
 class UVSBossData;
@@ -39,9 +40,12 @@ public:
     float GetHealthPercent() const;
     UVSBossData* GetData() const { return Data; }
 
+public:
     FOnBossDied OnBossDied;
     FOnBossHealthChanged OnBossHealthChanged;
     FOnBossDamaged OnBossDamaged;
+
+    const float RotSpeed = BOSSCHARGE_ROTATE_SPEED;
 
 protected:
     virtual void BeginPlay() override;
@@ -75,7 +79,6 @@ protected:
 
 private:
     float Health = 0.f;
-    const float RotSpeed = 360.f;
 
     // 체력바를 화면상 위로 밀 거리 (카메라 up 방향)
     UPROPERTY(EditAnywhere, Category="Boss|HealthBar")

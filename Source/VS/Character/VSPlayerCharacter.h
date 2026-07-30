@@ -52,7 +52,7 @@ public:
     int32 CurrentLevel = 1;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
-    int32 XPToNextLevel = NEXT_LEVEL_XP;
+    int32 XPToNextLevel = BASE_LEVEL_XP;
 
     float CurrentHealth = DEFAULT_HEALTH;
     float MaxHealth = DEFAULT_HEALTH;

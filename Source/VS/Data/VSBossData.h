@@ -33,7 +33,11 @@ public:
     UPROPERTY(EditAnywhere, Category="Boss|Stats", meta=(ClampMin="0", ClampMax="1440"))
     float RotateSpeedDeg = BOSS_ROTATE_SPEED_DEG;   // 선회 속도(도/초). 낮을수록 방향 전환이 굼뜸
 
-    // --- 카이팅 (거리 유지) ---
+    // 액터 정면(+X) 대비 메시가 틀어진 각도. 에셋마다 다르므로 데이터로 둔다
+    UPROPERTY(EditAnywhere, Category="Boss|Visual", meta=(ClampMin="-180", ClampMax="180"))
+    float MeshYawOffset = MESH_YAW_OFFSET;
+
+    // --- 카이팅 (거리 유지). 베이스의 ApplyKiting을 쓰는 보스만 사용 ---
     UPROPERTY(EditAnywhere, Category="Boss|Kiting")
     float KeepDistance = 1000.f;   // 이보다 멀면 다가감
 

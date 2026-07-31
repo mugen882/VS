@@ -22,14 +22,13 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     MeshComp->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
-    // 메시 정면 축 보정. 회전은 액터가 담당하므로 보정은 여기 한 곳에만 존재한다
-    MeshComp->SetRelativeRotation(FRotator(0.f, -MESH_YAW_OFFSET, 0.f));
 
     // 머리 위 체력바 — 화면을 향하는 위젯. 위젯 클래스는 BP에서 지정
     HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
     HealthBarWidget->SetupAttachment(Root);
     HealthBarWidget->SetWidgetSpace(EWidgetSpace::Screen);   // 항상 카메라 향함
-    HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 330.f));   // 기본 머리 높이 (Tick에서 카메라 기준 보정)
+    // 생성자 시점엔 메시가 아직 없어 바운드가 무의미하다. 실제 높이는 InitBoss에서 계산.
+    HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, BOSS_HEADBAR_FALLBACK_HEIGHT));
     HealthBarWidget->SetDrawAtDesiredSize(true);
 }
 
@@ -43,13 +42,18 @@ void AVSBossEnemy::InitBoss(UVSBossData* InData)
         if (Data->Mesh)
         {
             MeshComp->SetSkeletalMesh(Data->Mesh);
-        }   
+        }
+
+        // 메시 축 보정은 메시와 한 세트. 회전은 액터가 담당하므로 보정 지점은 여기뿐이다
+        MeshComp->SetRelativeRotation(FRotator(0.f, Data->MeshYawOffset, 0.f));
 
         if (Data->AnimClass)
         {
             MeshComp->SetAnimationMode(EAnimationMode::AnimationBlueprint);
             MeshComp->SetAnimInstanceClass(Data->AnimClass);
         }   
+
+        CacheHeadHeight();   // 메시가 정해진 뒤에야 바운드가 의미를 가진다
     }
 
     OnBossHealthChanged.Broadcast(GetHealthPercent());
@@ -98,11 +102,9 @@ void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
     // 카메라의 "위쪽" 방향으로 밀면 화면상 위로 간다.
     const FVector CamUp = Cam->GetCameraRotation().RotateVector(FVector::UpVector);
 
-    const float MeshHeight = MeshComp->Bounds.BoxExtent.Z * 2.f;
-
     // 보스 머리 근처 + 화면상 위로 오프셋
     const FVector TargetLoc = GetActorLocation()
-        + FVector(0.f, 0.f, MeshHeight)   // 머리 높이
+        + FVector(0.f, 0.f, HeadHeight)   // 머리 높이 (InitBoss에서 바운드로 계산)
         + CamUp * ScreenUpOffset;         // 카메라 기준 화면상 위로
 
     // 부드럽게 이동 (급격한 튐/흔들림 방지)
@@ -110,10 +112,26 @@ void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
     HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, 20.f));
 }
 
+void AVSBossEnemy::CacheHeadHeight()
+{
+    if (!MeshComp) return;
+
+    // 메시를 막 교체한 직후라 바운드가 아직 갱신 전일 수 있다
+    MeshComp->UpdateBounds();
+
+    // 월드 바운드 상단 - 액터 기준점 = 발끝에서 머리끝까지 (컴포넌트 스케일 포함)
+    const FBoxSphereBounds& MeshBounds = MeshComp->Bounds;
+    const float Top = MeshBounds.Origin.Z + MeshBounds.BoxExtent.Z;
+    const float Height = Top - GetActorLocation().Z;
+
+    HeadHeight = (Height > 0.f) ? Height : BOSS_HEADBAR_FALLBACK_HEIGHT;
+
+    if (HealthBarWidget)
+        HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, HeadHeight));
+}
+
 void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
 {
-    if (!Data) return;
-
     const FVSBossPlayerInfo Info = QueryPlayer();
     if (!Info.IsValid()) return;
 
@@ -128,6 +146,7 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
 FVSBossPlayerInfo AVSBossEnemy::QueryPlayer() const
 {
     FVSBossPlayerInfo Info;
+    if (!Data) return Info;
 
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
     if (!Player) return Info;
@@ -208,7 +227,7 @@ void AVSBossEnemy::BeginPlay()
         {
             UVSBossHeadBarViewModel* VM = NewObject<UVSBossHeadBarViewModel>(this);
             VM->BindBoss(this);
-            HeadBar->SetViewModel(VM);
+            HeadBar->SetViewModel(VM);   // → OnViewModelSet
         }
     }
 }

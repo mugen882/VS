@@ -34,6 +34,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDamaged, AVSBossEnemy*);
 /**
  * 보스 베이스. 모든 보스가 공유하는 이동·체력·사망을 처리한다.
  * 공격 패턴은 파생 클래스가 UpdateAttack을 오버라이드해 구현한다.
+ * (무기는 컴포지션 strategy, 보스는 상속 — 개체마다 메시·전체가 다르므로)
  */
 UCLASS(Abstract)
 class VS_API AVSBossEnemy : public AActor
@@ -72,7 +73,7 @@ protected:
 
     // --- 파생 보스가 공유하는 행동 블록 ---
 
-    // 플레이어 방향/거리를 한 번에 조회 (Data 또는 플레이어가 없으면 IsValid()==false)
+    // 플레이어 방향/거리를 한 번에 조회
     FVSBossPlayerInfo QueryPlayer() const;
 
     // 지정 방향으로 이동 (Speed 단위: cm/s)
@@ -93,6 +94,9 @@ protected:
     // 체력바를 카메라 기준 "화면상 위"에 배치 (탑다운 대각선 카메라 대응)
     void UpdateHealthBarPosition(float DeltaTime);
 
+    // 메시 바운드로 머리 높이를 계산해 캐시 (메시 지정 직후 1회)
+    void CacheHeadHeight();
+
 protected:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USkeletalMeshComponent> MeshComp;
@@ -109,6 +113,9 @@ protected:
 
 private:
     float Health = 0.f;
+
+    // 발끝에서 머리끝까지의 높이. 1회 계산해 캐시한다.
+    float HeadHeight = BOSS_HEADBAR_FALLBACK_HEIGHT;
 
     // 체력바를 화면상 위로 밀 거리 (카메라 up 방향)
     UPROPERTY(EditAnywhere, Category="Boss|HealthBar")

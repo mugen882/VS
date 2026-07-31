@@ -241,7 +241,7 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
 
         // 회전은 항상 플레이어를 바라보게
         FRotator Rot = Dir.Rotation();
-        Rot.Yaw -= MESH_YAW_OFFSET;
+        Rot.Yaw += MeshYawOffset;
 
         NewTransforms.Add(FTransform(Rot, Loc, FVector(Enemies[i].Scale)));
 

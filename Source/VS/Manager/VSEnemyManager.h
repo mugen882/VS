@@ -62,6 +62,10 @@ public:
     UPROPERTY(VisibleAnywhere)
     UInstancedStaticMeshComponent* ISM;
 
+    // 액터 정면(+X) 대비 ISM 메시가 틀어진 각도.
+    UPROPERTY(EditAnywhere, Category="Enemy|Visual", meta=(ClampMin="-180", ClampMax="180"))
+    float MeshYawOffset = MESH_YAW_OFFSET;
+
 protected:
     virtual void BeginPlay() override;
 

@@ -14,6 +14,7 @@ const float BOSS_ENEMY_SCALE = 1.8f;
 const float BOSS_SPAWN_DIST = 2000.f;
 const float BOSS_ATTACK_START_TIME = 3.f;
 const float BOSS_HEADBAR_FALLBACK_HEIGHT = 330.f;   // 메시 바운드를 못 구했을 때만 쓰는 대체 높이
+const float BOSS_MESH_RADIUS = 100.f;			// 메시 반지름 기본값
 const float MESH_YAW_OFFSET = -90.f;            // 액터 정면(+X) 대비 메시가 틀어진 각도 (데이터 기본값)
 const float BOSS_ROTATE_SPEED_DEG = 240.f;      // 보스 기본 선회 속도 (도/초)
 const float BOSS_AIM_ROTATE_SPEED_DEG = 120.f;  // 돌진 조준 중 선회 속도 (낮을수록 회피 쉬움)

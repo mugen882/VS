@@ -4,6 +4,9 @@
 #include "Enemy/VSBossEnemy.h"
 #include "VSBossCharger.generated.h"
 
+class UDecalComponent;
+class UMaterialInstanceDynamic;
+
 // 돌진 보스의 상태
 UENUM()
 enum class EChargerState : uint8
@@ -25,12 +28,29 @@ class VS_API AVSBossCharger : public AVSBossEnemy
 {
     GENERATED_BODY()
 
+public:
+    AVSBossCharger();
+
 protected:
     // 베이스의 단순 추격 대신 상태 머신으로 이동을 제어
     virtual void MoveTowardPlayer(float DeltaTime) override;
 
+    virtual void OnDeath() override;
+
 private:
     void EnterState(EChargerState NewState);
+
+    // --- 텔레그래프 ---
+    void SetupTelegraph();               // 데이터 기준 크기/위치 계산 (조준 진입 시 1회)
+    void ShowTelegraph(bool bShow);
+    void UpdateTelegraph(float Ratio);   // 조준 진행도 0~1
+
+    // 돌진 경로 예고 데칼.
+    UPROPERTY(VisibleAnywhere, Category="Telegraph")
+    UDecalComponent* TelegraphDecal;
+
+    UPROPERTY(Transient)
+    UMaterialInstanceDynamic* TelegraphMID = nullptr;
 
     EChargerState State = EChargerState::Chase;
     float StateTimer = 0.f;          // 현재 상태 경과 시간

@@ -22,6 +22,7 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     MeshComp->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
+    MeshComp->SetReceivesDecals(false);   // 자신의 텔레그래프 데칼이 몸에 묻지 않게
 
     // 머리 위 체력바 — 화면을 향하는 위젯. 위젯 클래스는 BP에서 지정
     HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
@@ -53,7 +54,7 @@ void AVSBossEnemy::InitBoss(UVSBossData* InData)
             MeshComp->SetAnimInstanceClass(Data->AnimClass);
         }   
 
-        CacheHeadHeight();   // 메시가 정해진 뒤에야 바운드가 의미를 가진다
+        CacheData();   // 메시가 정해진 뒤에야 바운드가 의미를 가진다
     }
 
     OnBossHealthChanged.Broadcast(GetHealthPercent());
@@ -112,7 +113,7 @@ void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
     HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, 20.f));
 }
 
-void AVSBossEnemy::CacheHeadHeight()
+void AVSBossEnemy::CacheData()
 {
     if (!MeshComp) return;
 
@@ -128,6 +129,9 @@ void AVSBossEnemy::CacheHeadHeight()
 
     if (HealthBarWidget)
         HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, HeadHeight));
+
+    const float Radius = FMath::Max(MeshBounds.BoxExtent.X, MeshBounds.BoxExtent.Y);
+    MeshRadius = (Radius > 0.f) ? Radius : BOSS_MESH_RADIUS;
 }
 
 void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
@@ -140,7 +144,7 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
         MoveInDirection(Info.Dir, Data->MoveSpeed, DeltaTime);
 
     FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
-    ApplyContactDamage(Info, DeltaTime);
+    ApplyContactDamage(DeltaTime);
 }
 
 FVSBossPlayerInfo AVSBossEnemy::QueryPlayer() const
@@ -175,7 +179,7 @@ void AVSBossEnemy::ApplyKiting(const FVSBossPlayerInfo& Info, float DeltaTime)
     }
     else if (Info.Dist > Data->KeepDistance)
     {
-        MoveDir = Info.Dir;           // 너무 멈 -> 다가감
+        MoveDir = Info.Dir;           // 너무 멀다 -> 다가감
     }
     // 그 사이면 정지 (적정 거리 유지)
 
@@ -191,10 +195,16 @@ void AVSBossEnemy::FaceDirection(const FVector& Dir, float DegPerSec, float Delt
     SetActorRotation(FMath::RInterpConstantTo(GetActorRotation(), TargetRot, DeltaTime, DegPerSec));
 }
 
-void AVSBossEnemy::ApplyContactDamage(const FVSBossPlayerInfo& Info, float DeltaTime, float DamageMult)
+void AVSBossEnemy::ApplyContactDamage(float DeltaTime, float DamageMult)
 {
-    if (!Data || !Info.IsValid()) return;
-    if (Info.Dist >= Data->ContactRange) return;
+    if (!Data) return;
+
+    const FVSBossPlayerInfo Info = QueryPlayer();
+    if (!Info.IsValid()) return;
+
+    // 플레이어 몸 반경까지 포함해야 데칼 영역내에 있을때 몸이 닿으면 맞는다.
+    const float HitRange = Data->ContactRange + Info.Pawn->GetSimpleCollisionRadius();
+    if (Info.Dist >= HitRange) return;
 
     if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(Info.Pawn))
         PC->TakeDamageFromEnemy(Data->ContactDamage * DamageMult * DeltaTime);

@@ -8,6 +8,7 @@ AVSGemManager::AVSGemManager()
     PrimaryActorTick.bCanEverTick = true;
 
     GemISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("GemISM"));
+    GemISM->SetReceivesDecals(false);   // 바닥 데칼이 젬 위로 투영되지 않게
     RootComponent = GemISM;
 
     GemISM->SetCollisionEnabled(ECollisionEnabled::NoCollision);

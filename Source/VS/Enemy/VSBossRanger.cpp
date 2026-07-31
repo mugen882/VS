@@ -7,9 +7,9 @@ void AVSBossRanger::MoveTowardPlayer(float DeltaTime)
     const FVSBossPlayerInfo Info = QueryPlayer();
     if (!Info.IsValid()) return;
 
-    ApplyKiting(Info, DeltaTime);                          // 거리 유지
-    FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);   // 항상 플레이어를 바라봄
-    ApplyContactDamage(Info, DeltaTime);
+    ApplyKiting(Info, DeltaTime);
+    FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
+    ApplyContactDamage(DeltaTime);
 }
 
 void AVSBossRanger::UpdateAttack(float DeltaTime)

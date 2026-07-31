@@ -86,7 +86,7 @@ protected:
     void FaceDirection(const FVector& Dir, float DegPerSec, float DeltaTime);
 
     // 접촉 사거리 안이면 초당 데미지 적용
-    void ApplyContactDamage(const FVSBossPlayerInfo& Info, float DeltaTime, float DamageMult = 1.f);
+    void ApplyContactDamage(float DeltaTime, float DamageMult = 1.f);
 
     // 데이터의 선회 속도(도/초). 데이터가 없으면 기본값
     float GetRotateSpeedDeg() const;
@@ -94,8 +94,10 @@ protected:
     // 체력바를 카메라 기준 "화면상 위"에 배치 (탑다운 대각선 카메라 대응)
     void UpdateHealthBarPosition(float DeltaTime);
 
-    // 메시 바운드로 머리 높이를 계산해 캐시 (메시 지정 직후 1회)
-    void CacheHeadHeight();
+    // 메시 바운드로 머리 높이, 반지름을 계산해 캐시 (메시 지정 직후 1회)
+    void CacheData();
+
+    float GetMeshRadius() const { return MeshRadius; }
 
 protected:
     UPROPERTY(VisibleAnywhere)
@@ -116,6 +118,8 @@ private:
 
     // 발끝에서 머리끝까지의 높이. 1회 계산해 캐시한다.
     float HeadHeight = BOSS_HEADBAR_FALLBACK_HEIGHT;
+    // 메시 반지름. 1회 계산해 캐시한다.
+    float MeshRadius = BOSS_MESH_RADIUS;
 
     // 체력바를 화면상 위로 밀 거리 (카메라 up 방향)
     UPROPERTY(EditAnywhere, Category="Boss|HealthBar")

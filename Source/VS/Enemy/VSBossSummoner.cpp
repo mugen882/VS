@@ -8,8 +8,8 @@ void AVSBossSummoner::MoveTowardPlayer(float DeltaTime)
     if (!Info.IsValid()) return;
 
     ApplyKiting(Info, DeltaTime);
-    FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);   // 항상 플레이어를 바라봄
-    ApplyContactDamage(Info, DeltaTime);
+    FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
+    ApplyContactDamage(DeltaTime);
 }
 
 void AVSBossSummoner::UpdateAttack(float DeltaTime)

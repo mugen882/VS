@@ -13,6 +13,7 @@ AVSEnemyManager::AVSEnemyManager()
     PrimaryActorTick.bCanEverTick = true;
 
     ISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ISM"));
+    ISM->SetReceivesDecals(false);   // 바닥 데칼이 잡몹 위로 투영되지 않게
     RootComponent = ISM;
     ISM->NumCustomDataFloats = 7; // 인스턴스당 커스텀 데이터
 }

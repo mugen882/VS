@@ -32,6 +32,9 @@ AVSPlayerCharacter::AVSPlayerCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
+	// 보스 텔레그래프 같은 바닥 데칼이 캐릭터 위로 투영되지 않게 한다
+	GetMesh()->SetReceivesDecals(false);
+
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true);

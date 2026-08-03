@@ -5,7 +5,17 @@ AVSDrone::AVSDrone()
 {
     PrimaryActorTick.bCanEverTick = false;   // 위치/발사는 UVSDroneBehavior가
 
-    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-    RootComponent = Mesh;
-    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+    RootComponent = SkeletalMesh;
+    SkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AVSDrone::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (SkeletalMesh)
+    {
+       SkeletalMesh->SetReceivesDecals(false);
+    }
 }

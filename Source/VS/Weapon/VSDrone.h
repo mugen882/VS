@@ -13,6 +13,9 @@ public:
     AVSDrone();
 
 protected:
-    UPROPERTY(VisibleAnywhere)
-    TObjectPtr<UStaticMeshComponent> Mesh;
+    virtual void BeginPlay() override;
+
+protected:
+    UPROPERTY(VisibleAnywhere, Category = "Drone")
+    TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 };

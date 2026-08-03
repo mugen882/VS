@@ -46,7 +46,7 @@ struct FVSDroneConfig
 
     UPROPERTY(EditAnywhere) TSubclassOf<AVSDrone> DroneClass;
     UPROPERTY(EditAnywhere) float Offset = 100.f;
-    UPROPERTY(EditAnywhere) float Scale = 0.5f;
+    UPROPERTY(EditAnywhere) float Scale = 0.2f;
     UPROPERTY(EditAnywhere) int32 MaxProjCount = 5;
 };
 

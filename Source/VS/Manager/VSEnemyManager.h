@@ -55,6 +55,12 @@ public:
     // 범위 내 최근접 보스 찾음
     AVSBossEnemy* FindNearestBoss(const FVector& From, float MaxRange, float& OutDistSq) const;
 
+    // 모든 적을 즉시 제거 (제외: 젝 드롭·킬 카운트). 벤치마크 정리용
+    void ClearAllEnemies();
+
+    // 현재 살아있는 ISM 적 수 (벤치마크 리포트용)
+    int32 GetEnemyCount() const { return Enemies.Num(); }
+
     // 적 스폰. Center를 주면 그 위치 주변 링에, 안 주면(기본) 플레이어 주변에 스폰
     void SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult = 1.f, const FVector* MinionLoc = nullptr);
 

@@ -16,6 +16,7 @@ AVSEnemyManager::AVSEnemyManager()
     ISM->SetReceivesDecals(false);   // 바닥 데칼이 잡몹 위로 투영되지 않게
     RootComponent = ISM;
     ISM->NumCustomDataFloats = 7; // 인스턴스당 커스텀 데이터
+    ISM->SetCastShadow(false);
 }
 
 void AVSEnemyManager::BeginPlay()
@@ -170,6 +171,16 @@ void AVSEnemyManager::ApplyDamageToEnemy(int32 Index, float Damage)
     }
 }
 
+void AVSEnemyManager::ClearAllEnemies()
+{
+    // 정리 목적이므로 배열과 인스턴스만 비운다.
+    Enemies.Reset();
+    if (ISM)
+    {
+        ISM->ClearInstances();
+    }
+}
+
 void AVSEnemyManager::KillEnemy(int32 Index)
 {
     const int32 LastIndex = Enemies.Num() - 1;
@@ -233,7 +244,7 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
         const FVector Dir = ToPlayer.GetSafeNormal2D();
         const float DistToPlayer = ToPlayer.Size2D();
 
-        // 너무 가까우면 이동을 멈춘다 (오버슈트로 인한 좌우 요동 방지).
+        // 너무 가까우면 이동을 멈춘다
         // 접촉 사거리 안이면 어차피 접촉 대미지가 들어가므로 더 파고들 필요가 없다.
         if (DistToPlayer > ContactRange)
         {
@@ -259,7 +270,7 @@ void AVSEnemyManager::UpdateEnemies(float DeltaTime)
         /*StartInstanceIndex*/ 0,
         NewTransforms,
         /*bWorldSpace*/ true,
-        /*bMarkRenderStateDirty*/ true,
+        /*bMarkRenderStateDirty*/ false,
         /*bTeleport*/ true);
 }
 

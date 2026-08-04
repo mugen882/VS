@@ -20,6 +20,8 @@ public class VS : ModuleRules
             "EnhancedInput",
             "CommonUI",
             "ModelViewViewModel",
+            "RenderCore",
+            "RHI",
             "UMG", "Slate", "SlateCore"
         });
 

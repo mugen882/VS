@@ -10,6 +10,8 @@
 #include "UI/VSResultWidget.h"
 #include "UI/VSHUDWidget.h"
 #include "ViewModel/VSHUDViewModel.h"
+#include "Debug/VSBenchmarkActor.h"
+#include "Kismet/GameplayStatics.h"
 
 AVSPlayerController::AVSPlayerController()
 {
@@ -134,5 +136,43 @@ void AVSPlayerController::SetupHUD()
 			HUDWidget->SetViewModel(HUDViewModel);
 			HUDWidget->AddToViewport();
 		}
+	}
+}
+
+// --- 성능 측정 콘솔 명령 ---
+
+static AVSBenchmarkActor* FindBenchmarkActor(const UObject* WorldContext)
+{
+	AVSBenchmarkActor* Bench = Cast<AVSBenchmarkActor>(
+		UGameplayStatics::GetActorOfClass(WorldContext, AVSBenchmarkActor::StaticClass()));
+
+	if (!Bench)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("VSBench: 레벨에 AVSBenchmarkActor가 없습니다. 하나 배치하세요."));
+	}
+	return Bench;
+}
+
+void AVSPlayerController::VSBench(int32 Count)
+{
+	if (AVSBenchmarkActor* Bench = FindBenchmarkActor(this))
+	{
+		Bench->RunBenchmark(EVSBenchMode::ISM, Count);
+	}
+}
+
+void AVSPlayerController::VSBenchActor(int32 Count)
+{
+	if (AVSBenchmarkActor* Bench = FindBenchmarkActor(this))
+	{
+		Bench->RunBenchmark(EVSBenchMode::Actors, Count);
+	}
+}
+
+void AVSPlayerController::VSBenchClear()
+{
+	if (AVSBenchmarkActor* Bench = FindBenchmarkActor(this))
+	{
+		Bench->ClearAll();
 	}
 }

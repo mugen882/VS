@@ -64,9 +64,15 @@ private:
 
     void HandlePlayerDied();
 
-    bool CanSpawn() const { return !bGameOver && !bUpgradeSelecting && !bGameClear; }
+    bool CanSpawn() const { return !bGameOver && !bUpgradeSelecting && !bGameClear && !bBenchmarkPaused; }
+
+public:
+    // 성능 측정 중 개체 수가 늘지 않도록 정규 웨이브 스폰을 멈춘다
+    void SetBenchmarkPaused(bool bPaused) { bBenchmarkPaused = bPaused; }
 
 private:
+    bool bBenchmarkPaused = false;
+
     float ElapsedTime = 0.f;
     int32 CurrentWaveIndex = 0;
     int32 LastBossWaveIndex = -1;

@@ -46,7 +46,7 @@ struct FVSWeaponInstance
 
     float GetCooldown(const FVSPassiveStatModifiers& Mods) const
     {
-        const float Base = Data ? FMath::Max(0.1f, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
+        const float Base = Data ? FMath::Max(MIN_COOLDOWN_TIME, Data->BaseCooldown - Data->CooldownReductionPerLevel * (Level - 1)) : 1.f;
         const float Reduced = Base * (1.f - Mods.Get(EVSPassiveStatType::GlobalCooldown));
         return FMath::Max(MIN_COOLDOWN_TIME, Reduced);   // 최소 시간 보장
     }
@@ -83,6 +83,10 @@ public:
     int32 GetWeaponLevel(UVSWeaponData* WeaponData) const;
     // 보유 중이고 상한에 도달했으면 true (미보유면 false)
     bool IsWeaponMaxLevel(UVSWeaponData* WeaponData) const;
+
+    // 보유한 모든 무기가 MIN_COOLDOWN_TIME에 걸려 있으면 true.
+    // 쿨다운 감소 패시브를 더 찍어도 실제 발사 간격이 변하지 않는 상태를 뜻한다.
+    bool IsCooldownSaturated() const;
 
     void SetEnemyManager(AVSEnemyManager* InEnemyManager) { EnemyManager = InEnemyManager; }
 

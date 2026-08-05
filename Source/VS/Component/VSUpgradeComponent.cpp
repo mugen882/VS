@@ -29,10 +29,16 @@ TArray<UVSUpgradeData*> UVSUpgradeComponent::RollUpgrades()
                 continue;
         }
 
-        // 상한에 도달한 패시브는 제외
-        if (Player && U->Type == EVSUpgradeType::Passive
-            && Player->GetStatMods().IsMaxLevel(U->PassiveStatType))
-            continue;
+        if (Player && U->Type == EVSUpgradeType::Passive)
+        {
+            // 스택 상한에 도달한 패시브는 제외
+            if (Player->GetStatMods().IsMaxLevel(U->PassiveStatType))
+                continue;
+
+            // 상한 전이라도 효과가 포화됐으면 제외 (더 찍어도 수치가 안 변함)
+            if (IsPassiveSaturated(U->PassiveStatType))
+                continue;
+        }
 
         Pool.Add(U);
     }
@@ -47,6 +53,25 @@ TArray<UVSUpgradeData*> UVSUpgradeComponent::RollUpgrades()
     }
 
     return Result;
+}
+
+bool UVSUpgradeComponent::IsPassiveSaturated(EVSPassiveStatType StatType) const
+{
+    AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOwner());
+    const UVSWeaponComponent* WC = Player ? Player->GetWeaponComponent() : nullptr;
+    if (!WC) return false;
+
+    switch (StatType)
+    {
+    case EVSPassiveStatType::GlobalCooldown:
+        // 보유 무기가 전부 MIN_COOLDOWN_TIME에 걸려 있으면 더 깎아도 발사 간격이 그대로다.
+        return WC->IsCooldownSaturated();
+
+    default:
+        // 나머지 스탯은 상한 클램프가 없어 항상 유효하다.
+        // 새 클램프를 추가하면 여기에 case를 늘린다.
+        return false;
+    }
 }
 
 void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)

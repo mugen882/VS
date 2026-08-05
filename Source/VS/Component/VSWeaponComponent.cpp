@@ -106,6 +106,25 @@ bool UVSWeaponComponent::IsWeaponMaxLevel(UVSWeaponData* WeaponData) const
     return Level > 0 && Level >= MAX_WEAPON_LEVEL;
 }
 
+bool UVSWeaponComponent::IsCooldownSaturated() const
+{
+    const FVSPassiveStatModifiers& Mods = GetStatMods();
+    bool bHasAnyWeapon = false;
+
+    for (const FVSWeaponInstance& W : Weapons)
+    {
+        if (!W.Data) continue;
+        bHasAnyWeapon = true;
+
+        // 여유가 남은 무기가 하나라도 있으면 감소 패시브는 아직 유효하다.
+        if (W.GetCooldown(Mods) > MIN_COOLDOWN_TIME + UE_KINDA_SMALL_NUMBER)
+            return false;
+    }
+
+    // 무기가 없으면 판단 근거가 없다. 앞으로 얻을 무기에 적용되므로 막지 않는다.
+    return bHasAnyWeapon;
+}
+
 bool UVSWeaponComponent::HasWeapon(UVSWeaponData* WeaponData) const
 {
     for (const FVSWeaponInstance& W : Weapons)

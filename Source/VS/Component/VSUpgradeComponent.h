@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Character/VSPassiveStatModifiers.h"
 #include "VSUpgradeComponent.generated.h"
 
 class UVSUpgradeData;
@@ -30,6 +31,10 @@ public:
     void CheatGiveAllPassives(int32 TargetLevel);
 
 private:
+    // 레벨 상한과는 별개로, 더 찍어도 실제 수치가 변하지 않는 패시브인지 판정한다.
+    // 예: 보유 무기가 전부 MIN_COOLDOWN_TIME에 걸린 상태의 GlobalCooldown.
+    bool IsPassiveSaturated(EVSPassiveStatType StatType) const;
+
     UPROPERTY(EditAnywhere, Category="Upgrade")
     int32 ChoiceCount = 3;
 };

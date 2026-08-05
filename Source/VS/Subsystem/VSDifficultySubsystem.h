@@ -27,6 +27,10 @@ public:
     // 게임모드가 웨이브 정의를 주입
     void SetWaveData(UVSWaveData* InWaveData);
 
+    // 웨이브 시간과 무관하게 보스를 즉시 소환한다 (튜닝·디버그용).
+    // WaveIndex < 0 이면 현재 웨이브, SpawnDist <= 0 이면 기본 거리를 쓴다.
+    bool SpawnBossNow(int32 WaveIndex = INDEX_NONE, float SpawnDist = -1.f);
+
     float GetElapsedTime() const { return ElapsedTime; }
 
     // 처치 수 통계
@@ -58,9 +62,18 @@ protected:
 private:
     AVSEnemyManager* GetEnemyManager();
 
-    // ElapsedTime 기준으로 CurrentWaveIndex 갱신, 현재 웨이브 반환
-    const FVSWaveEntry* ResolveCurrentWave();
-    void SpawnWaveBoss(const FVSWaveEntry& Wave);
+    // ElapsedTime 기준으로 CurrentWaveIndex를 갱신한다 (스폰 없음)
+    void AdvanceWave();
+
+    // 아직 보스를 내보내지 않은 웨이브라면 소환한다
+    void TrySpawnWaveBoss();
+
+    // 현재 스폰에 쓸 웨이브. 첫 웨이브 StartTime 전이면 nullptr
+    const FVSWaveEntry* GetActiveWave() const;
+
+    // 웨이브 설정에 따라 일반·엘리트 적을 스폰한다
+    void SpawnWaveEnemies(const FVSWaveEntry& Wave, float DeltaTime);
+    void SpawnWaveBoss(const FVSWaveEntry& Wave, float SpawnDist);
 
     void HandlePlayerDied();
 
@@ -70,8 +83,14 @@ public:
     // 성능 측정 중 개체 수가 늘지 않도록 정규 웨이브 스폰을 멈춘다
     void SetBenchmarkPaused(bool bPaused) { bBenchmarkPaused = bPaused; }
 
+    // 웨이브의 자동 스폰(일반·엘리트·보스)을 전부 봉인한다.
+    // SpawnBossNow를 통한 수동 소환은 계속 동작한다.
+    void SetWaveSpawnDisabled(bool bDisabled) { bWaveSpawnDisabled = bDisabled; }
+    bool IsWaveSpawnDisabled() const { return bWaveSpawnDisabled; }
+
 private:
     bool bBenchmarkPaused = false;
+    bool bWaveSpawnDisabled = false;
 
     float ElapsedTime = 0.f;
     int32 CurrentWaveIndex = 0;

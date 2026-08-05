@@ -17,9 +17,11 @@ class AVSBenchmarkActor;
  *      VSGiveAllPassive 5  // 패시브 전 종류를 Lv.5까지 즉시 강화
  *      VSAddXP 100         // 경험치 지급 (정상 레벨업 경로)
  *      VSSkipLevelUp 1     // 레벨업/업그레이드 UI 봉인 (벤치마크용)
+ *      VSStopSpawn 1       // 웨이브 자동 스폰 전체 봉인 (VSSpawnBoss 수동 소환은 가능)
  *      VSBench 300         // ISM + AnimToTexture
  *      VSBenchActor 300    // 액터 + 스켈레탈
  *      VSBenchClear        // 벤치마크 정리
+ *		VSSpawnBoss			// 보스 스폰. WaveIndex=-1이면 현재 웨이브, Distance=-1이면 기본 거리
  */
 UCLASS()
 class VS_API UVSCheatManager : public UCheatManager
@@ -51,6 +53,10 @@ public:
 	UFUNCTION(Exec)
 	void VSSkipLevelUp(bool bSkip);
 
+	/** 웨이브 자동 스폰(잡몹·엘리트·보스) 봉인/해제. 시간 경과와 수동 보스 소환은 유지된다. */
+	UFUNCTION(Exec)
+	void VSStopSpawn(bool bStop = true);
+
 	// --- 성능 측정 ---
 
 	UFUNCTION(Exec)
@@ -61,6 +67,9 @@ public:
 
 	UFUNCTION(Exec)
 	void VSBenchClear();
+
+	UFUNCTION(Exec)
+	void VSSpawnBoss(int32 WaveIndex = -1, float Distance = -1.f);
 
 private:
 	AVSPlayerCharacter* GetVSPlayerCharacter() const;

@@ -70,7 +70,7 @@ public:
     float AimTime = 1.f;           // 조준(멈춤) 시간 — 이때 방향 고정
 
     UPROPERTY(EditAnywhere, Category="Charge", meta=(ClampMin="0", ClampMax="1440"))
-    float AimRotateSpeedDeg = BOSS_AIM_ROTATE_SPEED_DEG;   // 조준 중 선회 속도(도/초) = 회피 난이도 노브
+    float AimRotateSpeedDeg = BOSS_AIM_ROTATE_SPEED_DEG;   // 조준 중 선회 속도(도/초) = 낮을수록 예고 방향을 미리 읽기 쉽다
 
     UPROPERTY(EditAnywhere, Category="Charge")
     float Speed = 900.f;           // 돌진 속도 (평소 MoveSpeed보다 훨씬 빠르게)

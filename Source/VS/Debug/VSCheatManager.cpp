@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Common/VSLog.h"
+#include "Subsystem/VSDifficultySubsystem.h"
 
 AVSPlayerCharacter* UVSCheatManager::GetVSPlayerCharacter() const
 {
@@ -101,5 +102,43 @@ void UVSCheatManager::VSBenchClear()
 	if (AVSBenchmarkActor* Bench = FindBenchmarkActor())
 	{
 		Bench->ClearAll();
+	}
+}
+
+void UVSCheatManager::VSStopSpawn(bool bStop)
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>();
+	if (!Diff)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSStopSpawn: UVSDifficultySubsystem을 찾지 못했습니다."));
+		return;
+	}
+
+	Diff->SetWaveSpawnDisabled(bStop);
+	UE_LOG(VSLog, Warning, TEXT("VSStopSpawn: %s (VSSpawnBoss 수동 소환은 가능)"), bStop ? TEXT("ON") : TEXT("OFF"));
+}
+
+void UVSCheatManager::VSSpawnBoss(int32 WaveIndex, float Distance)
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>();
+	if (!Diff)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSSpawnBoss: UVSDifficultySubsystem을 찾지 못했습니다."));
+		return;
+	}
+
+	if (Diff->SpawnBossNow(WaveIndex, Distance))
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSSpawnBoss: 소환 완료 (WaveIndex=%d, Distance=%.0f)"), WaveIndex, Distance);
+	}
+	else
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSSpawnBoss: 소환 실패. 해당 웨이브에 BossClass가 지정되어 있는지 확인하세요."));
 	}
 }

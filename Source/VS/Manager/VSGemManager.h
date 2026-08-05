@@ -42,7 +42,7 @@ protected:
     float CollectRange = 80.f;    // 이 안이면 획득 완료
 
     UPROPERTY(EditAnywhere)
-    float GemSpeed = 800.f;
+    float GemSpeed = 1200.f;
 
 private:
     void UpdateGems(float DeltaTime);

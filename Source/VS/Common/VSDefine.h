@@ -18,3 +18,5 @@ const float BOSS_MESH_RADIUS = 100.f;			// 메시 반지름 기본값
 const float MESH_YAW_OFFSET = -90.f;            // 액터 정면(+X) 대비 메시가 틀어진 각도 (데이터 기본값)
 const float BOSS_ROTATE_SPEED_DEG = 240.f;      // 보스 기본 선회 속도 (도/초)
 const float BOSS_AIM_ROTATE_SPEED_DEG = 120.f;  // 돌진 조준 중 선회 속도 (낮을수록 회피 쉬움)
+const int32 MAX_WEAPON_LEVEL = 20;	// 무기 강화 레벨 상한
+const int32 MAX_PASSIVE_LEVEL = 20;	// 패시브 스택 상한

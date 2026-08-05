@@ -18,6 +18,7 @@
 #include "UI/VSUpgradeSelectionWidget.h" 
 #include "Manager/VSGemManager.h"
 #include "Subsystem/VSDifficultySubsystem.h"
+#include "Common/VSLog.h"
 
 AVSPlayerCharacter::AVSPlayerCharacter()
 {
@@ -93,6 +94,8 @@ void AVSPlayerCharacter::LevelUp()
 
 void AVSPlayerCharacter::AddXP(int32 Amount)
 {
+	if (bSkipLevelUp) return;
+
 	CurrentXP += Amount;
 	
 	// 레벨업 체크 (여러 레벨 동시 상승 가능)
@@ -134,25 +137,49 @@ void AVSPlayerCharacter::OnPlayerDeath()
 	OnPlayerDied.Broadcast();
 }
 
-void AVSPlayerCharacter::AddPassive(EVSPassiveStatType StatType, float Value)
+bool AVSPlayerCharacter::AddPassive(EVSPassiveStatType StatType, float Value)
 {
-	StatMods.Add(StatType, Value);
+	// FVSPassiveStatModifiers::Add가 상한을 판정한다.
+	if (!StatMods.Add(StatType, Value))
+		return false;
+
 	RecalculateStats();
+	return true;
 }
 
-void AVSPlayerCharacter::ShowUpgradeSelection()
+bool AVSPlayerCharacter::ShowUpgradeSelection()
 {
-	if (!UpgradeSelectionWidgetClass || !UpgradeComp) return;
+	// 카드를 띄울 수 없는 상황이면 큐를 비우고 실패를 알린다.
+	// 안 그러면 PendingLevelUps가 남아 일시정지가 풀리지 않는다.
+	if (!UpgradeSelectionWidgetClass || !UpgradeComp)
+	{
+		UE_LOG(VSLog, Error, TEXT("ShowUpgradeSelection: UpgradeSelectionWidgetClass 또는 UpgradeComp가 없습니다."));
+		PendingLevelUps = 0;
+		return false;
+	}
 
 	// 후보 n개 뽑기
 	TArray<UVSUpgradeData*> Choices = UpgradeComp->RollUpgrades();
-	if (Choices.Num() == 0) return;
+	if (Choices.Num() == 0)
+	{
+		UE_LOG(VSLog, Warning, TEXT("ShowUpgradeSelection: 남은 업그레이드 후보가 없습니다."));
+		PendingLevelUps = 0;
+		return false;
+	}
 
 	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (!PC) return;
+	if (!PC)
+	{
+		PendingLevelUps = 0;
+		return false;
+	}
 
 	ActiveUpgradeWidget = CreateWidget<UVSUpgradeSelectionWidget>(PC, UpgradeSelectionWidgetClass);
-	if (!ActiveUpgradeWidget) return;
+	if (!ActiveUpgradeWidget)
+	{
+		PendingLevelUps = 0;
+		return false;
+	}
 
 	ActiveUpgradeWidget->SetupChoices(Choices);
 	ActiveUpgradeWidget->OnUpgradeChosen.AddDynamic(this, &AVSPlayerCharacter::OnUpgradeChosen);
@@ -164,6 +191,8 @@ void AVSPlayerCharacter::ShowUpgradeSelection()
 
 	PC->SetShowMouseCursor(true);
 	PC->SetInputMode(FInputModeUIOnly());   // UI만 입력받기
+
+	return true;
 }
 
 void AVSPlayerCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
@@ -180,12 +209,12 @@ void AVSPlayerCharacter::OnUpgradeChosen(UVSUpgradeData* Chosen)
 	}
 
 	--PendingLevelUps;
-	// 대기 중인 레벨업 창 띄움
-	if (PendingLevelUps > 0)
+	// 대기 중인 레벨업 창 띄움. 띄우지 못하면 아래로 내려가 게임을 재개한다.
+	if (PendingLevelUps > 0 && ShowUpgradeSelection())
 	{
-		ShowUpgradeSelection();
 		return;
 	}
+	PendingLevelUps = 0;
 
 	// 게임 재개
 	APlayerController* PC = Cast<APlayerController>(GetController());

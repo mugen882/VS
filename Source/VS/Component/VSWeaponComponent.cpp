@@ -74,6 +74,10 @@ bool UVSWeaponComponent::UpgradeWeaponByData(UVSWeaponData* WeaponData)
     {
         if (W.Data == WeaponData)
         {
+            // 상한 도달. 여기서 막아두면 업그레이드 카드·치트 어느 경로로 들어와도 안전하다.
+            if (W.Level >= MAX_WEAPON_LEVEL)
+                return false;
+
             W.Level++;
             if (W.Behavior) W.Behavior->OnUpgraded(this, W);
             return true;
@@ -81,6 +85,25 @@ bool UVSWeaponComponent::UpgradeWeaponByData(UVSWeaponData* WeaponData)
     }
         
     return false;
+}
+
+int32 UVSWeaponComponent::GetWeaponLevel(UVSWeaponData* WeaponData) const
+{
+    for (const FVSWeaponInstance& W : Weapons)
+    {
+        if (W.Data == WeaponData)
+        {
+            return W.Level;
+        }
+    }
+
+    return 0;
+}
+
+bool UVSWeaponComponent::IsWeaponMaxLevel(UVSWeaponData* WeaponData) const
+{
+    const int32 Level = GetWeaponLevel(WeaponData);
+    return Level > 0 && Level >= MAX_WEAPON_LEVEL;
 }
 
 bool UVSWeaponComponent::HasWeapon(UVSWeaponData* WeaponData) const

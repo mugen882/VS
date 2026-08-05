@@ -75,8 +75,14 @@ public:
 
     void AddWeapon(UVSWeaponData* WeaponData);
     const TArray<FVSWeaponInstance>& GetWeapons() const { return Weapons; }
+    // 1레벨 강화. 미보유거나 MAX_WEAPON_LEVEL에 도달했으면 false.
     bool UpgradeWeaponByData(UVSWeaponData* WeaponData);
     bool HasWeapon(UVSWeaponData* WeaponData) const;
+
+    // 미보유면 0
+    int32 GetWeaponLevel(UVSWeaponData* WeaponData) const;
+    // 보유 중이고 상한에 도달했으면 true (미보유면 false)
+    bool IsWeaponMaxLevel(UVSWeaponData* WeaponData) const;
 
     void SetEnemyManager(AVSEnemyManager* InEnemyManager) { EnemyManager = InEnemyManager; }
 

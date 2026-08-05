@@ -38,11 +38,15 @@ public:
 	void TakeDamageFromEnemy(float Damage);
 	void OnPlayerDeath();
 	UVSWeaponComponent* GetWeaponComponent() { return WeaponComp; }
+	UVSUpgradeComponent* GetUpgradeComponent() const { return UpgradeComp; }
 
 	bool IsDead() const { return bIsDead; }
 
-	void AddPassive(EVSPassiveStatType StatType, float Value);
+	// 패시브 1스택 추가. MAX_PASSIVE_LEVEL에 도달했으면 아무것도 하지 않고 false.
+	bool AddPassive(EVSPassiveStatType StatType, float Value);
 	const FVSPassiveStatModifiers& GetStatMods() const { return StatMods; }
+
+	void SkipLevelUp(bool bSkip) { bSkipLevelUp = bSkip; }
 
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
@@ -87,7 +91,8 @@ protected:
     TSubclassOf<UVSUpgradeSelectionWidget> UpgradeSelectionWidgetClass;
 
 private:
-    void ShowUpgradeSelection();
+    // 업그레이드 카드 표시. 띄우지 못했으면(위젯 클래스 미지정·후보 없음 등) false.
+    bool ShowUpgradeSelection();
 
     UFUNCTION()
     void OnUpgradeChosen(UVSUpgradeData* Chosen);
@@ -116,5 +121,7 @@ private:
     FVSPassiveStatModifiers StatMods;
 
 	int32 PendingLevelUps = 0;
+
+	bool bSkipLevelUp = false;
 };
 

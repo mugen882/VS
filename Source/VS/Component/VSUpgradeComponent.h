@@ -21,6 +21,14 @@ public:
     // 선택한 업그레이드 적용
     void ApplyUpgrade(UVSUpgradeData* Upgrade);
 
+    // [Cheat] AllUpgrades에 등록된 NewWeapon을 전부 획득한 뒤,
+    // 보유 중인 모든 무기를 TargetLevel까지 강화한다. 카드 UI를 거치지 않는다.
+    void CheatGiveAllWeapons(int32 TargetLevel);
+
+    // [Cheat] AllUpgrades에 등록된 Passive의 StatType을 전부 TargetLevel까지 올린다.
+    // 카드 UI를 거치지 않는다.
+    void CheatGiveAllPassives(int32 TargetLevel);
+
 private:
     UPROPERTY(EditAnywhere, Category="Upgrade")
     int32 ChoiceCount = 3;

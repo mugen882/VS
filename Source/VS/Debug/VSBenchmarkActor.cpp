@@ -125,6 +125,7 @@ void AVSBenchmarkActor::Report()
     {
         UE_LOG(LogVSBench, Warning, TEXT("[Bench] 샘플이 없습니다."));
         SetGameplaySpawnPaused(false);
+        SetCombatEnabled(true);
         return;
     }
 

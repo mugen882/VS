@@ -156,7 +156,7 @@ void AVSBenchmarkActor::Report()
     UE_LOG(LogVSBench, Log, TEXT(" Mode      : %s"), *ModeName);
     UE_LOG(LogVSBench, Log, TEXT(" Count     : %d (요청 %d)"), ActualCount, RequestedCount);
     UE_LOG(LogVSBench, Log, TEXT(" Samples   : %d"), FrameMs.Num());
-    UE_LOG(LogVSBench, Log, TEXT(" Frame avg : %.2f ms (%.1f FPS)"), AvgFrame, 1000.f / FMath::Max(AvgFrame, KINDA_SMALL_NUMBER));
+    UE_LOG(LogVSBench, Log, TEXT(" Frame avg : %.2f ms (%.1f FPS)"), AvgFrame, 1000.f / FMath::Max(AvgFrame, UE_KINDA_SMALL_NUMBER));
     UE_LOG(LogVSBench, Log, TEXT(" Frame p95 : %.2f ms"), P95Frame);
     UE_LOG(LogVSBench, Log, TEXT(" Frame max : %.2f ms"), MaxFrame);
     UE_LOG(LogVSBench, Log, TEXT(" Game avg  : %.2f ms"), AvgGame);

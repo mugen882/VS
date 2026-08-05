@@ -37,6 +37,7 @@ public:
 protected:
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 
 	// Shipping 외에는 치트매니저를 항상 생성한다.
 	virtual void AddCheats(bool bForce) override;
@@ -50,6 +51,7 @@ private:
 
 	// 뷰모델 생성 → Model 연결 → HUD 위젯에 주입
 	void SetupHUD();
+	void TeardownHUD();
 
 	void HandleRunCleared();
 
@@ -59,4 +61,6 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UVSHUDViewModel> HUDViewModel;
+
+	FDelegateHandle PlayerDiedHandle;
 };

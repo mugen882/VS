@@ -80,9 +80,6 @@ void AVSBossCharger::MoveTowardPlayer(float DeltaTime)
 
     MoveInDirection(MoveDir, MoveSpeed, DeltaTime);
     FaceDirection(FaceDir, TurnSpeed, DeltaTime);
-
-    const float DmgMult = (State == EChargerState::Charge) ? CfgData->DamageMultiplier : 1.f;
-    ApplyContactDamage(DeltaTime, DmgMult);
 }
 
 void AVSBossCharger::EnterState(EChargerState NewState)
@@ -107,6 +104,14 @@ void AVSBossCharger::OnDeath()
 {
     ShowTelegraph(false);   // 조준 중 죽으면 예고선이 남으므로 지운다
     Super::OnDeath();
+}
+
+float AVSBossCharger::GetContactDamageMultiplier() const
+{
+    const UVSBossChargerData* CfgData = Cast<UVSBossChargerData>(GetData());
+    if (!CfgData) return 1.f;
+
+    return (State == EChargerState::Charge) ? CfgData->DamageMultiplier : 1.f;
 }
 
 void AVSBossCharger::SetupTelegraph()

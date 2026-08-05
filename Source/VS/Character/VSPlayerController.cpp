@@ -135,6 +135,18 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 	SetupHUD();
 }
 
+void AVSPlayerController::OnUnPossess()
+{
+	if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn()))
+		PC->OnPlayerDied.Remove(PlayerDiedHandle);
+
+	PlayerDiedHandle.Reset();
+
+	TeardownHUD();
+
+	Super::OnUnPossess();
+}
+
 void AVSPlayerController::SetupHUD()
 {
 	AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn());
@@ -156,6 +168,17 @@ void AVSPlayerController::SetupHUD()
 			HUDWidget->AddToViewport();
 		}
 	}
+}
+
+void AVSPlayerController::TeardownHUD()
+{
+	if (HUDWidget)
+	{
+		HUDWidget->RemoveFromParent();
+		HUDWidget = nullptr;
+	}
+
+	HUDViewModel = nullptr;
 }
 
 void AVSPlayerController::HandleRunCleared()

@@ -88,6 +88,7 @@ void AVSBossEnemy::Tick(float DeltaTime)
     if (Health <= 0.f) return;
 
     MoveTowardPlayer(DeltaTime);
+    ApplyContactDamage(DeltaTime, GetContactDamageMultiplier());
     UpdateAttack(DeltaTime);
 
     UpdateHealthBarPosition(DeltaTime);
@@ -144,7 +145,6 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
         MoveInDirection(Info.Dir, Data->MoveSpeed, DeltaTime);
 
     FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
-    ApplyContactDamage(DeltaTime);
 }
 
 FVSBossPlayerInfo AVSBossEnemy::QueryPlayer() const

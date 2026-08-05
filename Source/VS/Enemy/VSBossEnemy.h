@@ -71,6 +71,8 @@ protected:
 
     virtual void OnDeath();
 
+    virtual float GetContactDamageMultiplier() const { return 1.f; }
+
     // --- 파생 보스가 공유하는 행동 블록 ---
 
     // 플레이어 방향/거리를 한 번에 조회

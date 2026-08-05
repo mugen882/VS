@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="Wave")
 	TObjectPtr<UVSWaveData> WaveData;
 
+	UPROPERTY(EditAnywhere, Category = "Wave")
+	bool bDisableWaveSpawn = false;
+
 protected:
 	virtual void BeginPlay() override;
 };

@@ -9,7 +9,6 @@ void AVSBossSummoner::MoveTowardPlayer(float DeltaTime)
 
     ApplyKiting(Info, DeltaTime);
     FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
-    ApplyContactDamage(DeltaTime);
 }
 
 void AVSBossSummoner::UpdateAttack(float DeltaTime)

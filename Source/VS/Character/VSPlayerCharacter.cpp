@@ -79,7 +79,7 @@ void AVSPlayerCharacter::BeginPlay()
 		}
 	}
 
-	RecalculateStats();
+	RecalculateStats(); // MaxHealth, MoveSpeed 등 패시브 적용
 	CurrentHealth = MaxHealth;
 }
 

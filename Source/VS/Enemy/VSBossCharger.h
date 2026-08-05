@@ -37,6 +37,8 @@ protected:
 
     virtual void OnDeath() override;
 
+    virtual float GetContactDamageMultiplier() const override;
+
 private:
     void EnterState(EChargerState NewState);
 

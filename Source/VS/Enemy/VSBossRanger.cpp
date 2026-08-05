@@ -9,7 +9,6 @@ void AVSBossRanger::MoveTowardPlayer(float DeltaTime)
 
     ApplyKiting(Info, DeltaTime);
     FaceDirection(Info.Dir, GetRotateSpeedDeg(), DeltaTime);
-    ApplyContactDamage(DeltaTime);
 }
 
 void AVSBossRanger::UpdateAttack(float DeltaTime)

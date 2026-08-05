@@ -1,10 +1,8 @@
 #include "VSGameMode.h"
-#include "Character/VSPlayerController.h"
 #include "Character/VSPlayerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Manager/VSEnemyManager.h"
 #include "Subsystem/VSDifficultySubsystem.h"
-#include "Kismet/GameplayStatics.h"
 
 AVSGameMode::AVSGameMode()
 {
@@ -22,6 +20,7 @@ void AVSGameMode::BeginPlay()
 
 	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
 	{
+		Diff->SetWaveSpawnDisabled(bDisableWaveSpawn);
 		Diff->SetWaveData(WaveData);
 	}
 }

@@ -23,12 +23,5 @@ void AVSGameMode::BeginPlay()
 	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
 	{
 		Diff->SetWaveData(WaveData);
-		Diff->OnRunCleared.AddUObject(this, &AVSGameMode::HandleRunCleared);
 	}
-}
-
-void AVSGameMode::HandleRunCleared()
-{
-	if (AVSPlayerController* PC = Cast<AVSPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
-		PC->ShowResult(/*bIsVictory=*/true);
 }

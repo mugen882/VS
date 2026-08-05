@@ -51,6 +51,8 @@ private:
 	// 뷰모델 생성 → Model 연결 → HUD 위젯에 주입
 	void SetupHUD();
 
+	void HandleRunCleared();
+
 private:
 	UPROPERTY()
 	TObjectPtr<class UVSHUDWidget> HUDWidget;

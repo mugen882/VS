@@ -33,6 +33,14 @@ void AVSPlayerController::AddCheats(bool bForce)
 void AVSPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Diff->OnRunCleared.AddUObject(this, &AVSPlayerController::HandleRunCleared);
+		}
+	}
 }
 
 void AVSPlayerController::Move(const FInputActionValue& Value)
@@ -148,4 +156,9 @@ void AVSPlayerController::SetupHUD()
 			HUDWidget->AddToViewport();
 		}
 	}
+}
+
+void AVSPlayerController::HandleRunCleared()
+{
+	ShowResult(/*bIsVictory=*/true);
 }

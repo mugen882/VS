@@ -3,6 +3,8 @@
 #include "Weapon/Behavior/VSWeaponBehavior.h"
 #include "VSShieldBehavior.generated.h"
 
+class AVSShieldAura;
+
 UCLASS()
 class UVSShieldBehavior : public UVSWeaponBehavior
 {
@@ -17,4 +19,11 @@ protected:
 private:
     void SpawnShield(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon);
     void UpdateShield(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, float DeltaTime);
+
+    // 레벨/데이터로 계산하는 실드 반경 (실드 전용)
+    float GetShieldRadius(const FVSWeaponInstance& Weapon) const;
+
+protected:
+    UPROPERTY(Transient)
+    TObjectPtr<AVSShieldAura> ShieldAura;
 };

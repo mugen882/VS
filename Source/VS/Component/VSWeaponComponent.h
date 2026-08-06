@@ -2,14 +2,12 @@
 #include "CoreMinimal.h"
 #include "Data/VSWeaponData.h"
 #include "Components/ActorComponent.h"
-#include "Weapon/VSOrbitProjectile.h"
 #include "Manager/VSEnemyManager.h"
 #include "Character/VSPassiveStatModifiers.h"
 #include "Common/VSDefine.h"
 #include "VSWeaponComponent.generated.h"
 
-class AVSDrone;
-class AVSShieldAura;
+class UVSWeaponBehavior;
 
 USTRUCT()
 struct FVSWeaponInstance
@@ -21,19 +19,6 @@ struct FVSWeaponInstance
 
     int32 Level = 1;
     float CooldownTimer = 0.f;
-
-	// Orbit 무기용----------------------------------------------
-    float OrbitAngle = 0.f;   // 현재 회전 각도
-
-    UPROPERTY()
-    TArray<TObjectPtr<AVSOrbitProjectile>> OrbitBalls;
-    // Orbit 무기용----------------------------------------------
-
-    UPROPERTY()
-    TObjectPtr<AVSShieldAura> ShieldActor;
-
-    UPROPERTY()
-    TObjectPtr<AVSDrone> Drone;
 
     UPROPERTY()
     TObjectPtr<UVSWeaponBehavior> Behavior = nullptr;
@@ -51,19 +36,6 @@ struct FVSWeaponInstance
         return FMath::Max(MIN_COOLDOWN_TIME, Reduced);   // 최소 시간 보장
     }
 
-    int32 GetProjectileCount() const
-    {
-        if (!Data) return 1;
-        
-        return FMath::Min(Data->ProjectilesPerShot + (Level - 1), Data->DroneConfig.MaxProjCount);
-    }
-
-    float GetShieldRadius() const
-    {
-        if (!Data) return 100.f;
-
-        return FMath::Min(Data->ShieldConfig.Radius + (Level - 1) * ADD_SHIELD_RADIUS, Data->ShieldConfig.MaxRadius);
-    }
 };
 
 UCLASS(ClassGroup=(VS), meta=(BlueprintSpawnableComponent))

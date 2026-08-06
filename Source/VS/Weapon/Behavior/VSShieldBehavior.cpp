@@ -9,8 +9,8 @@ void UVSShieldBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 
 void UVSShieldBehavior::OnUpgraded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 {
-    if (W.ShieldActor)
-        W.ShieldActor->SetRadius(W.GetShieldRadius());
+    if (ShieldAura)
+        ShieldAura->SetRadius(GetShieldRadius(W));
 }
 
 void UVSShieldBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)
@@ -25,28 +25,35 @@ void UVSShieldBehavior::SpawnShield(UVSWeaponComponent* Comp, FVSWeaponInstance&
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.Data || !Weapon.Data->ShieldConfig.ShieldClass) return;
 
-    Weapon.ShieldActor = Comp->GetWorld()->SpawnActor<AVSShieldAura>(
+    ShieldAura = Comp->GetWorld()->SpawnActor<AVSShieldAura>(
         Weapon.Data->ShieldConfig.ShieldClass,
         Comp->GetFloorLocation(),
         FRotator::ZeroRotator);
 
-    if (Weapon.ShieldActor)
+    if (ShieldAura)
     {
-        Weapon.ShieldActor->SetRadius(Weapon.GetShieldRadius());
+        ShieldAura->SetRadius(GetShieldRadius(Weapon));
     }
 }
 
 void UVSShieldBehavior::UpdateShield(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, float DeltaTime)
 {
     AActor* Owner = Comp->GetOwner();
-    if (!Owner || !Weapon.ShieldActor) return;
+    if (!Owner || !ShieldAura) return;
 
     const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
-    Weapon.ShieldActor->SetActorLocation(Comp->GetFloorLocation());
+    ShieldAura->SetActorLocation(Comp->GetFloorLocation());
     Comp->ApplyContinuousDamage(
         Owner->GetActorLocation(),
-        Weapon.GetShieldRadius(),
+        GetShieldRadius(Weapon),
         Weapon.GetDamage(Mods),
         DeltaTime);
+}
+
+float UVSShieldBehavior::GetShieldRadius(const FVSWeaponInstance& Weapon) const
+{
+    if (!Weapon.Data) return 100.f;
+
+    return FMath::Min(Weapon.Data->ShieldConfig.Radius + (Weapon.Level - 1) * ADD_SHIELD_RADIUS, Weapon.Data->ShieldConfig.MaxRadius);
 }

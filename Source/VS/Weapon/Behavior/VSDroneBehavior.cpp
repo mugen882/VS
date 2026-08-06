@@ -16,7 +16,7 @@ void UVSDroneBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, floa
 
 void UVSDroneBehavior::UpdateDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, float DeltaTime)
 {
-    if (!Weapon.Drone || !Comp) return;
+    if (!Drone || !Comp) return;
 
     const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
     
@@ -24,7 +24,7 @@ void UVSDroneBehavior::UpdateDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& 
     Weapon.CooldownTimer -= DeltaTime;
     if (Weapon.CooldownTimer <= 0.f)
     {
-        FireFromDrone(Comp, Weapon, Weapon.Drone);
+        FireFromDrone(Comp, Weapon, Drone);
         Weapon.CooldownTimer = Weapon.GetCooldown(Mods);
     }
 }
@@ -36,15 +36,15 @@ AVSDrone* UVSDroneBehavior::SpawnDrone(UVSWeaponComponent* Comp, FVSWeaponInstan
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.Data || !Weapon.Data->DroneConfig.DroneClass) return nullptr;
 
-    AVSDrone* Drone = Comp->GetWorld()->SpawnActor<AVSDrone>(
+    AVSDrone* Spawned = Comp->GetWorld()->SpawnActor<AVSDrone>(
         Weapon.Data->DroneConfig.DroneClass,
         Owner->GetActorLocation(), FRotator::ZeroRotator);
-    if (Drone)
+    if (Spawned)
     {
-        Drone->SetActorScale3D(FVector(Weapon.Data->DroneConfig.Scale));
-        Weapon.Drone = Drone;
+        Spawned->SetActorScale3D(FVector(Weapon.Data->DroneConfig.Scale));
+        Drone = Spawned;
     }
-    return Drone;
+    return Spawned;
 }
 
 void UVSDroneBehavior::PositionDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon)
@@ -53,21 +53,21 @@ void UVSDroneBehavior::PositionDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
 
     AActor* Owner = Comp->GetOwner();
 
-    if (!Owner || !Weapon.Drone) return;
+    if (!Owner || !Drone) return;
 
     const FVector Center = Owner->GetActorLocation();
     const FVector Offset(0.f, Weapon.Data->DroneConfig.Offset, 150.f);  // 플레이어 우측 상단
-    Weapon.Drone->SetActorLocation(Center + Offset);
+    Drone->SetActorLocation(Center + Offset);
 }
 
-void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, AVSDrone* Drone)
+void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, AVSDrone* InDrone)
 {
     if (!Comp) return;
 
     AVSEnemyManager* EnemyManager = Comp->GetEnemyManager();
     if (!EnemyManager) return;
 
-    const FVector DroneLoc = Drone->GetActorLocation();
+    const FVector DroneLoc = InDrone->GetActorLocation();
 
     FVector TargetLoc;
     if (EnemyManager->FindNearestEnemy(DroneLoc, Weapon.Data->BaseRange, TargetLoc) == INDEX_NONE)
@@ -77,7 +77,7 @@ void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
 
     const FVector Dir = (TargetLoc - DroneLoc).GetSafeNormal2D();
     const float Damage = Weapon.GetDamage(Mods);
-    const int32 Count = Weapon.GetProjectileCount();
+    const int32 Count = GetProjectileCount(Weapon);
 
     // 발사 방향에 수직인 벡터 (옆으로 벌리기용)
     const FVector Side = FVector::CrossProduct(Dir, FVector::UpVector).GetSafeNormal();
@@ -94,4 +94,11 @@ void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
         if (Proj)
             Proj->Damage = Damage;
     }
+}
+
+int32 UVSDroneBehavior::GetProjectileCount(const FVSWeaponInstance& Weapon) const
+{
+    if (!Weapon.Data) return 1;
+
+    return FMath::Min(Weapon.Data->ProjectilesPerShot + (Weapon.Level - 1), Weapon.Data->DroneConfig.MaxProjCount);
 }

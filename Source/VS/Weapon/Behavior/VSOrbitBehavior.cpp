@@ -21,9 +21,9 @@ void UVSOrbitBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, floa
     if (!W.Data) return;
 
     // 회전 각도 증가
-    W.OrbitAngle += W.Data->OrbitConfig.Speed * DeltaTime;
-    if (W.OrbitAngle >= 360.f)
-        W.OrbitAngle -= 360.f;
+    OrbitAngle += W.Data->OrbitConfig.Speed * DeltaTime;
+    if (OrbitAngle >= 360.f)
+        OrbitAngle -= 360.f;
 
     PositionBalls(Comp, W);
 
@@ -37,7 +37,7 @@ AVSOrbitProjectile* UVSOrbitBehavior::SpawnSingleBall(UVSWeaponComponent* Comp, 
     AActor* Owner = Comp->GetOwner();
     if (!Owner || !Weapon.Data || !Weapon.Data->OrbitConfig.BallClass) return nullptr;
 
-    if (Weapon.OrbitBalls.Num() >= Weapon.Data->OrbitConfig.MaxCount)
+    if (OrbitBalls.Num() >= Weapon.Data->OrbitConfig.MaxCount)
     {
         return nullptr;
     }
@@ -48,7 +48,7 @@ AVSOrbitProjectile* UVSOrbitBehavior::SpawnSingleBall(UVSWeaponComponent* Comp, 
     if (Ball)
     {
         Ball->HitRadius = Weapon.Data->OrbitConfig.HitRadius;
-        Weapon.OrbitBalls.Add(Ball);
+        OrbitBalls.Add(Ball);
     }
     return Ball;
 }
@@ -60,7 +60,7 @@ void UVSOrbitBehavior::PositionBalls(UVSWeaponComponent* Comp, FVSWeaponInstance
     if (!Owner || !Weapon.Data) return;
 
     const FVector Center = Owner->GetActorLocation();
-    const int32 Count = Weapon.OrbitBalls.Num();
+    const int32 Count = OrbitBalls.Num();
     if (Count <= 0) return;
 
     const float Radius = Weapon.Data->OrbitConfig.Radius;
@@ -68,14 +68,14 @@ void UVSOrbitBehavior::PositionBalls(UVSWeaponComponent* Comp, FVSWeaponInstance
 
     for (int32 i = 0; i < Count; ++i)
     {
-        if (!Weapon.OrbitBalls[i]) continue;
+        if (!OrbitBalls[i]) continue;
 
         // 구슬들을 원형으로 균등 분배 + 현재 회전각 적용
-        const float AngleDeg = Weapon.OrbitAngle + AngleStep * i;
+        const float AngleDeg = OrbitAngle + AngleStep * i;
         const float Rad = FMath::DegreesToRadians(AngleDeg);
         const FVector Offset(FMath::Cos(Rad) * Radius, FMath::Sin(Rad) * Radius, 0.f);
 
-        Weapon.OrbitBalls[i]->SetActorLocation(Center + Offset);
+        OrbitBalls[i]->SetActorLocation(Center + Offset);
     }
 }
 
@@ -88,7 +88,7 @@ void UVSOrbitBehavior::CheckHits(UVSWeaponComponent* Comp, FVSWeaponInstance& We
 
     const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
-    for (AVSOrbitProjectile* Ball : Weapon.OrbitBalls)
+    for (AVSOrbitProjectile* Ball : OrbitBalls)
     {
         if (!Ball) continue;
         const FVector BallLoc = Ball->GetActorLocation();

@@ -2,8 +2,6 @@
 #include "Manager/VSEnemyManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Weapon/VSProjectile.h"
-#include "Weapon/VSDrone.h"
-#include "Weapon/VSShieldAura.h"
 #include "Weapon/Behavior/VSWeaponBehavior.h"
 #include "Character/VSPlayerCharacter.h"
 

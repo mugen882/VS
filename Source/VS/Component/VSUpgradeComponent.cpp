@@ -35,7 +35,7 @@ TArray<UVSUpgradeData*> UVSUpgradeComponent::RollUpgrades()
             if (Player->GetStatMods().IsMaxLevel(U->PassiveStatType))
                 continue;
 
-            // 상한 전이라도 효과가 포화됐으면 제외 (더 찍어도 수치가 안 변함)
+            // 상한 전이라도 효과가 포화됐으면 제외
             if (IsPassiveSaturated(U->PassiveStatType))
                 continue;
         }
@@ -58,20 +58,21 @@ TArray<UVSUpgradeData*> UVSUpgradeComponent::RollUpgrades()
 bool UVSUpgradeComponent::IsPassiveSaturated(EVSPassiveStatType StatType) const
 {
     AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOwner());
-    const UVSWeaponComponent* WC = Player ? Player->GetWeaponComponent() : nullptr;
-    if (!WC) return false;
+    if (!Player) return false;
 
-    switch (StatType)
+    // 누적 값이 타입별 상한에 도달하면 더 찍어도 수치가 안 오른다.
+    if (Player->GetStatMods().Get(StatType) >= GetPassiveValueCap(StatType))
+        return true;
+
+    // GlobalCooldown은 보유 무기가 전부 MIN_COOLDOWN_TIME에
+    // 걸려 있으면 더 깎아도 발사 간격이 그대로다.
+    if (StatType == EVSPassiveStatType::GlobalCooldown)
     {
-    case EVSPassiveStatType::GlobalCooldown:
-        // 보유 무기가 전부 MIN_COOLDOWN_TIME에 걸려 있으면 더 깎아도 발사 간격이 그대로다.
-        return WC->IsCooldownSaturated();
-
-    default:
-        // 나머지 스탯은 상한 클램프가 없어 항상 유효하다.
-        // 새 클램프를 추가하면 여기에 case를 늘린다.
-        return false;
+        const UVSWeaponComponent* WC = Player->GetWeaponComponent();
+        return WC && WC->IsCooldownSaturated();
     }
+
+    return false;
 }
 
 void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)
@@ -148,7 +149,6 @@ void UVSUpgradeComponent::CheatGiveAllWeapons(int32 TargetLevel)
     for (const TPair<UVSWeaponData*, int32>& Target : Targets)
     {
         // UpgradeWeaponByData는 1레벨씩만 올리므로 차이만큼 반복한다.
-        // 각 호출이 Behavior::OnUpgraded를 태우므로 오브 추가·실드 반경 갱신도 함께 반영된다.
         for (int32 Level = Target.Value; Level < TargetLevel; ++Level)
         {
             WC->UpgradeWeaponByData(Target.Key);
@@ -209,9 +209,9 @@ void UVSUpgradeComponent::CheatGiveAllPassives(int32 TargetLevel)
 
     for (const TPair<EVSPassiveStatType, float>& Entry : BestValues)
     {
-        // AddPassive가 상한에서 false를 반환하므로 무한 루프에 빠지지 않는다.
         while (Player->GetStatMods().GetLevel(Entry.Key) < TargetLevel)
         {
+            // AddPassive가 상한에서 false를 반환하므로 무한 루프에 빠지지 않는다.
             if (!Player->AddPassive(Entry.Key, Entry.Value))
                 break;
         }

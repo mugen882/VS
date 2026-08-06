@@ -56,5 +56,5 @@ private:
 
     TArray<FVSGemData> Gems;
 
-    float MagnetRange = 300.f;  // 실제 사용값 = Base × Mult
+    float MagnetRange = 300.f;  // 실제 사용값 = BaseMagnetRange × Mult
 };

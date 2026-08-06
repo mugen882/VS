@@ -13,6 +13,21 @@ enum class EVSPassiveStatType : uint8
     GlobalCooldown  UMETA(DisplayName="쿨다운 감소"),
 };
 
+// 각 패시브의 누적 값 상한. Get()이 이 값에 도달하면 더 찍어도 실제 수치가 오르지 않는다.
+inline float GetPassiveValueCap(EVSPassiveStatType Key)
+{
+    switch (Key)
+    {
+    case EVSPassiveStatType::MoveSpeed:      return MAX_MOVESPEED_BONUS;
+    case EVSPassiveStatType::MaxHealth:      return MAX_MAXHEALTH_BONUS;
+    case EVSPassiveStatType::PickupRange:    return MAX_PICKUPRANGE_BONUS;
+    case EVSPassiveStatType::GlobalDamage:   return MAX_GLOBALDAMAGE_BONUS;
+    // GlobalCooldown은 값 상한 대신 IsCooldownSaturated()(MIN_COOLDOWN_TIME 기준)로 판정한다.
+    case EVSPassiveStatType::GlobalCooldown: return TNumericLimits<float>::Max();
+    default:                                 return TNumericLimits<float>::Max();
+    }
+}
+
 USTRUCT()
 struct FVSPassiveStatModifiers
 {

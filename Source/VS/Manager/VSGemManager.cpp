@@ -32,14 +32,11 @@ void AVSGemManager::SpawnGem(const FVector& Location, int32 XPValue)
 {
     FVector GemLoc = Location;
 
-    // 메시 바운드에서 절반 높이 구하기
     if (UStaticMesh* Mesh = GemISM->GetStaticMesh())
     {
-        const FBox Bounds = Mesh->GetBoundingBox();  // 로컬 바운딩 박스
-        const float HalfHeightZ = Bounds.GetExtent().Z;  // Z 반높이
-
-        // 인스턴스 스케일도 반영
-        GemLoc.Z = Location.Z + HalfHeightZ * MeshScale;
+        const FBox Bounds = Mesh->GetBoundingBox();
+        // 피벗에서 메시 바닥까지의 거리. 바닥을 Location.Z에 맞춘다.
+        GemLoc.Z = Location.Z - Bounds.Min.Z * MeshScale;
     }
 
     // 데이터 추가
@@ -60,15 +57,15 @@ void AVSGemManager::RemoveGem(int32 Index)
 
     const int32 LastIndex = Gems.Num() - 1;
 
-    // 데이터 배열 swap-remove
+	// swap-remove(Index와 LastIndex 교환 후 제거)
     Gems.RemoveAtSwap(Index);
 
     // ISM도 마지막 인스턴스를 죽은 자리로 옮기고 마지막 제거
     if (Index != LastIndex)
     {
         FTransform LastXform;
-        GemISM->GetInstanceTransform(LastIndex, LastXform, /*bWorldSpace=*/true);
-        GemISM->UpdateInstanceTransform(Index, LastXform, true, true, true);
+        GemISM->GetInstanceTransform(LastIndex, LastXform, /*bWorldSpace=*/false);
+        GemISM->UpdateInstanceTransform(Index, LastXform, /*bWorldSpace=*/false, /*bMarkRenderStateDirty=*/false, /*bTeleport=*/true);
     }
     GemISM->RemoveInstance(LastIndex);
 }
@@ -92,7 +89,7 @@ void AVSGemManager::UpdateGems(float DeltaTime)
     TArray<FTransform> NewXforms;
     NewXforms.Reserve(Gems.Num());
 
-    float MagnetRangeSq = MagnetRange * MagnetRange;
+    const float MagnetRangeSq = MagnetRange * MagnetRange;
     for (int32 i = 0; i < Gems.Num(); ++i)
     {
         FVector& Loc = Gems[i].Location;

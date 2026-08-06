@@ -88,7 +88,6 @@ void AVSEnemyManager::Tick(float DeltaTime)
 
 void AVSEnemyManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    UE_LOG(VSLog, Warning, TEXT("EnemyManager EndPlay - clearing %d instances"), ISM ? ISM->GetInstanceCount() : -1);
     if (ISM)
         ISM->ClearInstances();
 
@@ -173,12 +172,23 @@ void AVSEnemyManager::ApplyDamageToEnemy(int32 Index, float Damage)
 
 void AVSEnemyManager::ClearAllEnemies()
 {
-    // 정리 목적이므로 배열과 인스턴스만 비운다.
+	// 일반, 엘리트, 미니언 등 모든 적 제거.
     Enemies.Reset();
     if (ISM)
     {
         ISM->ClearInstances();
     }
+
+    // 보스 제거
+    TArray<TObjectPtr<AVSBossEnemy>> BossesCopy = Bosses;
+    for (const TObjectPtr<AVSBossEnemy>& Boss : BossesCopy)
+    {
+        if (IsValid(Boss))
+        {
+            Boss->Destroy();
+        }
+    }
+    Bosses.Reset();
 }
 
 void AVSEnemyManager::KillEnemy(int32 Index)

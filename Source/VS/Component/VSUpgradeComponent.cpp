@@ -88,17 +88,10 @@ void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)
     {
     case EVSUpgradeType::NewWeapon:
         WeaponComp->AddWeapon(Upgrade->TargetWeapon);
-        UE_LOG(VSLog, Warning, TEXT("Upgrade: New Weapon %s"), *Upgrade->Title.ToString());
         break;
 
     case EVSUpgradeType::UpgradeWeapon:
-        if (WeaponComp->UpgradeWeaponByData(Upgrade->TargetWeapon))
-        {
-            UE_LOG(VSLog, Warning, TEXT("Upgrade: Level up %s (Lv.%d/%d)"),
-                *Upgrade->Title.ToString(),
-                WeaponComp->GetWeaponLevel(Upgrade->TargetWeapon), MAX_WEAPON_LEVEL);
-        }
-        else
+        if (!WeaponComp->UpgradeWeaponByData(Upgrade->TargetWeapon))
         {
             // RollUpgrades가 걸러주므로 정상 흐름에서는 안 나온다.
             UE_LOG(VSLog, Warning, TEXT("Upgrade: %s 강화 실패 (미보유 또는 Lv.%d 상한)"),
@@ -107,13 +100,7 @@ void UVSUpgradeComponent::ApplyUpgrade(UVSUpgradeData* Upgrade)
         break;
 
     case EVSUpgradeType::Passive:
-        if (Player->AddPassive(Upgrade->PassiveStatType, Upgrade->PassiveValue))
-        {
-            UE_LOG(VSLog, Warning, TEXT("Upgrade: Passive %s +%.2f (Lv.%d/%d)"),
-                *UEnum::GetValueAsString(Upgrade->PassiveStatType), Upgrade->PassiveValue,
-                Player->GetStatMods().GetLevel(Upgrade->PassiveStatType), MAX_PASSIVE_LEVEL);
-        }
-        else
+        if (!Player->AddPassive(Upgrade->PassiveStatType, Upgrade->PassiveValue))
         {
             UE_LOG(VSLog, Warning, TEXT("Upgrade: Passive %s 상한(Lv.%d) 도달"),
                 *UEnum::GetValueAsString(Upgrade->PassiveStatType), MAX_PASSIVE_LEVEL);

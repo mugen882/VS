@@ -2,6 +2,8 @@
 #include "Character/VSPlayerCharacter.h"
 #include "Component/VSUpgradeComponent.h"
 #include "Debug/VSBenchmarkActor.h"
+#include "Manager/VSEnemyManager.h"
+#include "Manager/VSGemManager.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Common/VSLog.h"
@@ -14,7 +16,7 @@ AVSPlayerCharacter* UVSCheatManager::GetVSPlayerCharacter() const
 
 	if (!VSChar)
 	{
-		UE_LOG(VSLog, Warning, TEXT("Cheat: 조종 중인 AVSPlayerCharacter가 없습니다."));
+		UE_LOG(VSLog, Warning, TEXT("Cheat: AVSPlayerCharacter가 없습니다."));
 	}
 	return VSChar;
 }
@@ -97,11 +99,50 @@ void UVSCheatManager::VSBenchActor(int32 Count)
 	}
 }
 
-void UVSCheatManager::VSBenchClear()
+void UVSCheatManager::VSEnemyClear(bool bSpawnDisable)
 {
+	AVSEnemyManager* Mgr = Cast<AVSEnemyManager>(
+		UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
+	if (Mgr)
+	{
+		Mgr->ClearAllEnemies();
+	}
+	else
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSEnemyClear: 레벨에 AVSEnemyManager가 없습니다."));
+	}
+
+	// 벤치마크 액터 경로로 스폰된 더미 액터도 함께 제거
 	if (AVSBenchmarkActor* Bench = FindBenchmarkActor())
 	{
-		Bench->ClearAll();
+		Bench->ClearDummies();
+	}
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	// 웨이브 자동 스폰 봉인/해제
+	UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>();
+	if (Diff)
+	{
+		Diff->SetWaveSpawnDisabled(bSpawnDisable);
+	}
+}
+
+void UVSCheatManager::VSObjectClear(bool bSpawnDisable)
+{
+	// 적·더미·스폰 봉인
+	VSEnemyClear(bSpawnDisable);
+
+	// 바닥에 남은 XP 젬도 제거
+	if (AVSGemManager* Gem = Cast<AVSGemManager>(
+		UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass())))
+	{
+		Gem->ClearAllGems();
+	}
+	else
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSObjectClear: 레벨에 AVSGemManager가 없습니다."));
 	}
 }
 

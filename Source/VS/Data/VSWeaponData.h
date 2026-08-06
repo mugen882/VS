@@ -78,7 +78,7 @@ public:
     UPROPERTY(EditAnywhere, Category="Weapon") EVSFirePattern FirePattern = EVSFirePattern::NearestTarget;
 
     UPROPERTY(EditAnywhere, Category="Upgrade") float DamagePerLevel = 5.f;
-    UPROPERTY(EditAnywhere, Category="Upgrade") float CooldownReductionPerLevel = 0.05f;
+	UPROPERTY(EditAnywhere, Category="Upgrade") float CooldownReductionPerLevel = 0.05f;    // 레벨당 쿨타임 감소량
 
     // 무기별 옵션 구조체-----------------------------------------
     UPROPERTY(EditAnywhere, Category="MultiShot", meta=(EditCondition="FirePattern==EVSFirePattern::MultiShot", EditConditionHides))

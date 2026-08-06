@@ -20,3 +20,4 @@ const float BOSS_ROTATE_SPEED_DEG = 240.f;      // 보스 기본 선회 속도 (
 const float BOSS_AIM_ROTATE_SPEED_DEG = 120.f;  // 돌진 조준 중 선회 속도 (낮을수록 회피 쉬움)
 const int32 MAX_WEAPON_LEVEL = 20;	// 무기 강화 레벨 상한
 const int32 MAX_PASSIVE_LEVEL = 20;	// 패시브 스택 상한
+const int32 BOSS_TARGET_INDEX = -2; // FindNearestEnemy가 "보스가 최근접 타겟"임을 알리는 특수 인덱스

@@ -25,6 +25,9 @@ public:
 
     void RemoveGem(int32 Index);
 
+    // 모든 젬(XP 픽업)을 즉시 제거
+    void ClearAllGems();
+
     void SetMagnetRangeMult(float Mult);   // 패시브 배율 반영
 
 protected:

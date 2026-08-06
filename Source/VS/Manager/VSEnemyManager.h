@@ -9,9 +9,6 @@ class AVSGemManager;
 class UVSEnemyTypeData;
 class AVSBossEnemy;
 
-// FindNearestEnemy가 "보스가 최근접 타겟"임을 알리는 특수 인덱스
-static constexpr int32 BOSS_TARGET_INDEX = -2;
-
 enum EEnemyCustomData
 {
     Anim_StartTime = 0,
@@ -55,7 +52,7 @@ public:
     // 범위 내 최근접 보스 찾음
     AVSBossEnemy* FindNearestBoss(const FVector& From, float MaxRange, float& OutDistSq) const;
 
-    // 모든 적을 즉시 제거 (제외: 젝 드롭·킬 카운트). 벤치마크 정리용
+    // 모든 적을 즉시 제거 (제외: 젝 드롭·킬 카운트).
     void ClearAllEnemies();
 
     // 현재 살아있는 ISM 적 수 (벤치마크 리포트용)

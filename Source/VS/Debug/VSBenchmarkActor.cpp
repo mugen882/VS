@@ -102,12 +102,13 @@ void AVSBenchmarkActor::Tick(float DeltaTime)
 
 void AVSBenchmarkActor::CollectSample()
 {
-    // stat unit이 보여주는 것과 같은 값. 스레드별로 나뉘어 있어야
-    // "CPU가 병목인가 GPU가 병목인가"를 구분할 수 있다.
     FrameMs.Add(FApp::GetDeltaTime() * 1000.f);
+    
+    // 세 값 모두 밀리초가 아니라 CPU 사이클 카운트로 들어온다.
+    // GPU 시간도 RHI가 CPU 타임베이스로 환산해 저장하므로 같은 함수로 변환된다.
+    // GPU만 전역 대신 접근자를 쓰는 건 멀티 GPU 인덱스를 받는 형태이기 때문.
     GameMs.Add(FPlatformTime::ToMilliseconds(GGameThreadTime));
     RenderMs.Add(FPlatformTime::ToMilliseconds(GRenderThreadTime));
-    // GGPUFrameTime 전역은 모듈 경계에서 링크가 안 잡히므로 RHI 접근자를 쓴다
     GPUMs.Add(FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles()));
 }
 
@@ -166,7 +167,6 @@ void AVSBenchmarkActor::Report()
     UE_LOG(LogVSBench, Log, TEXT("=============================================="));
 
     // 결과 누적 — 여러 번 돌린 결과를 그대로 표로 옮길 수 있다
-    // 탭 구분. 스프레드시트에 붙여넣으면 셀로 바로 나뉜다
     const FString CsvPath = FPaths::ProjectSavedDir() / TEXT("Benchmark/VSBenchmark.tsv");
     if (!FPaths::FileExists(CsvPath))
     {
@@ -246,13 +246,22 @@ void AVSBenchmarkActor::SpawnActors(int32 Count)
 
 void AVSBenchmarkActor::ClearAll()
 {
-    // ISM 적은 액터가 아니라 배열 원소이므로 Destroy로 사라지지 않는다.
-    // 정리하지 않으면 다음 실행에 이전 개체가 그대로 남아 마리 수가 누적된다.
     if (AVSEnemyManager* Mgr = GetEnemyManager())
     {
         Mgr->ClearAllEnemies();
     }
 
+    ClearDummies();
+
+    Phase = EVSBenchPhase::Idle;
+    PhaseTimer = 0.f;
+
+    SetGameplaySpawnPaused(false);
+    SetCombatEnabled(true);
+}
+
+void AVSBenchmarkActor::ClearDummies()
+{
     for (AVSBenchmarkDummy* Dummy : SpawnedDummies)
     {
         if (IsValid(Dummy))
@@ -261,12 +270,6 @@ void AVSBenchmarkActor::ClearAll()
         }
     }
     SpawnedDummies.Reset();
-
-    Phase = EVSBenchPhase::Idle;
-    PhaseTimer = 0.f;
-
-    SetGameplaySpawnPaused(false);
-    SetCombatEnabled(true);
 }
 
 void AVSBenchmarkActor::SetGameplaySpawnPaused(bool bPaused)

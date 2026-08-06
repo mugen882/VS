@@ -66,7 +66,7 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 {
 	if (ResultWidgetClass.IsNull())
 	{
-		UE_LOG(LogTemp, Error, TEXT("ShowResult: ResultWidgetClass가 지정되지 않음"));
+		UE_LOG(VSLog, Error, TEXT("ShowResult: ResultWidgetClass가 지정되지 않음"));
 		return;
 	}
 

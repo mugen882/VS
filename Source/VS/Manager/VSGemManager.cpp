@@ -73,6 +73,15 @@ void AVSGemManager::RemoveGem(int32 Index)
     GemISM->RemoveInstance(LastIndex);
 }
 
+void AVSGemManager::ClearAllGems()
+{
+    Gems.Reset();
+    if (GemISM)
+    {
+        GemISM->ClearInstances();
+    }
+}
+
 void AVSGemManager::UpdateGems(float DeltaTime)
 {
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);

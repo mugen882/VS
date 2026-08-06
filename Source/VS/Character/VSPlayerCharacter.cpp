@@ -87,7 +87,6 @@ void AVSPlayerCharacter::LevelUp()
 {
 	CurrentLevel++;
 	XPToNextLevel = FMath::RoundToInt(XPToNextLevel * XP_TO_NEXTLV_MULIPLY);
-	UE_LOG(LogTemp, Warning, TEXT("LEVEL UP! Level=%d"), CurrentLevel);
 
 	OnLevelChanged.Broadcast(CurrentLevel);
 }

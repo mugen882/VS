@@ -5,31 +5,21 @@
 #include "Kismet/GameplayStatics.h"
 #include "Character/VSPlayerCharacter.h"
 
-namespace
-{
-    // 간격만큼 시간이 쌓였으면 true를 반환하고 그만큼 차감한다.
-    // Interval이 0 이하면 그 스폰은 비활성으로 본다.
-    bool TickSpawnAccumulator(float& Accumulator, float Interval, float DeltaTime)
-    {
-        if (Interval <= 0.f) return false;
-
-        Accumulator += DeltaTime;
-        if (Accumulator < Interval) return false;
-
-        Accumulator -= Interval;
-        return true;
-    }
-}
-
 void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
+    ResetRunState();
+}
+
+void UVSDifficultySubsystem::ResetRunState()
+{
     ElapsedTime = 0.f;
-    SpawnAccumulator = 0.f;
-    EliteAccumulator = 0.f;
     CurrentWaveIndex = 0;
+    LastBossWaveIndex = INDEX_NONE;
     KillCount = 0;
+    SpawnTimer = FVSSpawnTimer();
+    EliteTimer = FVSSpawnTimer();
     bGameOver = false;
     bUpgradeSelecting = false;
     bGameClear = false;
@@ -38,6 +28,11 @@ void UVSDifficultySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UVSDifficultySubsystem::SetWaveData(UVSWaveData* InWaveData)
 {
     WaveData = InWaveData;
+
+    if (WaveData && WaveData->Waves.IsValidIndex(CurrentWaveIndex))
+    {
+        ApplyWaveTimers(WaveData->Waves[CurrentWaveIndex]);
+    }
 
     OnTotalRuntimeChanged.Broadcast(GetTotalRunTime());
 }
@@ -75,11 +70,10 @@ void UVSDifficultySubsystem::AdvanceWave()
         && ElapsedTime >= WaveData->Waves[CurrentWaveIndex + 1].StartTime)
     {
         ++CurrentWaveIndex;
-        EliteAccumulator = 0.f;
+        ApplyWaveTimers(WaveData->Waves[CurrentWaveIndex]);
     }
 
-    // 봉인 중에는 보스를 내보내지 않으므로 인덱스만 미리 소진시켜 둔다.
-    // 그러지 않으면 해제하는 순간 밀린 웨이브의 보스가 한꺼번에 나온다.
+    // 봉인 중에는 보스를 내보내지 않으므로 인덱스만 소진시켜 둔다.
     if (bWaveSpawnDisabled)
     {
         LastBossWaveIndex = CurrentWaveIndex;
@@ -180,7 +174,7 @@ void UVSDifficultySubsystem::SpawnWaveEnemies(const FVSWaveEntry& Wave, float De
     if (!Mgr) return;
 
     // 일반 적 스폰
-    if (Wave.EnemyType && TickSpawnAccumulator(SpawnAccumulator, Wave.SpawnInterval, DeltaTime))
+    if (Wave.EnemyType && SpawnTimer.TryConsumeInterval(DeltaTime))
     {
         for (int32 i = 0; i < Wave.SpawnPerTick; ++i)
         {
@@ -189,7 +183,7 @@ void UVSDifficultySubsystem::SpawnWaveEnemies(const FVSWaveEntry& Wave, float De
     }
 
     // 엘리트 적 스폰
-    if (Wave.EliteType && TickSpawnAccumulator(EliteAccumulator, Wave.EliteInterval, DeltaTime))
+    if (Wave.EliteType && EliteTimer.TryConsumeInterval(DeltaTime))
     {
         Mgr->SpawnEnemy(Wave.EliteType, Wave.HealthMult);
     }
@@ -216,4 +210,10 @@ void UVSDifficultySubsystem::RegisterPlayerCharacter(AVSPlayerCharacter* InChara
 
     PlayerCharacter = InCharacter;
     InCharacter->OnPlayerDied.AddUObject(this, &UVSDifficultySubsystem::HandlePlayerDied);
+}
+
+void UVSDifficultySubsystem::ApplyWaveTimers(const FVSWaveEntry& Wave)
+{
+    SpawnTimer.SetInterval(Wave.SpawnInterval);
+    EliteTimer.SetInterval(Wave.EliteInterval, /*bResetAccumulator=*/true);
 }

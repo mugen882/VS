@@ -20,7 +20,8 @@ class AVSBenchmarkActor;
  *      VSStopSpawn 1       // 웨이브 자동 스폰 전체 봉인 (VSSpawnBoss 수동 소환은 가능)
  *      VSBench 300         // ISM + AnimToTexture
  *      VSBenchActor 300    // 액터 + 스켈레탈
- *      VSBenchClear        // 벤치마크 정리
+ *      VSEnemyClear        // 모든 적(잡몹·엘리트·미니언·보스) 즉시 제거 (+웨이브 스폰 봉인 여부)
+ *      VSObjectClear       // VSEnemyClear + 바닥의 XP 젬까지 전부 제거
  *		VSSpawnBoss			// 보스 스폰. WaveIndex=-1이면 현재 웨이브, Distance=-1이면 기본 거리
  */
 UCLASS()
@@ -65,8 +66,15 @@ public:
 	UFUNCTION(Exec)
 	void VSBenchActor(int32 Count);
 
+	/** 현재 살아있는 모든 적(ISM 잡몹·엘리트·미니언 + 보스)을 즉시 제거한다.
+	* bSpawnDisable이 true이면 웨이브 자동 스폰도 봉인한다.
+	*/
 	UFUNCTION(Exec)
-	void VSBenchClear();
+	void VSEnemyClear(bool bSpawnDisable);
+
+	/** VSEnemyClear에 더해 바닥에 남은 XP 젬(픽업)까지 전부 제거한다. */
+	UFUNCTION(Exec)
+	void VSObjectClear(bool bSpawnDisable);
 
 	UFUNCTION(Exec)
 	void VSSpawnBoss(int32 WaveIndex = -1, float Distance = -1.f);

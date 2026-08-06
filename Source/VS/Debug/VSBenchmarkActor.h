@@ -32,7 +32,6 @@ enum class EVSBenchMode : uint8
  *
  *      VSBench 300         // ISM 경로로 300마리
  *      VSBenchActor 300    // 액터 경로로 300마리
- *      VSBenchClear        // 정리
  *
  * 결과는 출력 로그와 Saved/Benchmark/VSBenchmark.tsv 양쪽에 남는다.
  */
@@ -49,6 +48,9 @@ public:
     // 콘솔에서 호출되는 진입점 (AVSPlayerController의 exec 함수가 전달)
     void RunBenchmark(EVSBenchMode Mode, int32 Count);
     void ClearAll();
+
+    // 액터 경로에서 스폰한 더미 액터만 제거 (ISM 적은 건드리지 않음)
+    void ClearDummies();
 
     // --- 설정 ---
 

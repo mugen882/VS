@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Common/VSDefine.h"
 #include "VSBenchmarkDummy.generated.h"
 
 class USkeletalMeshComponent;
@@ -41,5 +42,5 @@ protected:
 
     // 액터 정면(+X) 대비 메시가 틀어진 각도. 잡몹/보스와 같은 규칙
     UPROPERTY(EditAnywhere, Category = "Benchmark", meta = (ClampMin = "-180", ClampMax = "180"))
-    float MeshYawOffset = -90.f;
+    float MeshYawOffset = MESH_YAW_OFFSET;
 };

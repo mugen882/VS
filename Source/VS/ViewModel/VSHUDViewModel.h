@@ -43,8 +43,7 @@ public:
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     FText SurvivalTimeText;
 
-    // --- 보스 체력바 (보스 있을 때만 표시) ---
-    // 위젯 Visibility에 직접 바인딩 (변환 불필요). 등장=Visible, 없음/사망=Collapsed
+    // --- 보스 체력바 ---
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     ESlateVisibility BossBarVisibility = ESlateVisibility::Collapsed;
 

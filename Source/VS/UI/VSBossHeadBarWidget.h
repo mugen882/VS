@@ -20,6 +20,6 @@ protected:
     void OnViewModelSet();
 
 private:
-    UPROPERTY()
+    UPROPERTY(Transient)
     TObjectPtr<UVSBossHeadBarViewModel> ViewModel;
 };

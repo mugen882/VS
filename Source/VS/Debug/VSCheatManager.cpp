@@ -81,9 +81,7 @@ void UVSCheatManager::VSSkipLevelUp(bool bSkip)
 	}
 }
 
-// --- 성능 측정 ---
-
-void UVSCheatManager::VSBench(int32 Count)
+void UVSCheatManager::VSBenchISM(int32 Count)
 {
 	if (AVSBenchmarkActor* Bench = FindBenchmarkActor())
 	{
@@ -91,7 +89,7 @@ void UVSCheatManager::VSBench(int32 Count)
 	}
 }
 
-void UVSCheatManager::VSBenchActor(int32 Count)
+void UVSCheatManager::VSBenchActors(int32 Count)
 {
 	if (AVSBenchmarkActor* Bench = FindBenchmarkActor())
 	{

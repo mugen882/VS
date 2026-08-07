@@ -7,7 +7,7 @@
 #include "VSResultWidget.generated.h"
 
 /**
- * 게임오버 결과 화면.
+ * 게임오버/승리 결과 화면.
   */
 UCLASS()
 class VS_API UVSResultWidget : public UUserWidget

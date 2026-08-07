@@ -47,7 +47,10 @@ void AVSBenchmarkActor::RunBenchmark(EVSBenchMode Mode, int32 Count)
     RequestedCount = Count;
 
     SetGameplaySpawnPaused(true);
-    if (bDisableCombat) SetCombatEnabled(false);
+    if (bDisableCombat)
+    {
+        SetCombatEnabled(false);
+    }
 
     if (Mode == EVSBenchMode::ISM)
     {
@@ -74,29 +77,26 @@ void AVSBenchmarkActor::Tick(float DeltaTime)
 
     PhaseTimer += DeltaTime;
 
-    if (Phase == EVSBenchPhase::Warmup)
+    switch (Phase)
     {
+    case EVSBenchPhase::Warmup:
         if (PhaseTimer >= WarmupSeconds)
         {
-            Phase = EVSBenchPhase::Sampling;
-            PhaseTimer = 0.f;
-
-            FrameMs.Reset();
-            GameMs.Reset();
-            RenderMs.Reset();
-            GPUMs.Reset();
-
-            UE_LOG(LogVSBench, Log, TEXT("[Bench] 측정 시작."));
+            BeginSampling();
         }
-        return;
-    }
+        break;
 
-    CollectSample();
+    case EVSBenchPhase::Sampling:
+        CollectSample();
+        if (PhaseTimer >= SampleSeconds)
+        {
+            Report();
+            Phase = EVSBenchPhase::Idle;
+        }
+        break;
 
-    if (PhaseTimer >= SampleSeconds)
-    {
-        Report();
-        Phase = EVSBenchPhase::Idle;
+    default:
+        break;
     }
 }
 
@@ -120,13 +120,30 @@ float AVSBenchmarkActor::Percentile(TArray<float>& Sorted, float Fraction)
     return Sorted[Idx];
 }
 
+
+void AVSBenchmarkActor::BeginSampling()
+{
+    Phase = EVSBenchPhase::Sampling;
+    PhaseTimer = 0.f;
+
+    FrameMs.Reset();
+    GameMs.Reset();
+    RenderMs.Reset();
+    GPUMs.Reset();
+
+    UE_LOG(LogVSBench, Log, TEXT("[Bench] 측정 시작."));
+}
+
 void AVSBenchmarkActor::Report()
 {
     if (FrameMs.Num() == 0)
     {
         UE_LOG(LogVSBench, Warning, TEXT("[Bench] 샘플이 없습니다."));
         SetGameplaySpawnPaused(false);
-        SetCombatEnabled(true);
+        if (bDisableCombat)
+        {
+            SetCombatEnabled(true);
+        }
         return;
     }
 
@@ -186,7 +203,10 @@ void AVSBenchmarkActor::Report()
     UE_LOG(LogVSBench, Log, TEXT("[Bench] 결과 기록: %s"), *CsvPath);
 
     SetGameplaySpawnPaused(false);
-    SetCombatEnabled(true);
+    if (bDisableCombat)
+    {
+        SetCombatEnabled(true);
+    }
 
     UE_LOG(LogVSBench, Warning, TEXT("[Bench] tsv Saved."));
 }
@@ -257,7 +277,10 @@ void AVSBenchmarkActor::ClearAll()
     PhaseTimer = 0.f;
 
     SetGameplaySpawnPaused(false);
-    SetCombatEnabled(true);
+    if (bDisableCombat)
+    {
+        SetCombatEnabled(true);
+    }
 }
 
 void AVSBenchmarkActor::ClearDummies()

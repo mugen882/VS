@@ -18,8 +18,8 @@ class AVSBenchmarkActor;
  *      VSAddXP 100         // 경험치 지급 (정상 레벨업 경로)
  *      VSSkipLevelUp 1     // 레벨업/업그레이드 UI 봉인 (벤치마크용)
  *      VSStopSpawn 1       // 웨이브 자동 스폰 전체 봉인 (VSSpawnBoss 수동 소환은 가능)
- *      VSBench 300         // ISM + AnimToTexture
- *      VSBenchActor 300    // 액터 + 스켈레탈
+ *      VSBenchISM 300      // 벤치시작, 적소환(ISM + AnimToTexture)
+ *      VSBenchActors 300   // 벤치시작, 적소환(액터 + 스켈레탈)
  *      VSEnemyClear        // 모든 적(잡몹·엘리트·미니언·보스) 즉시 제거 (+웨이브 스폰 봉인 여부)
  *      VSObjectClear       // VSEnemyClear + 바닥의 XP 젬까지 전부 제거
  *		VSSpawnBoss			// 보스 스폰. WaveIndex=-1이면 현재 웨이브, Distance=-1이면 기본 거리
@@ -57,14 +57,14 @@ public:
 	/** 웨이브 자동 스폰(잡몹·엘리트·보스) 봉인/해제. 시간 경과와 수동 보스 소환은 유지된다. */
 	UFUNCTION(Exec)
 	void VSStopSpawn(bool bStop = true);
-
+	
 	// --- 성능 측정 ---
 
 	UFUNCTION(Exec)
-	void VSBench(int32 Count);
+	void VSBenchISM(int32 Count);
 
 	UFUNCTION(Exec)
-	void VSBenchActor(int32 Count);
+	void VSBenchActors(int32 Count);
 
 	/** 현재 살아있는 모든 적(ISM 잡몹·엘리트·미니언 + 보스)을 즉시 제거한다.
 	* bSpawnDisable이 true이면 웨이브 자동 스폰도 봉인한다.

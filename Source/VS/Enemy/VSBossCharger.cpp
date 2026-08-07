@@ -134,6 +134,11 @@ void AVSBossCharger::SetupTelegraph()
     // 보스 발밑은 비운다. 끝점은 그대로 두고 시작점만 앞으로 밀어 길이를 줄인다
     const float Start = FMath::Min(GetMeshRadius() * CfgData->TelegraphStartScale, ChargeDist);
     const float DrawLen = ChargeDist - Start;
+    if (DrawLen <= KINDA_SMALL_NUMBER)
+    {
+        TelegraphDecal->SetVisibility(false);
+        return;
+    }
 
     // DecalSize는 반크기. Pitch 90 회전 후 각 축에 대응하는 방향이 바뀜
     TelegraphDecal->DecalSize = FVector(

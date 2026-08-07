@@ -10,6 +10,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Component/VSWeaponComponent.h"
 
+namespace
+{
+    const FName TintParamName(TEXT("TeamColor"));
+}
+
 AVSBossEnemy::AVSBossEnemy()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -24,7 +29,7 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
     MeshComp->SetReceivesDecals(false);   // 자신의 텔레그래프 데칼이 몸에 묻지 않게
 
-    // 머리 위 체력바 — 화면을 향하는 위젯. 위젯 클래스는 BP에서 지정
+    // 머리 위 체력바 — 화면을 향하는 위젯.
     HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
     HealthBarWidget->SetupAttachment(Root);
     HealthBarWidget->SetWidgetSpace(EWidgetSpace::Screen);   // 항상 카메라 향함
@@ -39,6 +44,8 @@ void AVSBossEnemy::InitBoss(UVSBossData* InData)
     if (Data && MeshComp)
     {
         Health = Data->MaxHealth;
+
+        ApplyTint(Data->Tint);
 
         if (Data->Mesh)
         {
@@ -121,10 +128,8 @@ void AVSBossEnemy::CacheData()
     // 메시를 막 교체한 직후라 바운드가 아직 갱신 전일 수 있다
     MeshComp->UpdateBounds();
 
-    // 월드 바운드 상단 - 액터 기준점 = 발끝에서 머리끝까지 (컴포넌트 스케일 포함)
     const FBoxSphereBounds& MeshBounds = MeshComp->Bounds;
-    const float Top = MeshBounds.Origin.Z + MeshBounds.BoxExtent.Z;
-    const float Height = Top - GetActorLocation().Z;
+    const float Height = MeshBounds.GetBox().Max.Z - GetActorLocation().Z;
 
     HeadHeight = (Height > 0.f) ? Height : BOSS_HEADBAR_FALLBACK_HEIGHT;
 
@@ -150,7 +155,6 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
 FVSBossPlayerInfo AVSBossEnemy::QueryPlayer() const
 {
     FVSBossPlayerInfo Info;
-    if (!Data) return Info;
 
     APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
     if (!Player) return Info;
@@ -263,4 +267,29 @@ void AVSBossEnemy::OnDeath()
 
     OnBossDied.Broadcast(this);
     Destroy();
+}
+
+void AVSBossEnemy::ApplyTint(const FLinearColor& Tint)
+{
+    if (!MeshComp) return;
+
+    // 슬롯마다 MID를 한 번만 만들어 캐시한다
+    if (BodyMIDs.Num() == 0)
+    {
+        const int32 NumMats = MeshComp->GetNumMaterials();
+        BodyMIDs.Reserve(NumMats);
+
+        for (int32 i = 0; i < NumMats; ++i)
+        {
+            if (UMaterialInstanceDynamic* MID = MeshComp->CreateDynamicMaterialInstance(i))
+            {
+                BodyMIDs.Add(MID);
+            }
+        }
+    }
+
+    for (UMaterialInstanceDynamic* MID : BodyMIDs)
+    {
+        MID->SetVectorParameterValue(TintParamName, Tint);
+    }
 }

@@ -16,7 +16,7 @@ class VS_API AVSBossSummoner : public AVSBossEnemy
     GENERATED_BODY()
 
 protected:
-    // 카이팅 이동 (소환수 뒤로 도망)
+    // 카이팅 이동
     virtual void MoveTowardPlayer(float DeltaTime) override;
 
     // 주기적 소환

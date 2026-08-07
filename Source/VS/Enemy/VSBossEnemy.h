@@ -105,7 +105,7 @@ protected:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USkeletalMeshComponent> MeshComp;
 
-    // 머리 위 체력바 (각 보스가 자기 것을 소유. 위젯 클래스는 BP에서 지정)
+    // 보스 머리 위 체력바
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<class UWidgetComponent> HealthBarWidget;
 
@@ -114,6 +114,9 @@ protected:
 
     UPROPERTY()
     TWeakObjectPtr<class AVSEnemyManager> EnemyManager;
+
+private:
+    void ApplyTint(const FLinearColor& Tint);
 
 private:
     float Health = 0.f;
@@ -126,4 +129,7 @@ private:
     // 체력바를 화면상 위로 밀 거리 (카메라 up 방향)
     UPROPERTY(EditAnywhere, Category="Boss|HealthBar")
     float ScreenUpOffset = 120.f;
+
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UMaterialInstanceDynamic>> BodyMIDs;
 };

@@ -16,7 +16,6 @@ class VS_API AVSBossRanger : public AVSBossEnemy
     GENERATED_BODY()
 
 protected:
-    // 카이팅 이동 (베이스의 단순 추격 대체)
     virtual void MoveTowardPlayer(float DeltaTime) override;
 
     // 주기적 전방위 탄막

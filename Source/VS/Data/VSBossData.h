@@ -49,6 +49,9 @@ public:
 
     UPROPERTY(EditAnywhere, Category="Boss|Visual")
     TSubclassOf<UAnimInstance> AnimClass;
+
+    UPROPERTY(EditAnywhere, Category="Boss|Visual")
+    FLinearColor Tint = FLinearColor::White;
 };
 
 /**

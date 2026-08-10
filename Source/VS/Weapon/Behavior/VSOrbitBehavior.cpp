@@ -1,4 +1,5 @@
 #include "Weapon/Behavior/VSOrbitBehavior.h"
+#include "Component/VSWeaponComponent.h"
 #include "Character/VSPlayerCharacter.h"
 
 UVSOrbitBehavior::UVSOrbitBehavior()
@@ -14,6 +15,18 @@ void UVSOrbitBehavior::OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 void UVSOrbitBehavior::OnUpgraded(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
 {
     SpawnSingleBall(Comp, W);
+}
+
+void UVSOrbitBehavior::OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
+{
+    for (AVSOrbitProjectile* Ball : OrbitBalls)
+    {
+        if (IsValid(Ball))
+        {
+            Ball->Destroy();
+        }
+    }
+    OrbitBalls.Empty();
 }
 
 void UVSOrbitBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)

@@ -1,10 +1,11 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Weapon/Behavior/VSWeaponBehavior.h"
+#include "Weapon/VSProjectile.h"
 #include "VSNearestBehavior.generated.h"
 
 UCLASS()
-class UVSNearestBehavior : public UVSWeaponBehavior
+class VS_API UVSNearestBehavior : public UVSWeaponBehavior
 {
     GENERATED_BODY()
 protected:

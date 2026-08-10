@@ -6,11 +6,12 @@
 class AVSDrone;
 
 UCLASS()
-class UVSDroneBehavior : public UVSWeaponBehavior
+class VS_API UVSDroneBehavior : public UVSWeaponBehavior
 {
     GENERATED_BODY()
 public:
     virtual void OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
+    virtual void OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
 
 protected:
     virtual void Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime) override;
@@ -25,6 +26,6 @@ private:
     int32 GetProjectileCount(const FVSWeaponInstance& Weapon) const;
 
 protected:
-    UPROPERTY(Transient)
-    TObjectPtr<AVSDrone> Drone;
+	UPROPERTY(Transient)
+	TObjectPtr<AVSDrone> Drone;
 };

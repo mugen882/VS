@@ -1,4 +1,5 @@
 #include "Weapon/Behavior/VSDroneBehavior.h"
+#include "Component/VSWeaponComponent.h"
 #include "Weapon/VSDrone.h"
 #include "Weapon/VSProjectile.h"
 #include "Character/VSPlayerCharacter.h"
@@ -101,4 +102,13 @@ int32 UVSDroneBehavior::GetProjectileCount(const FVSWeaponInstance& Weapon) cons
     if (!Weapon.Data) return 1;
 
     return FMath::Min(Weapon.Data->ProjectilesPerShot + (Weapon.Level - 1), Weapon.Data->DroneConfig.MaxProjCount);
+}
+
+void UVSDroneBehavior::OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
+{
+    if (IsValid(Drone))
+    {
+        Drone->Destroy();
+    }
+    Drone = nullptr;
 }

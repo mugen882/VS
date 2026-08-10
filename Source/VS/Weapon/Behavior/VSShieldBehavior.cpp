@@ -1,4 +1,5 @@
 #include "Weapon/Behavior/VSShieldBehavior.h"
+#include "Component/VSWeaponComponent.h"
 #include "Weapon/VSShieldAura.h"
 #include "Character/VSPlayerCharacter.h"
 
@@ -11,6 +12,15 @@ void UVSShieldBehavior::OnUpgraded(UVSWeaponComponent* Comp, FVSWeaponInstance& 
 {
     if (ShieldAura)
         ShieldAura->SetRadius(GetShieldRadius(W));
+}
+
+void UVSShieldBehavior::OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W)
+{
+    if (IsValid(ShieldAura))
+    {
+        ShieldAura->Destroy();
+    }
+    ShieldAura = nullptr;
 }
 
 void UVSShieldBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)

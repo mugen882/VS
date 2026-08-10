@@ -5,7 +5,7 @@
 #include "VSOrbitBehavior.generated.h"
 
 UCLASS()
-class UVSOrbitBehavior : public UVSWeaponBehavior
+class VS_API UVSOrbitBehavior : public UVSWeaponBehavior
 {
     GENERATED_BODY()
 public:
@@ -13,6 +13,7 @@ public:
 
     virtual void OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
     virtual void OnUpgraded(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
+    virtual void OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
 
 protected:
     virtual void Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime) override;

@@ -6,12 +6,13 @@
 class AVSShieldAura;
 
 UCLASS()
-class UVSShieldBehavior : public UVSWeaponBehavior
+class VS_API UVSShieldBehavior : public UVSWeaponBehavior
 {
     GENERATED_BODY()
 public:
     virtual void OnAdded(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
     virtual void OnUpgraded(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
+    virtual void OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W) override;
 
 protected:
     virtual void Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime) override;

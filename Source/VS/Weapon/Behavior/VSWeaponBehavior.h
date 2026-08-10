@@ -1,12 +1,12 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "Component/VSWeaponComponent.h"
 #include "VSWeaponBehavior.generated.h"
 
 class UVSWeaponComponent;
+struct FVSWeaponInstance;
 
-UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract, Blueprintable)
 class VS_API UVSWeaponBehavior : public UObject
 {
     GENERATED_BODY()
@@ -17,4 +17,6 @@ public:
     virtual void OnUpgraded(UVSWeaponComponent* Comp, FVSWeaponInstance& W) {}
     // 매 틱
     virtual void Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime) {}
+	// 무기가 제거될 때
+    virtual void OnRemoved(UVSWeaponComponent* Comp, FVSWeaponInstance& W) {}
 };

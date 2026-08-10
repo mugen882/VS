@@ -1,4 +1,5 @@
 #include "Weapon/Behavior/VSNearestBehavior.h"
+#include "Component/VSWeaponComponent.h"
 #include "Weapon/VSProjectile.h"
 #include "Character/VSPlayerCharacter.h"
 

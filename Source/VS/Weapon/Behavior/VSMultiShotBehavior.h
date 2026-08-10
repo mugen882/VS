@@ -4,7 +4,7 @@
 #include "VSMultiShotBehavior.generated.h"
 
 UCLASS()
-class UVSMultiShotBehavior : public UVSWeaponBehavior
+class VS_API UVSMultiShotBehavior : public UVSWeaponBehavior
 {
     GENERATED_BODY()
 protected:

@@ -15,7 +15,7 @@ struct FVSWeaponInstance
     GENERATED_BODY()
 
     UPROPERTY()
-    UVSWeaponData* Data = nullptr;
+    TObjectPtr<UVSWeaponData> Data = nullptr;
 
     int32 Level = 1;
     float CooldownTimer = 0.f;
@@ -72,6 +72,7 @@ public:
 
 protected:
     virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:

@@ -16,6 +16,20 @@ void UVSWeaponComponent::BeginPlay()
     
 }
 
+
+void UVSWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    for (FVSWeaponInstance& W : Weapons)
+    {
+        if (W.Behavior)
+        {
+            W.Behavior->OnRemoved(this, W);
+        }
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
 void UVSWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

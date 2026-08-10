@@ -430,7 +430,7 @@ LOD가 없는 것은 이 기법의 원리적 한계가 아니라 **아직 만들
 | 영역 | 사용 기술 |
 |---|---|
 | 대량 적 렌더링 | InstancedStaticMeshComponent + per-instance custom data, AnimToTexture(Bone 모드) |
-| 보스 (특수 개체) | 별도 AActor + 액터/데이터 이중 상속 계층, 스켈레탈 메시, 데이터 주도 메시·애니 |
+| 보스 (특수 개체) | 별도 AActor + 액터/데이터 대칭 상속 구조, 스켈레탈 메시, 데이터 주도 메시·애니 |
 | 보스 예고 연출 | UDecalComponent + UMaterialInstanceDynamic 스칼라 파라미터, 등속 보간(RInterpConstantTo) |
 | 성능 측정 | 콘솔 exec 벤치마크 액터, 스레드별 프레임 타임 수집(RenderCore/RHI 전역 타이머), stat gpu 패스 분석 |
 | 적 타격 통합 | ISM 인덱스 + 액터 포인터를 센티넬 값(BOSS_TARGET_INDEX)으로 통일 |

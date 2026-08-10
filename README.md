@@ -4,7 +4,7 @@
 > 수백 마리의 적을 단일 ISM으로 처리하는 탑다운 서바이버 게임
 
 <!-- TODO: 대표 GIF (수백 마리 몰려오는 장면). 폭 800px 내외, 5MB 이하 권장 -->
-![대량 적 렌더링](Docs/gif/crowd.gif)
+![대량 적 렌더링](Docs/gif/crowd_v2.gif)
 
 **[▶ 플레이 빌드 다운로드](링크)** · **[📄 시스템 설계 문서](VS_Portfolio_Systems.md)**
 

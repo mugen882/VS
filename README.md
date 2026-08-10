@@ -6,7 +6,7 @@
 <!-- TODO: 대표 GIF (수백 마리 몰려오는 장면). 폭 800px 내외, 5MB 이하 권장 -->
 ![대량 적 렌더링](Docs/gif/crowd_v2.gif)
 
-**[▶ 플레이 빌드 다운로드](링크)** · **[📄 시스템 설계 문서](Docs/VS_Portfolio_Systems.md)**
+**[▶ 플레이 빌드 다운로드](https://github.com/mugen882/VS/releases/tag/v1.0.0)** · **[📄 시스템 설계 문서](Docs/VS_Portfolio_Systems.md)**
 
 ---
 
@@ -20,13 +20,13 @@
 
 | 시스템 | 요약 |
 |---|---|
-| **[무기](VS_Portfolio_Systems.md#1-무기-시스템--strategy-패턴-리팩터링)** | Strategy 패턴으로 발사 로직 분리. 새 무기 = 클래스 하나 + 데이터 애셋 하나 |
-| **[패시브](VS_Portfolio_Systems.md#2-패시브-스킬-시스템--스탯-수정자-누적)** | 수정자를 누적하고 항상 base에서 재계산해 중첩 오차 제거 |
-| **[적 · 웨이브](VS_Portfolio_Systems.md#3-적-다양화--웨이브-스케일링--데이터-주도-스폰)** | 단일 ISM 유지하며 타입 다양화. AnimToTexture로 애니메이션을 GPU로 이관 |
-| **[게임 흐름 · HUD](VS_Portfolio_Systems.md#4-게임-흐름--mvvm-hud)** | 델리게이트 기반 느슨한 결합 + MVVM 바인딩 |
-| **[보스](VS_Portfolio_Systems.md#5-보스-시스템--ism-대량-처리와-개별-액터의-하이브리드)** | 액터/데이터 이중 상속 계층, 공유 행동 블록, 예고 가능한 돌진 |
-| **[타격 통합](VS_Portfolio_Systems.md#6-타격-통합--두-적-표현의-통일)** | ISM 인덱스와 액터 포인터를 센티넬 값으로 통일 |
-| **[엘리트](VS_Portfolio_Systems.md#7-적-다양성-완성--엘리트-데이터-주도)** | 데이터만으로 정의되는 강화 개체 |
+| **[무기](Docs/VS_Portfolio_Systems.md#1-무기-시스템--strategy-패턴-리팩터링)** | Strategy 패턴으로 발사 로직 분리. 새 무기 = 클래스 하나 + 데이터 애셋 하나 |
+| **[패시브](Docs/VS_Portfolio_Systems.md#2-패시브-스킬-시스템--스탯-수정자-누적)** | 수정자를 누적하고 항상 base에서 재계산해 중첩 오차 제거 |
+| **[적 · 웨이브](Docs/VS_Portfolio_Systems.md#3-적-다양화--웨이브-스케일링--데이터-주도-스폰)** | 단일 ISM 유지하며 타입 다양화. AnimToTexture로 애니메이션을 GPU로 이관 |
+| **[게임 흐름 · HUD](Docs/VS_Portfolio_Systems.md#4-게임-흐름--mvvm-hud)** | 델리게이트 기반 느슨한 결합 + MVVM 바인딩 |
+| **[보스](Docs/VS_Portfolio_Systems.md#5-보스-시스템--ism-대량-처리와-개별-액터의-하이브리드)** | 액터/데이터 이중 상속 계층, 공유 행동 블록, 예고 가능한 돌진 |
+| **[타격 통합](Docs/VS_Portfolio_Systems.md#6-타격-통합--두-적-표현의-통일)** | ISM 인덱스와 액터 포인터를 센티넬 값으로 통일 |
+| **[엘리트](Docs/VS_Portfolio_Systems.md#7-적-다양성-완성--엘리트-데이터-주도)** | 데이터만으로 정의되는 강화 개체 |
 
 ---
 
@@ -43,7 +43,7 @@
 
 CPU 축에서는 의도한 결과가 나왔지만 **총 프레임은 오히려 느렸습니다.** 가상 그림자 맵 · 레이트레이싱 · 드로우콜 · 렌더 스테이트 재생성을 순서대로 배제한 끝에, 원인이 **LOD 부재**(LOD 0 하나, 41,052 트라이앵글)임을 확인했습니다.
 
-> 측정 조건, 가설 소거 과정, 대응 방안은 [설계 문서의 성능 측정 절](VS_Portfolio_Systems.md#성능-측정--두-표현-방식의-실제-비용)에 정리했습니다.
+> 측정 조건, 가설 소거 과정, 대응 방안은 [설계 문서의 성능 측정 절](Docs/VS_Portfolio_Systems.md#성능-측정--두-표현-방식의-실제-비용)에 정리했습니다.
 
 ---
 

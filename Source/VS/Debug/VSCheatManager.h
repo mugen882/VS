@@ -16,7 +16,7 @@ class AVSBenchmarkActor;
  *      VSGiveAllWeapons 5  // 무기 전부 획득 + 각 무기 Lv.5까지 즉시 강화
  *      VSGiveAllPassive 5  // 패시브 전 종류를 Lv.5까지 즉시 강화
  *      VSAddXP 100         // 경험치 지급 (정상 레벨업 경로)
- *      VSSkipLevelUp 1     // 레벨업/업그레이드 UI 봉인 (벤치마크용)
+ *      VSSkipLevelUp 1     // 레벨업/업그레이드 봉인
  *      VSStopSpawn 1       // 웨이브 자동 스폰 전체 봉인 (VSSpawnBoss 수동 소환은 가능)
  *      VSBenchISM 300      // 벤치시작, 적소환(ISM + AnimToTexture)
  *      VSBenchActors 300   // 벤치시작, 적소환(액터 + 스켈레탈)

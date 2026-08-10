@@ -6,7 +6,7 @@
 <!-- TODO: 대표 GIF (수백 마리 몰려오는 장면). 폭 800px 내외, 5MB 이하 권장 -->
 ![대량 적 렌더링](Docs/gif/crowd_v2.gif)
 
-**[▶ 플레이 빌드 다운로드](링크)** · **[📄 시스템 설계 문서](VS_Portfolio_Systems.md)**
+**[▶ 플레이 빌드 다운로드](링크)** · **[📄 시스템 설계 문서](Docs/VS_Portfolio_Systems.md)**
 
 ---
 
@@ -100,10 +100,14 @@ Source/VS/
 디버그·측정용 콘솔 명령(`~` 키):
 
 ```
-VSGiveAllWeapons      모든 무기 지급
+VSGiveAllWeapons 5    모든 무기 지급&강화
+VSGiveAllPassive 5    모든 패시브 강화
 VSAddXP 100           XP 추가
+VSSkipLevelUp 1       레벨업/업그레이드 봉인
+VSStopSpawn 1         웨이브 자동 스폰 전체 봉인
+VSBenchISM 300        벤치시작, 적소환(ISM + AnimToTexture)
+VSBenchActors 300     벤치시작, 적소환(액터 + 스켈레탈)
+VSEnemyClear          모든 적 즉시 제거
+VSObjectClear         VSEnemyClear + 바닥의 XP 젬까지 전부 제거
 VSSpawnBoss 0 600     지정 웨이브 보스를 지정 거리에 소환
-VSStopSpawn           웨이브 자동 스폰 봉인
-VSBench 500           ISM 경로 성능 측정
-VSBenchActor 500      액터 경로 성능 측정
 ```

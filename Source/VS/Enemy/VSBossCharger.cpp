@@ -87,10 +87,9 @@ void AVSBossCharger::EnterState(EChargerState NewState)
     State = NewState;
     StateTimer = 0.f;
 
-    // 텔레그래프는 조준 중에만 보인다
-    if (NewState == EChargerState::Aim)
+    // 조준 상태이고 준비에 성공했을 때만 표시한다
+    if (NewState == EChargerState::Aim && SetupTelegraph())
     {
-        SetupTelegraph();
         UpdateTelegraph(0.f);
         ShowTelegraph(true);
     }
@@ -114,13 +113,13 @@ float AVSBossCharger::GetContactDamageMultiplier() const
     return (State == EChargerState::Charge) ? CfgData->DamageMultiplier : 1.f;
 }
 
-void AVSBossCharger::SetupTelegraph()
+bool AVSBossCharger::SetupTelegraph()
 {
     UVSBossChargerData* CfgData = Cast<UVSBossChargerData>(GetData());
-    if (!CfgData || !TelegraphDecal) return;
+    if (!CfgData || !TelegraphDecal) return false;
 
     // 머티리얼이 지정되지 않았으면 텔레그래프 기능 자체를 끈다
-    if (!CfgData->TelegraphMaterial) return;
+    if (!CfgData->TelegraphMaterial) return false;
 
     if (!TelegraphMID)
     {
@@ -134,10 +133,11 @@ void AVSBossCharger::SetupTelegraph()
     // 보스 발밑은 비운다. 끝점은 그대로 두고 시작점만 앞으로 밀어 길이를 줄인다
     const float Start = FMath::Min(GetMeshRadius() * CfgData->TelegraphStartScale, ChargeDist);
     const float DrawLen = ChargeDist - Start;
+
     if (DrawLen <= KINDA_SMALL_NUMBER)
     {
         TelegraphDecal->SetVisibility(false);
-        return;
+        return false;
     }
 
     // DecalSize는 반크기. Pitch 90 회전 후 각 축에 대응하는 방향이 바뀜
@@ -148,6 +148,8 @@ void AVSBossCharger::SetupTelegraph()
 
     // 그려지는 구간의 중심으로 이동 (Start ~ ChargeDist 구간의 한가운데)
     TelegraphDecal->SetRelativeLocation(FVector(Start + DrawLen * 0.5f, 0.f, 0.f));
+
+    return true;
 }
 
 void AVSBossCharger::ShowTelegraph(bool bShow)

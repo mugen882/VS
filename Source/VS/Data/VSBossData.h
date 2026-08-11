@@ -90,7 +90,7 @@ public:
     // --- 텔레그래프: 조준 중 바닥에 깔리는 돌진 경로 예고 데칼 ---
     // 머티리얼은 Deferred Decal 도메인이어야 하며 "Fill" 스칼라 파라미터(0~1)를 노출해야 한다
     UPROPERTY(EditAnywhere, Category="Charge|Telegraph")
-    UMaterialInterface* TelegraphMaterial = nullptr;
+    TObjectPtr<UMaterialInterface> TelegraphMaterial = nullptr;
 
     UPROPERTY(EditAnywhere, Category="Charge|Telegraph", meta=(ClampMin="0"))
     float TelegraphDepth = 300.f;    // 투영 반깊이. 지면 요철/경사 대응용

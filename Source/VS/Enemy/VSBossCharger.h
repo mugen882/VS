@@ -43,16 +43,16 @@ private:
     void EnterState(EChargerState NewState);
 
     // --- 텔레그래프 ---
-    void SetupTelegraph();               // 데이터 기준 크기/위치 계산 (조준 진입 시 1회)
+    bool SetupTelegraph();               // 데이터 기준 크기/위치 계산 (조준 진입 시 1회)
     void ShowTelegraph(bool bShow);
     void UpdateTelegraph(float Ratio);   // 조준 진행도 0~1
 
     // 돌진 경로 예고 데칼.
     UPROPERTY(VisibleAnywhere, Category="Telegraph")
-    UDecalComponent* TelegraphDecal;
+    TObjectPtr<UDecalComponent> TelegraphDecal;
 
     UPROPERTY(Transient)
-    UMaterialInstanceDynamic* TelegraphMID = nullptr;
+    TObjectPtr<UMaterialInstanceDynamic> TelegraphMID = nullptr;
 
     EChargerState State = EChargerState::Chase;
     float StateTimer = 0.f;          // 현재 상태 경과 시간

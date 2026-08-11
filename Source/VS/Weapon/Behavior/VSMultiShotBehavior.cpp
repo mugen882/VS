@@ -56,6 +56,9 @@ void UVSMultiShotBehavior::FireMultiShot(UVSWeaponComponent* Comp, FVSWeaponInst
         AVSProjectile* Proj = Comp->GetWorld()->SpawnActor<AVSProjectile>(
             Weapon.Data->ProjectileClass, OwnerLoc, SpawnRot);
         if (Proj)
+        {
             Proj->Damage = Damage;
+            Proj->SetEnemyManager(EnemyManager);
+        }
     }
 }

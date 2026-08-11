@@ -95,10 +95,19 @@ private:
     void HandleBossDamaged(AVSBossEnemy* Boss);   // 마지막 타격 보스로 상단 바 전환
     void HandleBossDied(AVSBossEnemy* Boss);
 
+    // 상단 바를 내리고 추적 대상을 비운다
+    void HideBossBar();
+
+    /**
+     * 안전망: 추적 중인 보스가 사라졌는데 바가 남아있으면 내린다.
+     * 사망 델리게이트가 오지 않는 경로(치트 Destroy, 레벨 정리 등)를 대비한 것으로,
+     * 매 프레임 도는 HandleTimeChanged에서 호출한다.
+     */
+    void RefreshBossBar();
+
 private:
-    // 화면 상단 바가 추적하는 "마지막 타격 보스"
-    UPROPERTY()
-    TObjectPtr<AVSBossEnemy> CurrentTargetBoss;
+    // 화면 상단 바가 추적하는 "마지막 타격 보스".
+    TWeakObjectPtr<AVSBossEnemy> CurrentTargetBoss;
 
 private:
     float TotalRunTime = 1.f;      // 목표 시간 (진행바 계산용)

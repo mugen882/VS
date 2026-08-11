@@ -39,7 +39,10 @@ bool UVSNearestBehavior::FireProjectileAtNearest(UVSWeaponComponent* Comp, const
 
     const FVector Dir = (TargetLoc - From).GetSafeNormal2D();
     if (AVSProjectile* Proj = Comp->GetWorld()->SpawnActor<AVSProjectile>(ProjClass, From, Dir.Rotation()))
+    {
         Proj->Damage = Damage;
+        Proj->SetEnemyManager(EnemyManager);
+    }
 
     return true;
 }

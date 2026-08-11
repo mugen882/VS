@@ -45,12 +45,12 @@ void AVSBossEnemy::InitBoss(UVSBossData* InData)
     {
         Health = Data->MaxHealth;
 
-        ApplyTint(Data->Tint);
-
         if (Data->Mesh)
         {
             MeshComp->SetSkeletalMesh(Data->Mesh);
         }
+
+        ApplyTint(Data->Tint);
 
         // 메시 축 보정은 메시와 한 세트. 회전은 액터가 담당하므로 보정 지점은 여기뿐이다
         MeshComp->SetRelativeRotation(FRotator(0.f, Data->MeshYawOffset, 0.f));
@@ -69,7 +69,7 @@ void AVSBossEnemy::InitBoss(UVSBossData* InData)
 
 void AVSBossEnemy::ReceiveDamage(float Damage)
 {
-    if (Health <= 0.f) return;
+    if (bDead) return;
 
     Health -= Damage;
     OnBossHealthChanged.Broadcast(GetHealthPercent());
@@ -78,8 +78,28 @@ void AVSBossEnemy::ReceiveDamage(float Damage)
     if (Health <= 0.f)
     {
         Health = 0.f;
-        OnDeath();
+        HandleDeath(true);
     }
+}
+
+void AVSBossEnemy::Kill(bool bInGrantRewards)
+{
+    if (bDead) return;
+
+    Health = 0.f;
+    OnBossHealthChanged.Broadcast(0.f);
+
+    HandleDeath(bInGrantRewards);
+}
+
+void AVSBossEnemy::HandleDeath(bool bInGrantRewards)
+{
+    if (bDead) return;   // 사망 처리는 정확히 1회
+
+    bDead = true;
+    bGrantRewards = bInGrantRewards;
+
+    OnDeath();   // 파생이 자기 정리 후 Super::OnDeath 호출
 }
 
 float AVSBossEnemy::GetHealthPercent() const
@@ -92,7 +112,7 @@ void AVSBossEnemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (Health <= 0.f) return;
+    if (bDead) return;
 
     MoveTowardPlayer(DeltaTime);
     ApplyContactDamage(DeltaTime, GetContactDamageMultiplier());
@@ -144,6 +164,7 @@ void AVSBossEnemy::MoveTowardPlayer(float DeltaTime)
 {
     const FVSBossPlayerInfo Info = QueryPlayer();
     if (!Info.IsValid()) return;
+    if (!Data) return;
 
     // 접촉 사거리 밖일 때만 접근 (오버슈트로 인한 요동 방지)
     if (Info.Dist > Data->ContactRange)
@@ -248,6 +269,8 @@ void AVSBossEnemy::BeginPlay()
 
 void AVSBossEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    // EndPlay는 사망 외에 레벨 전환·PIE 종료로도 불린다.
+    // 사망 통지는 OnDeath가 책임지고, 여기서는 등록 해제만 한다.
     if (EnemyManager.IsValid())
         EnemyManager->UnregisterBoss(this);
 
@@ -256,7 +279,7 @@ void AVSBossEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AVSBossEnemy::OnDeath()
 {
-    if (Data)
+    if (bGrantRewards && Data)
     {
         if (AVSGemManager* GemMgr = Cast<AVSGemManager>(
             UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass())))

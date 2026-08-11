@@ -93,7 +93,10 @@ void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
         AVSProjectile* Proj = Comp->GetWorld()->SpawnActor<AVSProjectile>(
             Weapon.Data->ProjectileClass, SpawnLoc, Dir.Rotation());
         if (Proj)
+        {
             Proj->Damage = Damage;
+            Proj->SetEnemyManager(EnemyManager);
+        }
     }
 }
 

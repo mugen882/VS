@@ -63,7 +63,7 @@ public:
 
 public:
     UPROPERTY(VisibleAnywhere)
-    UInstancedStaticMeshComponent* ISM;
+    TObjectPtr<UInstancedStaticMeshComponent> ISM;
 
     // 액터 정면(+X) 대비 ISM 메시가 틀어진 각도.
     UPROPERTY(EditAnywhere, Category="Enemy|Visual", meta=(ClampMin="-180", ClampMax="180"))

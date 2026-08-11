@@ -52,7 +52,7 @@ private:
 
 private:
     UPROPERTY(VisibleAnywhere)
-    UInstancedStaticMeshComponent* GemISM;
+    TObjectPtr<UInstancedStaticMeshComponent> GemISM;
 
     TArray<FVSGemData> Gems;
 

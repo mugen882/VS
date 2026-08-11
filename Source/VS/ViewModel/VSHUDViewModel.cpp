@@ -101,6 +101,8 @@ void UVSHUDViewModel::HandleTimeChanged(float ElapsedSeconds)
         const FString Str = FString::Printf(TEXT("%02d:%02d"), Min, Sec);
         SetSurvivalTimeText(FText::FromString(Str));
     }
+
+    RefreshBossBar();
 }
 
 void UVSHUDViewModel::HandleTotalRunTimeChanged(float InTotalRuntime)
@@ -135,10 +137,10 @@ void UVSHUDViewModel::HandleBossSpawned(AVSBossEnemy* Boss)
 
 void UVSHUDViewModel::HandleBossDamaged(AVSBossEnemy* Boss)
 {
-    if (!Boss) return;
+    if (!IsValid(Boss)) return;
 
     // 마지막 타격 보스를 상단 바 대상으로 (다른 보스였으면 전환)
-    if (CurrentTargetBoss != Boss)
+    if (CurrentTargetBoss.Get() != Boss)
     {
         CurrentTargetBoss = Boss;
         if (UVSBossData* Data = Boss->GetData())
@@ -153,9 +155,27 @@ void UVSHUDViewModel::HandleBossDamaged(AVSBossEnemy* Boss)
 void UVSHUDViewModel::HandleBossDied(AVSBossEnemy* Boss)
 {
     // 죽은 게 현재 상단 바 대상이면 바를 숨긴다
-    if (CurrentTargetBoss == Boss)
+    if (CurrentTargetBoss.Get() == Boss)
     {
-        CurrentTargetBoss = nullptr;
-        SetBossBarVisibility(ESlateVisibility::Collapsed);
+        HideBossBar();
+    }
+}
+
+void UVSHUDViewModel::HideBossBar()
+{
+    CurrentTargetBoss.Reset();
+    SetBossHealthPercent(0.f);
+    SetBossBarVisibility(ESlateVisibility::Collapsed);
+}
+
+void UVSHUDViewModel::RefreshBossBar()
+{
+    // 바가 이미 내려가 있으면 할 일이 없다 (보스를 한 번도 안 때린 평상시 경로)
+    if (BossBarVisibility == ESlateVisibility::Collapsed) return;
+
+    // 델리게이트가 오지 않은 채 액터만 사라진 경우 — 약참조가 무효화되어 여기서 걸린다
+    if (!CurrentTargetBoss.IsValid())
+    {
+        HideBossBar();
     }
 }

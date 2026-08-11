@@ -124,7 +124,15 @@ void AVSGemManager::UpdateGems(float DeltaTime)
 
     // 트랜스폼 일괄 갱신
     if (Gems.Num() > 0)
-        GemISM->BatchUpdateInstancesTransforms(0, NewXforms, true, true, true);
+    {
+        GemISM->BatchUpdateInstancesTransforms(
+            /*StartInstanceIndex*/ 0,
+            NewXforms,
+            /*bWorldSpace*/ true,
+            /*bMarkRenderStateDirty*/ false,
+            /*bTeleport*/ true);
+        GemISM->MarkRenderStateDirty();
+    }
 
     // 획득한 젬 제거 (큰 인덱스부터)
     Collected.Sort([](int32 A, int32 B) { return A > B; });

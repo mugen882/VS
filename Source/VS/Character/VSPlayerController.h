@@ -18,10 +18,10 @@ public:
 	AVSPlayerController();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* MoveAction;
+	TObjectPtr<UInputAction> MoveAction;
 
 	// 게임오버/클리어 공용 결과 위젯 클래스
 	UPROPERTY(EditAnywhere, Category="UI")

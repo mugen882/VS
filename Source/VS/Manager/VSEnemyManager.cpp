@@ -53,7 +53,7 @@ void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult,
     }
 
     // 타입 크기 반영
-    float Scale = FMath::Min(Type->Scale, BOSS_ENEMY_SCALE);
+    float Scale = FMath::Min(Type->Scale, MAX_ENEMY_SCALE);
     const FTransform Xform(FRotator::ZeroRotator, Loc, FVector(Scale));
     const int32 Index = ISM->AddInstance(Xform, /*bWorldSpace=*/true);
 
@@ -179,13 +179,12 @@ void AVSEnemyManager::ClearAllEnemies()
         ISM->ClearInstances();
     }
 
-    // 보스 제거
     TArray<TObjectPtr<AVSBossEnemy>> BossesCopy = Bosses;
     for (const TObjectPtr<AVSBossEnemy>& Boss : BossesCopy)
     {
         if (IsValid(Boss))
         {
-            Boss->Destroy();
+            Boss->Kill(false);   // 일괄 정리이므로 드랍은 생략
         }
     }
     Bosses.Reset();

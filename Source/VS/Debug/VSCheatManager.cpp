@@ -97,6 +97,25 @@ void UVSCheatManager::VSBenchActors(int32 Count)
 	}
 }
 
+
+void UVSCheatManager::VSSpawnGems(int32 Count)
+{
+	AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOuterAPlayerController()->GetPawn());
+	if (!Player) return;
+
+	AVSGemManager* GemManager = Player->GetGemManager();
+	if (!GemManager) return;
+
+	FVector Center = Player->GetActorLocation();
+	Center.Z -= Player->GetSimpleCollisionHalfHeight();
+	for (int32 i = 0; i < Count; ++i)
+	{
+		const float Angle = FMath::FRandRange(0.f, 360.f);
+		const float Dist = FMath::FRandRange(MIN_SPAWN_RADIUS, MAX_SPAWN_RADIUS);
+		GemManager->SpawnGem(Center + FVector(Dist, 0.f, 0.f).RotateAngleAxis(Angle, FVector::UpVector), 1);
+	}
+}
+
 void UVSCheatManager::VSEnemyClear(bool bSpawnDisable)
 {
 	AVSEnemyManager* Mgr = Cast<AVSEnemyManager>(
@@ -129,19 +148,17 @@ void UVSCheatManager::VSEnemyClear(bool bSpawnDisable)
 
 void UVSCheatManager::VSObjectClear(bool bSpawnDisable)
 {
+	AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOuterAPlayerController()->GetPawn());
+	if (!Player) return;
+
+	AVSGemManager* GemManager = Player->GetGemManager();
+	if (!GemManager) return;
+
 	// 적·더미·스폰 봉인
 	VSEnemyClear(bSpawnDisable);
 
 	// 바닥에 남은 XP 젬도 제거
-	if (AVSGemManager* Gem = Cast<AVSGemManager>(
-		UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass())))
-	{
-		Gem->ClearAllGems();
-	}
-	else
-	{
-		UE_LOG(VSLog, Warning, TEXT("VSObjectClear: 레벨에 AVSGemManager가 없습니다."));
-	}
+	GemManager->ClearAllGems();
 }
 
 void UVSCheatManager::VSStopSpawn(bool bStop)

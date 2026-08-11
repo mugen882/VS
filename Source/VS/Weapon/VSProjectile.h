@@ -2,6 +2,8 @@
 #include "CoreMinimal.h"
 #include "VSProjectile.generated.h"
 
+class AVSEnemyManager;
+
 UCLASS()
 class AVSProjectile : public AActor
 {
@@ -9,6 +11,9 @@ class AVSProjectile : public AActor
 public:
     AVSProjectile();
 
+    void SetEnemyManager(AVSEnemyManager* InManager);
+
+public:
     UPROPERTY(EditAnywhere)
     float Speed = 2000.f;
 
@@ -35,4 +40,7 @@ protected:
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
     TObjectPtr<UStaticMeshComponent> MeshComp;
+
+private:
+	TWeakObjectPtr<AVSEnemyManager> EnemyManager;
 };

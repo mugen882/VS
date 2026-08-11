@@ -17,6 +17,8 @@ class UVSWeaponData;
 class UVSUpgradeSelectionWidget;
 class UVSUpgradeData;
 class AVSGemManager;
+class UCameraComponent;
+class USpringArmComponent;
 
 DECLARE_MULTICAST_DELEGATE(FOnPlayerDied);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);   // 체력 비율 0~1
@@ -47,6 +49,8 @@ public:
 	const FVSPassiveStatModifiers& GetStatMods() const { return StatMods; }
 
 	void SkipLevelUp(bool bSkip) { bSkipLevelUp = bSkip; }
+
+	AVSGemManager* GetGemManager() const { return GemManager; }
 
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
@@ -79,13 +83,13 @@ protected:
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	UVSWeaponComponent* WeaponComp;
+	TObjectPtr<UVSWeaponComponent> WeaponComp;
 
 	UPROPERTY(VisibleAnywhere)
-	UVSUpgradeComponent* UpgradeComp;
+	TObjectPtr<UVSUpgradeComponent> UpgradeComp;
 
 	UPROPERTY(EditAnywhere, Category="Weapon")
-    UVSWeaponData* StartingWeapon = nullptr;
+    TObjectPtr<UVSWeaponData> StartingWeapon = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="UI")
     TSubclassOf<UVSUpgradeSelectionWidget> UpgradeSelectionWidgetClass;
@@ -101,10 +105,10 @@ private:
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* TopDownCameraComponent;
+	TObjectPtr<UCameraComponent> TopDownCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	TObjectPtr<USpringArmComponent> CameraBoom;
 
 	UPROPERTY()
 	TObjectPtr<AVSEnemyManager> EnemyManager;

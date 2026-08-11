@@ -19,5 +19,5 @@ protected:
 
 protected:
     UPROPERTY(VisibleAnywhere)
-    UStaticMeshComponent* Mesh;
+    TObjectPtr<UStaticMeshComponent> Mesh;
 };

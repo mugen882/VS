@@ -72,12 +72,12 @@ void UVSCheatManager::VSAddXP(int32 XP)
 	}
 }
 
-void UVSCheatManager::VSSkipLevelUp(bool bSkip)
+void UVSCheatManager::VSStopXP(bool bStop)
 {
 	if (AVSPlayerCharacter* VSChar = GetVSPlayerCharacter())
 	{
-		VSChar->SkipLevelUp(bSkip);
-		UE_LOG(VSLog, Warning, TEXT("VSSkipLevelUp: %s"), bSkip ? TEXT("ON") : TEXT("OFF"));
+		VSChar->StopXP(bStop);
+		UE_LOG(VSLog, Warning, TEXT("VSStopXP: %s"), bStop ? TEXT("ON") : TEXT("OFF"));
 	}
 }
 
@@ -100,11 +100,19 @@ void UVSCheatManager::VSBenchActors(int32 Count)
 
 void UVSCheatManager::VSSpawnGems(int32 Count)
 {
-	AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOuterAPlayerController()->GetPawn());
-	if (!Player) return;
+	AVSPlayerCharacter* Player = GetVSPlayerCharacter();
+	if (!Player)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSSpawnGems: Player를 찾을 수 없습니다."));
+		return;
+	}
 
 	AVSGemManager* GemManager = Player->GetGemManager();
-	if (!GemManager) return;
+	if (!GemManager)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSSpawnGems: GemManager를 찾을 수 없습니다."));
+		return;
+	}
 
 	FVector Center = Player->GetActorLocation();
 	Center.Z -= Player->GetSimpleCollisionHalfHeight();
@@ -116,7 +124,7 @@ void UVSCheatManager::VSSpawnGems(int32 Count)
 	}
 }
 
-void UVSCheatManager::VSEnemyClear(bool bSpawnDisable)
+void UVSCheatManager::VSEnemyClear()
 {
 	AVSEnemyManager* Mgr = Cast<AVSEnemyManager>(
 		UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
@@ -134,28 +142,25 @@ void UVSCheatManager::VSEnemyClear(bool bSpawnDisable)
 	{
 		Bench->ClearDummies();
 	}
-
-	UWorld* World = GetWorld();
-	if (!World) return;
-
-	// 웨이브 자동 스폰 봉인/해제
-	UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>();
-	if (Diff)
-	{
-		Diff->SetWaveSpawnDisabled(bSpawnDisable);
-	}
 }
 
-void UVSCheatManager::VSObjectClear(bool bSpawnDisable)
+void UVSCheatManager::VSObjectClear()
 {
-	AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(GetOuterAPlayerController()->GetPawn());
-	if (!Player) return;
+	VSEnemyClear();
+
+	AVSPlayerCharacter* Player = GetVSPlayerCharacter();
+	if (!Player)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSObjectClear: Player를 찾을 수 없습니다."));
+		return;
+	}
 
 	AVSGemManager* GemManager = Player->GetGemManager();
-	if (!GemManager) return;
-
-	// 적·더미·스폰 봉인
-	VSEnemyClear(bSpawnDisable);
+	if (!GemManager)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSObjectClear: AVSGemManager를 찾을 수 없습니다."));
+		return;
+	}
 
 	// 바닥에 남은 XP 젬도 제거
 	GemManager->ClearAllGems();
@@ -164,7 +169,11 @@ void UVSCheatManager::VSObjectClear(bool bSpawnDisable)
 void UVSCheatManager::VSStopSpawn(bool bStop)
 {
 	UWorld* World = GetWorld();
-	if (!World) return;
+	if (!World)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSStopSpawn: World를 찾을 수 없습니다."));
+		return;
+	}
 
 	UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>();
 	if (!Diff)
@@ -180,7 +189,11 @@ void UVSCheatManager::VSStopSpawn(bool bStop)
 void UVSCheatManager::VSSpawnBoss(int32 WaveIndex, float Distance)
 {
 	UWorld* World = GetWorld();
-	if (!World) return;
+	if (!World)
+	{
+		UE_LOG(VSLog, Warning, TEXT("VSSpawnBoss: World를 찾을 수 없습니다."));
+		return;
+	}
 
 	UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>();
 	if (!Diff)

@@ -16,14 +16,14 @@ class AVSBenchmarkActor;
  *      VSGiveAllWeapons 5  // 무기 전부 획득 + 각 무기 Lv.5까지 즉시 강화
  *      VSGiveAllPassive 5  // 패시브 전 종류를 Lv.5까지 즉시 강화
  *      VSAddXP 100         // 경험치 지급 (정상 레벨업 경로)
- *      VSSkipLevelUp 1     // 레벨업/업그레이드 봉인
+ *      VSStopXP 1			// 레벨업/업그레이드 봉인
  *      VSStopSpawn 1       // 웨이브 자동 스폰 전체 봉인 (VSSpawnBoss 수동 소환은 가능)
  *      VSBenchISM 300      // 벤치시작, 적소환(ISM + AnimToTexture)
  *      VSBenchActors 300   // 벤치시작, 적소환(액터 + 스켈레탈)
  *		VSSpawnGems 500     // 바닥에 XP 젬 500개 스폰
- *      VSEnemyClear        // 모든 적(잡몹·엘리트·미니언·보스) 즉시 제거 (+웨이브 스폰 봉인 여부)
+ *      VSEnemyClear        // 모든 적(잡몹·엘리트·미니언·보스) 즉시 제거
  *      VSObjectClear       // VSEnemyClear + 바닥의 XP 젬까지 전부 제거
- *		VSSpawnBoss			// 보스 스폰. WaveIndex=-1이면 현재 웨이브, Distance=-1이면 기본 거리
+ *		VSSpawnBoss	0 600	// 보스 스폰. 0 Wave의 600거리에 스폰 (WaveIndex=-1이면 현재 웨이브, Distance=-1이면 기본 거리)
  */
 UCLASS()
 class VS_API UVSCheatManager : public UCheatManager
@@ -53,7 +53,7 @@ public:
 
 	/** 레벨업 처리 자체를 봉인/해제. 카드 UI가 안뜬다.*/
 	UFUNCTION(Exec)
-	void VSSkipLevelUp(bool bSkip = true);
+	void VSStopXP(bool bStop = true);
 
 	/** 웨이브 자동 스폰(잡몹·엘리트·보스) 봉인/해제. 시간 경과와 수동 보스 소환은 유지된다. */
 	UFUNCTION(Exec)
@@ -70,15 +70,13 @@ public:
 	UFUNCTION(Exec)
 	void VSSpawnGems(int32 Count = 500);
 
-	/** 현재 살아있는 모든 적(ISM 잡몹·엘리트·미니언 + 보스)을 즉시 제거한다.
-	* bSpawnDisable이 true이면 웨이브 자동 스폰도 봉인한다.
-	*/
+	/** 현재 살아있는 모든 적(ISM 잡몹·엘리트·미니언 + 보스)을 즉시 제거한다.*/
 	UFUNCTION(Exec)
-	void VSEnemyClear(bool bSpawnDisable = true);
+	void VSEnemyClear();
 
 	/** VSEnemyClear에 더해 바닥에 남은 XP 젬(픽업)까지 전부 제거한다. */
 	UFUNCTION(Exec)
-	void VSObjectClear(bool bSpawnDisable = true);
+	void VSObjectClear();
 
 	UFUNCTION(Exec)
 	void VSSpawnBoss(int32 WaveIndex = -1, float Distance = -1.f);

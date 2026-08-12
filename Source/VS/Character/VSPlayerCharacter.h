@@ -48,9 +48,9 @@ public:
 	bool AddPassive(EVSPassiveStatType StatType, float Value);
 	const FVSPassiveStatModifiers& GetStatMods() const { return StatMods; }
 
-	void SkipLevelUp(bool bSkip) { bSkipLevelUp = bSkip; }
+	void StopXP(bool bStop) { bStopXP = bStop; }
 
-	AVSGemManager* GetGemManager() const { return GemManager; }
+	AVSGemManager* GetGemManager();
 
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Progression")
@@ -126,6 +126,6 @@ private:
 
 	int32 PendingLevelUps = 0;
 
-	bool bSkipLevelUp = false;
+	bool bStopXP = false;
 };
 

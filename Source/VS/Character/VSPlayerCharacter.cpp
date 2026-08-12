@@ -93,7 +93,7 @@ void AVSPlayerCharacter::LevelUp()
 
 void AVSPlayerCharacter::AddXP(int32 Amount)
 {
-	if (bSkipLevelUp) return;
+	if (bStopXP) return;
 
 	CurrentXP += Amount;
 	
@@ -144,6 +144,16 @@ bool AVSPlayerCharacter::AddPassive(EVSPassiveStatType StatType, float Value)
 
 	RecalculateStats();
 	return true;
+}
+
+AVSGemManager* AVSPlayerCharacter::GetGemManager()
+{
+	if (!GemManager)
+	{
+		GemManager = Cast<AVSGemManager>(
+			UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
+	}
+	return GemManager;
 }
 
 bool AVSPlayerCharacter::ShowUpgradeSelection()

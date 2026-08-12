@@ -12,6 +12,8 @@
 #include "Misc/Paths.h"
 #include "RenderCore.h"
 #include "RHI.h"
+#include "HAL/IConsoleManager.h"
+#include "VSGameMode.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogVSBench, Log, All);
 
@@ -24,12 +26,11 @@ AVSBenchmarkActor::AVSBenchmarkActor()
 
 AVSEnemyManager* AVSBenchmarkActor::GetEnemyManager()
 {
-    if (!EnemyManager)
+    if (AVSGameMode* GM = GetWorld()->GetAuthGameMode<AVSGameMode>())
     {
-        EnemyManager = Cast<AVSEnemyManager>(
-            UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
+        return GM->GetOrCreateEnemyManager();
     }
-    return EnemyManager;
+    return nullptr;
 }
 
 void AVSBenchmarkActor::RunBenchmark(EVSBenchMode Mode, int32 Count)
@@ -46,12 +47,6 @@ void AVSBenchmarkActor::RunBenchmark(EVSBenchMode Mode, int32 Count)
     CurrentMode = Mode;
     RequestedCount = Count;
 
-    SetGameplaySpawnPaused(true);
-    if (bDisableCombat)
-    {
-        SetCombatEnabled(false);
-    }
-
     if (Mode == EVSBenchMode::ISM)
     {
         SpawnISM(Count);
@@ -61,12 +56,62 @@ void AVSBenchmarkActor::RunBenchmark(EVSBenchMode Mode, int32 Count)
         SpawnActors(Count);
     }
 
-    Phase = EVSBenchPhase::Warmup;
-    PhaseTimer = 0.f;
+    ActiveWarmupSeconds = WarmupSeconds;
+    ActiveSampleSeconds = SampleSeconds;
+    EnterWarmup();
 
     UE_LOG(LogVSBench, Log, TEXT("[Bench] %s %d마리 스폰. %.1f초 워밍업 후 %.1f초 측정."),
         Mode == EVSBenchMode::ISM ? TEXT("ISM") : TEXT("Actor"),
-        Count, WarmupSeconds, SampleSeconds);
+        Count, ActiveWarmupSeconds, ActiveSampleSeconds);
+}
+
+void AVSBenchmarkActor::RunSceneBenchmark(float WarmupSec, float SampleSec)
+{
+    if (Phase != EVSBenchPhase::Idle)
+    {
+        UE_LOG(LogVSBench, Warning, TEXT("이미 측정 중입니다. 끝난 뒤 다시 실행하세요."));
+        return;
+    }
+
+    // Scene 모드는 화면을 건드리지 않는다. ClearAll()도 스폰도 하지 않는다.
+    CurrentMode = EVSBenchMode::Scene;
+    RequestedCount = 0;
+
+    ActiveWarmupSeconds = (WarmupSec > 0.f) ? WarmupSec : WarmupSeconds;
+    ActiveSampleSeconds = (SampleSec > 0.f) ? SampleSec : SampleSeconds;
+    EnterWarmup();
+
+    UE_LOG(LogVSBench, Log, TEXT("[Bench] Scene 측정. %.1f초 대기 후 %.1f초 측정. 설정: %s"),
+        ActiveWarmupSeconds, ActiveSampleSeconds, *DescribeRenderSettings());
+}
+
+void AVSBenchmarkActor::EnterWarmup()
+{
+    // 샘플 구간에서 개체 수가 변하지 않도록 웨이브 스폰과 전투를 멈춘다.
+    // Scene 모드에서도 동일하게 적용해야 A/B 두 번의 장면이 같아진다.
+    SetGameplaySpawnPaused(true);
+    if (bDisableCombat)
+    {
+        SetCombatEnabled(false);
+    }
+
+    Phase = EVSBenchPhase::Warmup;
+    PhaseTimer = 0.f;
+}
+
+FString AVSBenchmarkActor::DescribeRenderSettings()
+{
+    auto ReadInt = [](const TCHAR* Name) -> int32
+    {
+        const IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(Name);
+        return CVar ? CVar->GetInt() : -1;
+    };
+
+    // 값이 아니라 "어떤 설정으로 쟀는지"를 남기는 게 목적이다. -1은 CVar를 못 찾은 경우.
+    return FString::Printf(TEXT("GI=%d Refl=%d VSM=%d"),
+        ReadInt(TEXT("r.DynamicGlobalIlluminationMethod")),
+        ReadInt(TEXT("r.ReflectionMethod")),
+        ReadInt(TEXT("r.Shadow.Virtual.Enable")));
 }
 
 void AVSBenchmarkActor::Tick(float DeltaTime)
@@ -80,7 +125,7 @@ void AVSBenchmarkActor::Tick(float DeltaTime)
     switch (Phase)
     {
     case EVSBenchPhase::Warmup:
-        if (PhaseTimer >= WarmupSeconds)
+        if (PhaseTimer >= ActiveWarmupSeconds)
         {
             BeginSampling();
         }
@@ -88,7 +133,7 @@ void AVSBenchmarkActor::Tick(float DeltaTime)
 
     case EVSBenchPhase::Sampling:
         CollectSample();
-        if (PhaseTimer >= SampleSeconds)
+        if (PhaseTimer >= ActiveSampleSeconds)
         {
             Report();
             Phase = EVSBenchPhase::Idle;
@@ -165,11 +210,19 @@ void AVSBenchmarkActor::Report()
     const float AvgGPU = Avg(GPUMs);
 
     AVSEnemyManager* Mgr = GetEnemyManager();
-    const int32 ActualCount = (CurrentMode == EVSBenchMode::ISM)
-        ? (Mgr ? Mgr->GetEnemyCount() : 0)
-        : SpawnedDummies.Num();
+    const int32 ActualCount = (CurrentMode == EVSBenchMode::Actors)
+        ? SpawnedDummies.Num()
+        : (Mgr ? Mgr->GetEnemyCount() : 0);
 
-    const FString ModeName = (CurrentMode == EVSBenchMode::ISM) ? TEXT("ISM+AnimToTexture") : TEXT("Actor+Skeletal");
+    FString ModeName;
+    switch (CurrentMode)
+    {
+    case EVSBenchMode::ISM:    ModeName = TEXT("ISM+AnimToTexture"); break;
+    case EVSBenchMode::Actors: ModeName = TEXT("Actor+Skeletal");    break;
+    default:                   ModeName = TEXT("Scene");             break;
+    }
+
+    const FString RenderSettings = DescribeRenderSettings();
 
     UE_LOG(LogVSBench, Log, TEXT("================ VS Benchmark ================"));
     UE_LOG(LogVSBench, Log, TEXT(" Mode      : %s"), *ModeName);
@@ -181,6 +234,7 @@ void AVSBenchmarkActor::Report()
     UE_LOG(LogVSBench, Log, TEXT(" Game avg  : %.2f ms"), AvgGame);
     UE_LOG(LogVSBench, Log, TEXT(" Render avg: %.2f ms"), AvgRender);
     UE_LOG(LogVSBench, Log, TEXT(" GPU avg   : %.2f ms"), AvgGPU);
+    UE_LOG(LogVSBench, Log, TEXT(" Render cfg: %s"), *RenderSettings);
     UE_LOG(LogVSBench, Log, TEXT("=============================================="));
 
     // 결과 누적 — 여러 번 돌린 결과를 그대로 표로 옮길 수 있다
@@ -188,12 +242,12 @@ void AVSBenchmarkActor::Report()
     if (!FPaths::FileExists(CsvPath))
     {
         FFileHelper::SaveStringToFile(
-            FString(TEXT("Timestamp\tMode\tCount\tSamples\tFrameAvgMs\tFrameP95Ms\tFrameMaxMs\tGameAvgMs\tRenderAvgMs\tGPUAvgMs\n")),
+            FString(TEXT("Timestamp\tMode\tRenderCfg\tCount\tSamples\tFrameAvgMs\tFrameP95Ms\tFrameMaxMs\tGameAvgMs\tRenderAvgMs\tGPUAvgMs\n")),
             *CsvPath);
     }
 
-    const FString Row = FString::Printf(TEXT("%s\t%s\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n"),
-        *FDateTime::Now().ToString(), *ModeName, ActualCount, FrameMs.Num(),
+    const FString Row = FString::Printf(TEXT("%s\t%s\t%s\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n"),
+        *FDateTime::Now().ToString(), *ModeName, *RenderSettings, ActualCount, FrameMs.Num(),
         AvgFrame, P95Frame, MaxFrame, AvgGame, AvgRender, AvgGPU);
 
     FFileHelper::SaveStringToFile(Row, *CsvPath,

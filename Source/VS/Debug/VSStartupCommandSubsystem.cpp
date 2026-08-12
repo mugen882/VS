@@ -11,11 +11,7 @@ bool UVSStartupCommandSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 	// 출시 빌드에는 아예 존재하지 않는다
 	return false;
 #else
-	if (!Super::ShouldCreateSubsystem(Outer)) return false;
-
-	// 에디터 프리뷰·썸네일 월드 등에서는 만들지 않는다
-	const UWorld* World = Cast<UWorld>(Outer);
-	return World && World->IsGameWorld();
+	return Super::ShouldCreateSubsystem(Outer);
 #endif
 }
 
@@ -30,7 +26,8 @@ void UVSStartupCommandSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 	if (StartupCommandDelay <= 0.f)
 	{
-		RunStartupCommands();
+		InWorld.GetTimerManager().SetTimerForNextTick(
+			FTimerDelegate::CreateUObject(this, &UVSStartupCommandSubsystem::RunStartupCommands));
 	}
 	else
 	{

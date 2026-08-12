@@ -18,8 +18,10 @@ class AVSBenchmarkActor;
  *      VSAddXP 100         // 경험치 지급 (정상 레벨업 경로)
  *      VSStopXP 1			// 레벨업/업그레이드 봉인
  *      VSStopSpawn 1       // 웨이브 자동 스폰 전체 봉인 (VSSpawnBoss 수동 소환은 가능)
+ *		VSBenchScene 10 30	// 아무것도 스폰하지 않고 10초 뒤부터 30초간 현재 화면 측정
  *      VSBenchISM 300      // 벤치시작, 적소환(ISM + AnimToTexture)
  *      VSBenchActors 300   // 벤치시작, 적소환(액터 + 스켈레탈)
+ *      VSBenchScene 30 10  // 아무것도 스폰하지 않고 30초 뒤부터 10초간 현재 화면 측정
  *		VSSpawnGems 500     // 바닥에 XP 젬 500개 스폰
  *      VSEnemyClear        // 모든 적(잡몹·엘리트·미니언·보스) 즉시 제거
  *      VSObjectClear       // VSEnemyClear + 바닥의 XP 젬까지 전부 제거
@@ -66,6 +68,16 @@ public:
 
 	UFUNCTION(Exec)
 	void VSBenchActors(int32 Count = 500);
+
+	/**
+	 * 스폰 없이 현재 화면을 그대로 측정한다. 렌더러 CVar를 바꿔가며 같은 장면을
+	 * 비교할 때 쓴다. 결과 행에 그때의 GI/반사/VSM 설정이 함께 기록된다.
+	 *
+	 * @param WarmupSec  측정 시작까지 대기할 시간. 이 동안 장면이 평소대로 흘러간다.
+	 * @param SampleSec  샘플 수집 시간. 대기가 끝나면 스폰·전투가 멈춘 채 수집한다.
+	 */
+	UFUNCTION(Exec)
+	void VSBenchScene(float WarmupSec = 30.f, float SampleSec = 10.f);
 
 	UFUNCTION(Exec)
 	void VSSpawnGems(int32 Count = 500);

@@ -27,7 +27,10 @@ void AVSEnemyManager::BeginPlay()
         ISM->ClearInstances();
     Enemies.Empty();
 
-    GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
+    if (AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0)))
+    {
+        GemManager = Player->GetGemManager();
+    }
 }
 
 void AVSEnemyManager::SpawnEnemy(const UVSEnemyTypeData* Type, float HealthMult, const FVector* MinionLoc)

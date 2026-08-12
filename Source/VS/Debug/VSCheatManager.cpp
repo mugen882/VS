@@ -98,6 +98,14 @@ void UVSCheatManager::VSBenchActors(int32 Count)
 }
 
 
+void UVSCheatManager::VSBenchScene(float WarmupSec, float SampleSec)
+{
+	if (AVSBenchmarkActor* Bench = FindBenchmarkActor())
+	{
+		Bench->RunSceneBenchmark(WarmupSec, SampleSec);
+	}
+}
+
 void UVSCheatManager::VSSpawnGems(int32 Count)
 {
 	AVSPlayerCharacter* Player = GetVSPlayerCharacter();

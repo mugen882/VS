@@ -296,10 +296,12 @@ void AVSBossEnemy::OnDeath()
 {
     if (ShouldGrantRewards() && Data)
     {
-        if (AVSGemManager* GemMgr = Cast<AVSGemManager>(
-            UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass())))
+        if (AVSPlayerCharacter* Player = Cast<AVSPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0)))
         {
-            GemMgr->SpawnGem(GetActorLocation(), Data->XPValue);
+            if (AVSGemManager * GemMgr = Player->GetGemManager())
+            {
+                GemMgr->SpawnGem(GetActorLocation(), Data->XPValue);
+            }
         }
     }
 

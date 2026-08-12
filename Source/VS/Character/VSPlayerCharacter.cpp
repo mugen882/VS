@@ -19,6 +19,7 @@
 #include "Manager/VSGemManager.h"
 #include "Subsystem/VSDifficultySubsystem.h"
 #include "Common/VSLog.h"
+#include "VSGameMode.h"
 
 AVSPlayerCharacter::AVSPlayerCharacter()
 {
@@ -58,7 +59,11 @@ void AVSPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	EnemyManager = Cast<AVSEnemyManager>(UGameplayStatics::GetActorOfClass(this, AVSEnemyManager::StaticClass()));
+	if (AVSGameMode* GM = GetWorld()->GetAuthGameMode<AVSGameMode>())
+	{
+		EnemyManager = GM->GetOrCreateEnemyManager();
+	}
+
 	GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
 
 	if (WeaponComp)

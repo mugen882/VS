@@ -15,6 +15,8 @@ class AVSGameMode : public AGameModeBase
 public:
 	AVSGameMode();
 
+	AVSEnemyManager* GetOrCreateEnemyManager();
+
 public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AVSEnemyManager> EnemyManagerClass;
@@ -23,5 +25,11 @@ public:
 	TObjectPtr<UVSWaveData> WaveData;
 
 protected:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+private:
+	UPROPERTY()
+	TObjectPtr<AVSEnemyManager> EnemyManager;
 };

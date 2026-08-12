@@ -20,7 +20,6 @@ void AVSGameMode::BeginPlay()
 
 	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
 	{
-		Diff->SetWaveSpawnDisabled(bDisableWaveSpawn);
 		Diff->SetWaveData(WaveData);
 	}
 }

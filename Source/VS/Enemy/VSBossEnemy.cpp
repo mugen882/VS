@@ -13,6 +13,9 @@
 namespace
 {
     const FName TintParamName(TEXT("TeamColor"));
+
+    // 체력바 위치 추종 속도.
+    constexpr float HealthBarInterpSpeed = 20.f;
 }
 
 AVSBossEnemy::AVSBossEnemy()
@@ -26,14 +29,13 @@ AVSBossEnemy::AVSBossEnemy()
     MeshComp->SetupAttachment(Root);
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     MeshComp->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
-    MeshComp->SetWorldScale3D(FVector(BOSS_ENEMY_SCALE));
+    MeshComp->SetRelativeScale3D(FVector(BOSS_ENEMY_SCALE));
     MeshComp->SetReceivesDecals(false);   // 자신의 텔레그래프 데칼이 몸에 묻지 않게
 
     // 머리 위 체력바 — 화면을 향하는 위젯.
     HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
     HealthBarWidget->SetupAttachment(Root);
-    HealthBarWidget->SetWidgetSpace(EWidgetSpace::Screen);   // 항상 카메라 향함
-    // 생성자 시점엔 메시가 아직 없어 바운드가 무의미하다. 실제 높이는 InitBoss에서 계산.
+    HealthBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
     HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, BOSS_HEADBAR_FALLBACK_HEIGHT));
     HealthBarWidget->SetDrawAtDesiredSize(true);
 }
@@ -62,6 +64,12 @@ void AVSBossEnemy::InitBoss(UVSBossData* InData)
         }   
 
         CacheData();   // 메시가 정해진 뒤에야 바운드가 의미를 가진다
+    }
+
+    FVector Target;
+    if (ComputeHealthBarTarget(Target))
+    {
+        HealthBarWidget->SetWorldLocation(Target);
     }
 
     OnBossHealthChanged.Broadcast(GetHealthPercent());
@@ -121,24 +129,34 @@ void AVSBossEnemy::Tick(float DeltaTime)
     UpdateHealthBarPosition(DeltaTime);
 }
 
-void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
+bool AVSBossEnemy::ComputeHealthBarTarget(FVector& OutTarget) const
 {
-    if (!HealthBarWidget || !MeshComp) return;
+    if (!HealthBarWidget || !MeshComp) return false;
 
     APlayerCameraManager* Cam = UGameplayStatics::GetPlayerCameraManager(this, 0);
-    if (!Cam) return;
+    if (!Cam) return false;
 
     // 카메라의 "위쪽" 방향으로 밀면 화면상 위로 간다.
     const FVector CamUp = Cam->GetCameraRotation().RotateVector(FVector::UpVector);
 
-    // 보스 머리 근처 + 화면상 위로 오프셋
-    const FVector TargetLoc = GetActorLocation()
-        + FVector(0.f, 0.f, HeadHeight)   // 머리 높이 (InitBoss에서 바운드로 계산)
-        + CamUp * ScreenUpOffset;         // 카메라 기준 화면상 위로
+    OutTarget = GetActorLocation()
+        + FVector(0.f, 0.f, HeadHeight)
+        + CamUp * ScreenUpOffset;
+    return true;
+}
 
-    // 부드럽게 이동 (급격한 튐/흔들림 방지)
-    const FVector Current = HealthBarWidget->GetComponentLocation();
-    HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, 20.f));
+void AVSBossEnemy::UpdateHealthBarPosition(float DeltaTime)
+{
+    if (!HealthBarWidget) return;
+
+    // 보스 머리 근처 + 화면상 위로 오프셋
+    FVector TargetLoc;
+    if (ComputeHealthBarTarget(TargetLoc))
+    {
+        // 부드럽게 이동 (급격한 튐/흔들림 방지)
+        const FVector Current = HealthBarWidget->GetComponentLocation();
+        HealthBarWidget->SetWorldLocation(FMath::VInterpTo(Current, TargetLoc, DeltaTime, HealthBarInterpSpeed));
+    }
 }
 
 void AVSBossEnemy::CacheData()
@@ -152,9 +170,6 @@ void AVSBossEnemy::CacheData()
     const float Height = MeshBounds.GetBox().Max.Z - GetActorLocation().Z;
 
     HeadHeight = (Height > 0.f) ? Height : BOSS_HEADBAR_FALLBACK_HEIGHT;
-
-    if (HealthBarWidget)
-        HealthBarWidget->SetRelativeLocation(FVector(0.f, 0.f, HeadHeight));
 
     const float Radius = FMath::Max(MeshBounds.BoxExtent.X, MeshBounds.BoxExtent.Y);
     MeshRadius = (Radius > 0.f) ? Radius : BOSS_MESH_RADIUS;
@@ -279,7 +294,7 @@ void AVSBossEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AVSBossEnemy::OnDeath()
 {
-    if (bGrantRewards && Data)
+    if (ShouldGrantRewards() && Data)
     {
         if (AVSGemManager* GemMgr = Cast<AVSGemManager>(
             UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass())))

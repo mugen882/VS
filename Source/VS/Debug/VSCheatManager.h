@@ -49,11 +49,11 @@ public:
 
 	/** 경험치 직접 지급. 필요 XP를 넘으면 평소와 동일하게 카드 UI가 뜬다. */
 	UFUNCTION(Exec)
-	void VSAddXP(int32 XP);
+	void VSAddXP(int32 XP = 1000);
 
 	/** 레벨업 처리 자체를 봉인/해제. 카드 UI가 안뜬다.*/
 	UFUNCTION(Exec)
-	void VSSkipLevelUp(bool bSkip);
+	void VSSkipLevelUp(bool bSkip = true);
 
 	/** 웨이브 자동 스폰(잡몹·엘리트·보스) 봉인/해제. 시간 경과와 수동 보스 소환은 유지된다. */
 	UFUNCTION(Exec)
@@ -62,10 +62,10 @@ public:
 	// --- 성능 측정 ---
 
 	UFUNCTION(Exec)
-	void VSBenchISM(int32 Count);
+	void VSBenchISM(int32 Count = 500);
 
 	UFUNCTION(Exec)
-	void VSBenchActors(int32 Count);
+	void VSBenchActors(int32 Count = 500);
 
 	UFUNCTION(Exec)
 	void VSSpawnGems(int32 Count = 500);
@@ -74,11 +74,11 @@ public:
 	* bSpawnDisable이 true이면 웨이브 자동 스폰도 봉인한다.
 	*/
 	UFUNCTION(Exec)
-	void VSEnemyClear(bool bSpawnDisable);
+	void VSEnemyClear(bool bSpawnDisable = true);
 
 	/** VSEnemyClear에 더해 바닥에 남은 XP 젬(픽업)까지 전부 제거한다. */
 	UFUNCTION(Exec)
-	void VSObjectClear(bool bSpawnDisable);
+	void VSObjectClear(bool bSpawnDisable = true);
 
 	UFUNCTION(Exec)
 	void VSSpawnBoss(int32 WaveIndex = -1, float Distance = -1.f);

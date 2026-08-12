@@ -131,7 +131,6 @@ void AVSGemManager::UpdateGems(float DeltaTime)
             /*bWorldSpace*/ true,
             /*bMarkRenderStateDirty*/ false,
             /*bTeleport*/ true);
-        GemISM->MarkRenderStateDirty();
     }
 
     // 획득한 젬 제거 (큰 인덱스부터)

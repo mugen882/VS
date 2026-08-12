@@ -111,6 +111,9 @@ protected:
     // 데이터의 선회 속도(도/초). 데이터가 없으면 기본값
     float GetRotateSpeedDeg() const;
 
+	// 체력바를 화면상 위로 배치할 위치를 계산.
+    bool ComputeHealthBarTarget(FVector& OutTarget) const;
+
     // 체력바를 카메라 기준 "화면상 위"에 배치 (탑다운 대각선 카메라 대응)
     void UpdateHealthBarPosition(float DeltaTime);
 

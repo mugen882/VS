@@ -111,10 +111,10 @@ public:
     UPROPERTY(EditAnywhere, Category="Ranged")
     TSubclassOf<AVSProjectile> ProjectileClass;
 
-    UPROPERTY(EditAnywhere, Category="Ranged")
+    UPROPERTY(EditAnywhere, Category="Ranged", meta=(ClampMin="0.01"))
     float FireInterval = 2.f;       // 탄막 발사 간격(초)
 
-    UPROPERTY(EditAnywhere, Category="Ranged")
+    UPROPERTY(EditAnywhere, Category="Ranged", meta=(ClampMin="1"))
     int32 ProjectileCount = 12;     // 전방위 탄 개수 (360도 균등 분할)
 
     UPROPERTY(EditAnywhere, Category="Ranged")
@@ -136,10 +136,10 @@ public:
     UPROPERTY(EditAnywhere, Category="Summon")
     TObjectPtr<UVSEnemyTypeData> MinionType;   // 소환할 잡몹 타입
 
-    UPROPERTY(EditAnywhere, Category="Summon")
+    UPROPERTY(EditAnywhere, Category="Summon", meta=(ClampMin="0.01"))
     float SummonInterval = 3.f;      // 소환 간격(초)
 
-    UPROPERTY(EditAnywhere, Category="Summon")
+    UPROPERTY(EditAnywhere, Category="Summon", meta=(ClampMin="0"))
     int32 MinionsPerSummon = 3;      // 한 번에 소환하는 수
 
     UPROPERTY(EditAnywhere, Category="Summon")

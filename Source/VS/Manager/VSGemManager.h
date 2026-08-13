@@ -47,6 +47,10 @@ protected:
     UPROPERTY(EditAnywhere)
     float GemSpeed = 1200.f;
 
+    // 동시에 존재할 수 있는 젬 상한. 초과 시 가장 오래된 젬부터 제거한다.
+    UPROPERTY(EditAnywhere, meta=(ClampMin="1"))
+    int32 MaxGems = 3000;
+
 private:
     void UpdateGems(float DeltaTime);
 

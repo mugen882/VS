@@ -18,23 +18,24 @@ void UVSResultWidget::NativeConstruct()
 void UVSResultWidget::SetupResult(bool bIsVictory, float InSurvivalSeconds, int32 InKillCount, int32 InReachedLevel, int32 InReachedWave)
 {
     if (TitleText)
-        TitleText->SetText(bIsVictory ? VictoryTitle : DefeatTitle);
+        TitleText->SetText(bIsVictory ? VSString::VictoryTitle() : VSString::DefeatTitle());
 
+    // 생존 시간만 소수 2자리, 나머지 정수 스탯은 소수점 없이 표시한다.
     FNumberFormattingOptions Opt;
     Opt.MinimumFractionalDigits = 2;
     Opt.MaximumFractionalDigits = 2;
 
-    FText StrSurvivalSec = FText::Format(SurvivalSecFormat, FText::AsNumber(InSurvivalSeconds, &Opt));
-    SurvivalSecText->SetText(StrSurvivalSec);
+    if (SurvivalSecText)
+        SurvivalSecText->SetText(FText::Format(VSString::SurvivalSecFormat(), FText::AsNumber(InSurvivalSeconds, &Opt)));
 
-    FText StrKillCountSec = FText::Format(KillCountFormat, FText::AsNumber(InKillCount, &Opt));
-    KillCountText->SetText(StrKillCountSec);
+    if (KillCountText)
+        KillCountText->SetText(FText::Format(VSString::KillCountFormat(), FText::AsNumber(InKillCount)));
 
-    FText StrReachedLevel = FText::Format(ReachedLevelFormat, FText::AsNumber(InReachedLevel, &Opt));
-    ReachedLevelText->SetText(StrReachedLevel);
+    if (ReachedLevelText)
+        ReachedLevelText->SetText(FText::Format(VSString::ReachedLevelFormat(), FText::AsNumber(InReachedLevel)));
 
-    FText StrReachedWave = FText::Format(ReachedWaveFormat, FText::AsNumber(InReachedWave, &Opt));
-    ReachedWaveText->SetText(StrReachedWave);
+    if (ReachedWaveText)
+        ReachedWaveText->SetText(FText::Format(VSString::ReachedWaveFormat(), FText::AsNumber(InReachedWave)));
 }
 
 

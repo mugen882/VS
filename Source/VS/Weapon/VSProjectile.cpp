@@ -10,7 +10,6 @@ AVSProjectile::AVSProjectile()
     PrimaryActorTick.bCanEverTick = true;
 
     MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-    MeshComp->SetupAttachment(RootComponent);
     MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     RootComponent = MeshComp;
 }

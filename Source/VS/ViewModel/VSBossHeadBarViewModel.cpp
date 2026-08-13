@@ -9,20 +9,12 @@ void UVSBossHeadBarViewModel::BindBoss(AVSBossEnemy* InBoss)
     // 체력 변경 구독 (Boss→ViewModel 단방향)
     InBoss->OnBossHealthChanged.AddUObject(this, &UVSBossHeadBarViewModel::HandleHealthChanged);
 
-    // 초기값 반영
     SetHealthPercent(InBoss->GetHealthPercent());
-    if (UVSBossData* Data = InBoss->GetData())
-        SetBossName(Data->DisplayName);
 }
 
 void UVSBossHeadBarViewModel::SetHealthPercent(float V)
 {
     UE_MVVM_SET_PROPERTY_VALUE(HealthPercent, V);
-}
-
-void UVSBossHeadBarViewModel::SetBossName(FText V)
-{
-    UE_MVVM_SET_PROPERTY_VALUE(BossName, V);
 }
 
 void UVSBossHeadBarViewModel::HandleHealthChanged(float InPercent)

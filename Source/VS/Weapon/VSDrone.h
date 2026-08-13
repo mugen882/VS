@@ -3,7 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "VSDrone.generated.h"
 
-class UStaticMeshComponent;
+class USkeletalMeshComponent;
 
 UCLASS()
 class VS_API AVSDrone : public AActor

@@ -23,6 +23,7 @@ void UVSMultiShotBehavior::FireMultiShot(UVSWeaponComponent* Comp, FVSWeaponInst
 
     AActor* Owner = Comp->GetOwner();
     if (!Owner) return;
+    if (!Weapon.Data) return;
 
     const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
@@ -45,7 +46,8 @@ void UVSMultiShotBehavior::FireMultiShot(UVSWeaponComponent* Comp, FVSWeaponInst
     const int32 Count = Weapon.Data->ProjectilesPerShot;
     const float SpreadDeg = Weapon.Data->MultiShotConfig.SpreadAngle;   // 전체 퍼짐 각도
     const float Step = (Count > 1) ? SpreadDeg / (Count - 1) : 0.f;
-    const float StartOffset = -SpreadDeg * 0.5f;
+    // 단발이면 부채꼴 중심 오프셋을 두지 않고 목표를 정면으로 겨눈다.
+    const float StartOffset = (Count > 1) ? -SpreadDeg * 0.5f : 0.f;
 
     for (int32 i = 0; i < Count; ++i)
     {

@@ -22,18 +22,21 @@ void UVSUpgradeCardWidget::SetupCard(UVSUpgradeData* InUpgrade)
     if (IconImage && Upgrade->Icon)
         IconImage->SetBrushFromTexture(Upgrade->Icon);
     
-    switch (Upgrade->Type)
+    if (ButtonText)
     {
-        case EVSUpgradeType::NewWeapon:
-            ButtonText->SetText(FText::FromString(strGain));
-			break;
-        case EVSUpgradeType::UpgradeWeapon:
-        case EVSUpgradeType::Passive:
-            ButtonText->SetText(FText::FromString(strUpgrade));
-			break;
+        switch (Upgrade->Type)
+        {
+            case EVSUpgradeType::NewWeapon:
+                ButtonText->SetText(FText::FromString(VSString::Gain()));
+                break;
+            case EVSUpgradeType::UpgradeWeapon:
+            case EVSUpgradeType::Passive:
+                ButtonText->SetText(FText::FromString(VSString::Upgrade()));
+                break;
 
-        default:
-        break;
+            default:
+                break;
+        }
     }
 }
 

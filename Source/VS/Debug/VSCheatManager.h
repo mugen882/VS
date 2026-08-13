@@ -73,8 +73,9 @@ public:
 	 * 스폰 없이 현재 화면을 그대로 측정한다. 렌더러 CVar를 바꿔가며 같은 장면을
 	 * 비교할 때 쓴다. 결과 행에 그때의 GI/반사/VSM 설정이 함께 기록된다.
 	 *
-	 * @param WarmupSec  측정 시작까지 대기할 시간. 이 동안 장면이 평소대로 흘러간다.
-	 * @param SampleSec  샘플 수집 시간. 대기가 끝나면 스폰·전투가 멈춘 채 수집한다.
+	 * @param WarmupSec  측정 시작까지 대기할 시간. A/B 장면을 동일하게 맞추기 위해
+	 *                   이 시점부터 이미 스폰·전투를 멈춘다(셰이더 컴파일·힛치만 흘려보냄).
+	 * @param SampleSec  샘플 수집 시간. 스폰·전투가 멈춘 상태로 수집한다.
 	 */
 	UFUNCTION(Exec)
 	void VSBenchScene(float WarmupSec = 30.f, float SampleSec = 10.f);

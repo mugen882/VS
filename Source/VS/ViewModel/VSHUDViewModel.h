@@ -14,7 +14,7 @@ class AVSBossEnemy;
  * Model(캐릭터·서브시스템)의 변경 델리게이트를 구독해 표시용 상태를 갱신한다.
   */
 UCLASS(BlueprintType)
-class UVSHUDViewModel : public UMVVMViewModelBase
+class VS_API UVSHUDViewModel : public UMVVMViewModelBase
 {
     GENERATED_BODY()
 

@@ -6,6 +6,7 @@
 #include "VSBenchmarkDummy.generated.h"
 
 class USkeletalMeshComponent;
+class APawn;
 
 /**
  * 성능 비교용 "간단한" 적 구현.
@@ -43,4 +44,8 @@ protected:
     // 액터 정면(+X) 대비 메시가 틀어진 각도. 잡몹/보스와 같은 규칙
     UPROPERTY(EditAnywhere, Category = "Benchmark", meta = (ClampMin = "-180", ClampMax = "180"))
     float MeshYawOffset = MESH_YAW_OFFSET;
+
+private:
+    // 매 틱 GetPlayerPawn을 다시 부르지 않도록 캐시(ISM 경로는 프레임당 1회만 조회한다).
+    TWeakObjectPtr<APawn> CachedPlayer;
 };

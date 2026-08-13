@@ -5,7 +5,7 @@
 
 void UVSNearestBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, float DeltaTime)
 {
-    if (!Comp) return;
+    if (!Comp || !W.Data) return;
 
     const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 

@@ -8,8 +8,8 @@
 class UVSBossData;
 class USkeletalMeshComponent;
 class AVSGemManager;
-
 class AVSBossEnemy;
+class UVSBossHeadBarViewModel;
 
 /**
  * 매 틱 반복되는 플레이어 조회 결과를 한 번에 담는 값 타입.
@@ -162,4 +162,7 @@ private:
 
     UPROPERTY(Transient)
     TArray<TObjectPtr<UMaterialInstanceDynamic>> BodyMIDs;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UVSBossHeadBarViewModel> HeadBarViewModel;
 };

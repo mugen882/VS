@@ -42,7 +42,7 @@ protected:
 	// Shipping 외에는 치트매니저를 항상 생성한다.
 	virtual void AddCheats(bool bForce) override;
 	
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 
 	void Move(const FInputActionValue& Value);
 

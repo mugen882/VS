@@ -9,6 +9,7 @@
 #include "ViewModel/VSBossHeadBarViewModel.h"
 #include "Kismet/GameplayStatics.h"
 #include "Component/VSWeaponComponent.h"
+#include "Common/VSLog.h"
 
 namespace
 {
@@ -42,6 +43,13 @@ AVSBossEnemy::AVSBossEnemy()
 
 void AVSBossEnemy::InitBoss(UVSBossData* InData)
 {
+    if (!InData)
+    {
+        UE_LOG(VSLog, Warning, TEXT("InitBoss: BossData가 비어 있습니다. 웨이브의 BossData 지정을 확인하세요."));
+        Destroy();
+        return;
+    }
+
     Data = InData;
     if (Data && MeshComp)
     {
@@ -272,12 +280,12 @@ void AVSBossEnemy::BeginPlay()
     // 머리 위 체력바: 뷰모델 생성 → 자기 보스와 연결 → 위젯에 주입
     if (HealthBarWidget)
     {
-        HealthBarWidget->InitWidget();   // 위젯이 아직 생성 전일 수 있어 강제 초기화
+        HealthBarWidget->InitWidget();
         if (UVSBossHeadBarWidget* HeadBar = Cast<UVSBossHeadBarWidget>(HealthBarWidget->GetWidget()))
         {
-            UVSBossHeadBarViewModel* VM = NewObject<UVSBossHeadBarViewModel>(this);
-            VM->BindBoss(this);
-            HeadBar->SetViewModel(VM);   // → OnViewModelSet
+            HeadBarViewModel = NewObject<UVSBossHeadBarViewModel>(this);
+            HeadBarViewModel->BindBoss(this);
+            HeadBar->SetViewModel(HeadBarViewModel);
         }
     }
 }

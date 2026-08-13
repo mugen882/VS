@@ -63,7 +63,7 @@ void UVSDroneBehavior::PositionDrone(UVSWeaponComponent* Comp, FVSWeaponInstance
 
 void UVSDroneBehavior::FireFromDrone(UVSWeaponComponent* Comp, FVSWeaponInstance& Weapon, AVSDrone* InDrone)
 {
-    if (!Comp) return;
+    if (!Comp || !InDrone || !Weapon.Data) return;
 
     AVSEnemyManager* EnemyManager = Comp->GetEnemyManager();
     if (!EnemyManager) return;

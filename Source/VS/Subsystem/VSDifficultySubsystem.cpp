@@ -108,6 +108,7 @@ bool UVSDifficultySubsystem::SpawnBossNow(int32 WaveIndex, float SpawnDist)
 
     const FVSWaveEntry& Wave = WaveData->Waves[Idx];
     if (!Wave.BossClass) return false;
+    if (!Wave.BossData) return false;
 
     SpawnWaveBoss(Wave, SpawnDist > 0.f ? SpawnDist : BOSS_SPAWN_DIST);
     return true;
@@ -116,6 +117,7 @@ bool UVSDifficultySubsystem::SpawnBossNow(int32 WaveIndex, float SpawnDist)
 void UVSDifficultySubsystem::SpawnWaveBoss(const FVSWaveEntry& Wave, float SpawnDist)
 {
     if (!Wave.BossClass) return;
+	if (!Wave.BossData) return;
 
     UWorld* World = GetWorld();
     if (!World) return;
@@ -148,7 +150,7 @@ void UVSDifficultySubsystem::Tick(float DeltaTime)
     OnTimeChanged.Broadcast(ElapsedTime);
 
     // 클리어 판정
-    if (WaveData && ElapsedTime >= WaveData->TotalRunTime)
+    if (WaveData && WaveData->TotalRunTime > 0.f && ElapsedTime >= WaveData->TotalRunTime)
     {
         bGameClear = true;
         OnRunCleared.Broadcast();
@@ -209,6 +211,8 @@ void UVSDifficultySubsystem::RegisterPlayerCharacter(AVSPlayerCharacter* InChara
     if (!InCharacter) return;
 
     PlayerCharacter = InCharacter;
+    // 중복 등록 방지
+    InCharacter->OnPlayerDied.RemoveAll(this);
     InCharacter->OnPlayerDied.AddUObject(this, &UVSDifficultySubsystem::HandlePlayerDied);
 }
 

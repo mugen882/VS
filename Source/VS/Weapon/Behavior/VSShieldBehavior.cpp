@@ -53,9 +53,11 @@ void UVSShieldBehavior::UpdateShield(UVSWeaponComponent* Comp, FVSWeaponInstance
 
     const FVSPassiveStatModifiers& Mods = Comp->GetStatMods();
 
-    ShieldAura->SetActorLocation(Comp->GetFloorLocation());
+    // 오라 배치 위치와 데미지 판정 중심을 동일하게 맞춘다(판정은 2D라 결과는 같지만 의도를 명확히).
+    const FVector Center = Comp->GetFloorLocation();
+    ShieldAura->SetActorLocation(Center);
     Comp->ApplyContinuousDamage(
-        Owner->GetActorLocation(),
+        Center,
         GetShieldRadius(Weapon),
         Weapon.GetDamage(Mods),
         DeltaTime);

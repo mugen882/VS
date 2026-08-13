@@ -109,7 +109,8 @@ void AVSPlayerController::SetupInputComponent()
 
 	if (auto* EIC = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVSPlayerController::Move);
+		if (MoveAction)
+			EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVSPlayerController::Move);
 	}
 }
 
@@ -130,7 +131,7 @@ void AVSPlayerController::OnPossess(APawn* InPawn)
 	}
 
 	if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(GetPawn()))
-		PC->OnPlayerDied.AddUObject(this, &AVSPlayerController::HandlePlayerDied);
+		PlayerDiedHandle = PC->OnPlayerDied.AddUObject(this, &AVSPlayerController::HandlePlayerDied);
 
 	SetupHUD();
 }

@@ -26,11 +26,16 @@ AVSBenchmarkActor::AVSBenchmarkActor()
 
 AVSEnemyManager* AVSBenchmarkActor::GetEnemyManager()
 {
-    if (AVSGameMode* GM = GetWorld()->GetAuthGameMode<AVSGameMode>())
+    if (IsValid(EnemyManager)) return EnemyManager;
+
+    if (UWorld* World = GetWorld())
     {
-        return GM->GetOrCreateEnemyManager();
+        if (AVSGameMode* GM = World->GetAuthGameMode<AVSGameMode>())
+        {
+            EnemyManager = GM->GetOrCreateEnemyManager();
+        }
     }
-    return nullptr;
+    return EnemyManager;
 }
 
 void AVSBenchmarkActor::RunBenchmark(EVSBenchMode Mode, int32 Count)
@@ -157,7 +162,7 @@ void AVSBenchmarkActor::CollectSample()
     GPUMs.Add(FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles()));
 }
 
-float AVSBenchmarkActor::Percentile(TArray<float>& Sorted, float Fraction)
+float AVSBenchmarkActor::Percentile(const TArray<float>& Sorted, float Fraction)
 {
     if (Sorted.Num() == 0) return 0.f;
     const int32 Idx = FMath::Clamp(

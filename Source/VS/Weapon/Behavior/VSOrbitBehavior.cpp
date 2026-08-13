@@ -34,9 +34,7 @@ void UVSOrbitBehavior::Tick(UVSWeaponComponent* Comp, FVSWeaponInstance& W, floa
     if (!W.Data) return;
 
     // 회전 각도 증가
-    OrbitAngle += W.Data->OrbitConfig.Speed * DeltaTime;
-    if (OrbitAngle >= 360.f)
-        OrbitAngle -= 360.f;
+    OrbitAngle = FMath::Fmod(OrbitAngle + W.Data->OrbitConfig.Speed * DeltaTime, 360.f);
 
     PositionBalls(Comp, W);
 

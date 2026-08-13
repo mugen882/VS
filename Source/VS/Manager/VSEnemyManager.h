@@ -93,6 +93,7 @@ private:
 private:
     TArray<FEnemyData> Enemies;
 
+    UPROPERTY()
     TObjectPtr<AVSGemManager> GemManager;
 
     UPROPERTY()

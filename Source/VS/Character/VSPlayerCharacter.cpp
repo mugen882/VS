@@ -49,7 +49,6 @@ AVSPlayerCharacter::AVSPlayerCharacter()
 	TopDownCameraComponent->bUsePawnControlRotation = false;
 
 	PrimaryActorTick.bCanEverTick = false;
-	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	WeaponComp = CreateDefaultSubobject<UVSWeaponComponent>(TEXT("WeaponComp"));
 	UpgradeComp = CreateDefaultSubobject<UVSUpgradeComponent>(TEXT("UpgradeComp"));
@@ -59,9 +58,12 @@ void AVSPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AVSGameMode* GM = GetWorld()->GetAuthGameMode<AVSGameMode>())
+	if (UWorld* World = GetWorld())
 	{
-		EnemyManager = GM->GetOrCreateEnemyManager();
+		if (AVSGameMode* GM = World->GetAuthGameMode<AVSGameMode>())
+		{
+			EnemyManager = GM->GetOrCreateEnemyManager();
+		}
 	}
 
 	GemManager = Cast<AVSGemManager>(UGameplayStatics::GetActorOfClass(this, AVSGemManager::StaticClass()));
@@ -253,7 +255,13 @@ void AVSPlayerCharacter::RecalculateStats()
 	CurrentHealth += (MaxHealth - OldMax);	// 늘어난 최대치만큼 현재 체력도 더해줌
 	CurrentHealth = FMath::Min(CurrentHealth, MaxHealth);
 
-	// 픽업범위
-	if (GemManager)
-		GemManager->SetMagnetRangeMult(1.f + StatMods.Get(EVSPassiveStatType::PickupRange));
+	if (OldMax != MaxHealth)
+	{
+		const float MaxHP = MaxHealth > 0.f ? MaxHealth : 1.f;
+		OnHealthChanged.Broadcast(FMath::Clamp(CurrentHealth / MaxHP, 0.f, 1.f));
+	}
+
+	// 픽업범위 (GemManager가 아직 미해석이면 지연 해석)
+	if (AVSGemManager* Gem = GetGemManager())
+		Gem->SetMagnetRangeMult(1.f + StatMods.Get(EVSPassiveStatType::PickupRange));
 }

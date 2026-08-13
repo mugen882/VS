@@ -30,6 +30,12 @@ void AVSGemManager::Tick(float DeltaTime)
 
 void AVSGemManager::SpawnGem(const FVector& Location, int32 XPValue)
 {
+    // 상한 초과 시 가장 오래된 젬부터 제거해 무한 증가를 막는다
+    while (Gems.Num() >= MaxGems && Gems.Num() > 0)
+    {
+        RemoveGem(0);
+    }
+
     FVector GemLoc = Location;
 
     if (UStaticMesh* Mesh = GemISM->GetStaticMesh())
@@ -81,15 +87,16 @@ void AVSGemManager::ClearAllGems()
 
 void AVSGemManager::UpdateGems(float DeltaTime)
 {
-    APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
-    if (!Player) return;
-    const FVector PlayerLoc = Player->GetActorLocation();
-
+    AVSPlayerCharacter* PlayerChar = Cast<AVSPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+    if (!PlayerChar) return;
+    
+    const FVector PlayerLoc = PlayerChar->GetActorLocation();
     TArray<int32> Collected;
     TArray<FTransform> NewXforms;
     NewXforms.Reserve(Gems.Num());
 
     const float MagnetRangeSq = MagnetRange * MagnetRange;
+    const float CollectRangeSq = CollectRange * CollectRange;
     for (int32 i = 0; i < Gems.Num(); ++i)
     {
         FVector& Loc = Gems[i].Location;
@@ -107,14 +114,10 @@ void AVSGemManager::UpdateGems(float DeltaTime)
             const FVector Dir = (PlayerLoc - Loc).GetSafeNormal();
             Loc += Dir * GemSpeed * DeltaTime;
 
-            // 획득 완료
-            if (DistSq < CollectRange * CollectRange)
+            // 이동 후 위치로 획득 판정 (한 프레임 지연·프레임률 의존 제거)
+            if (FVector::DistSquared2D(Loc, PlayerLoc) < CollectRangeSq)
             {
-                APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
-                if (AVSPlayerCharacter* PC = Cast<AVSPlayerCharacter>(PlayerPawn))
-                {
-                    PC->AddXP(Gems[i].XPValue);
-                }
+                PlayerChar->AddXP(Gems[i].XPValue);
                 Collected.Add(i);
             }
         }

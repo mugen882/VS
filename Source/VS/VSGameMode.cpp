@@ -23,9 +23,12 @@ void AVSGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UVSDifficultySubsystem* Diff = GetWorld()->GetSubsystem<UVSDifficultySubsystem>())
+	if (UWorld* World = GetWorld())
 	{
-		Diff->SetWaveData(WaveData);
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Diff->SetWaveData(WaveData);
+		}
 	}
 }
 
@@ -44,7 +47,10 @@ AVSEnemyManager* AVSGameMode::GetOrCreateEnemyManager()
 {
 	if (!IsValid(EnemyManager) && EnemyManagerClass)
 	{
-		EnemyManager = GetWorld()->SpawnActor<AVSEnemyManager>(EnemyManagerClass);
+		if (UWorld* World = GetWorld())
+		{
+			EnemyManager = World->SpawnActor<AVSEnemyManager>(EnemyManagerClass);
+		}
 	}
 	return EnemyManager;
 }

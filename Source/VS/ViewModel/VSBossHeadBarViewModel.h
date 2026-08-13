@@ -23,15 +23,9 @@ public:
     UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
     float HealthPercent = 1.f;
 
-    UPROPERTY(BlueprintReadOnly, FieldNotify, Getter, Setter)
-    FText BossName;
-
     // --- Getter / Setter ---
     float GetHealthPercent() const { return HealthPercent; }
     void  SetHealthPercent(float V);
-
-    FText GetBossName() const { return BossName; }
-    void  SetBossName(FText V);
 
 private:
     void HandleHealthChanged(float InPercent);

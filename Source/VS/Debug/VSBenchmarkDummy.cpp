@@ -24,7 +24,11 @@ void AVSBenchmarkDummy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    const APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
+    if (!CachedPlayer.IsValid())
+    {
+        CachedPlayer = UGameplayStatics::GetPlayerPawn(this, 0);
+    }
+    const APawn* Player = CachedPlayer.Get();
     if (!Player) return;
 
     const FVector ToPlayer = Player->GetActorLocation() - GetActorLocation();

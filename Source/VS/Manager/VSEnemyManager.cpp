@@ -198,8 +198,16 @@ void AVSEnemyManager::KillEnemy(int32 Index)
     const int32 LastIndex = Enemies.Num() - 1;
     if (!Enemies.IsValidIndex(Index)) return;
 
+    // Enemies 배열과 ISM 인스턴스 수는 항상 일치해야한다.
+    if (!ISM || ISM->GetInstanceCount() != Enemies.Num())
+    {
+        UE_LOG(VSLog, Warning, TEXT("KillEnemy: ISM/Enemies 수 불일치 (ISM=%d, Enemies=%d)"),
+            ISM ? ISM->GetInstanceCount() : -1, Enemies.Num());
+        return;
+    }
+
     const FVector DeathLoc = Enemies[Index].Location;
-    if (GemManager)
+    if (IsValid(GemManager))
         GemManager->SpawnGem(DeathLoc, Enemies[Index].XPValue);   // 타입별 젬 가치
 
     // 처치 수 통계 누적
@@ -210,7 +218,7 @@ void AVSEnemyManager::KillEnemy(int32 Index)
     }
 
     Enemies[Index] = Enemies[LastIndex];
-    Enemies.RemoveAt(LastIndex);
+    Enemies.RemoveAt(LastIndex, 1, EAllowShrinking::No);
 
     if (Index != LastIndex)
     {

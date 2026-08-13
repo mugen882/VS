@@ -36,13 +36,16 @@ void AVSBossCharger::MoveTowardPlayer(float DeltaTime)
     switch (State)
     {
     case EChargerState::Chase:
+        // 사거리 안 + 쿨다운 끝 -> 조준 시작. 이 프레임엔 더 이동하지 않는다.
+        if (Info.Dist <= CfgData->TriggerRange && CooldownTimer <= 0.f)
+        {
+            EnterState(EChargerState::Aim);
+            break;
+        }
+
         // 플레이어를 향해 천천히 추격 (접촉 사거리 밖일 때만)
         if (Info.Dist > CfgData->ContactRange)
             MoveDir = Info.Dir;
-
-        // 사거리 안 + 쿨다운 끝 -> 조준 시작
-        if (Info.Dist <= CfgData->TriggerRange && CooldownTimer <= 0.f)
-            EnterState(EChargerState::Aim);
         break;
 
     case EChargerState::Aim:
@@ -60,12 +63,15 @@ void AVSBossCharger::MoveTowardPlayer(float DeltaTime)
         break;
 
     case EChargerState::Charge:
+        if (StateTimer >= CfgData->Duration)
+        {
+            EnterState(EChargerState::Recover);
+            break;
+        }
         // 고정된 방향으로 빠르게 직진 (이동 중 추적X)
         MoveDir   = ChargeDir;
         FaceDir   = ChargeDir;
         MoveSpeed = CfgData->Speed;
-        if (StateTimer >= CfgData->Duration)
-            EnterState(EChargerState::Recover);
         break;
 
     case EChargerState::Recover:

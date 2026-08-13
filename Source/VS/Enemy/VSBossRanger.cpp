@@ -35,6 +35,10 @@ void AVSBossRanger::FireRadialBurst()
     const FVector SpawnLoc = GetActorLocation();
     const float AngleStep = 360.f / CfgData->ProjectileCount;
 
+    // 보스 중심에서 겹쳐 스폰되므로 충돌 보정으로 위치가 튀지 않게 항상 그대로 스폰
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
     // 360도를 균등 분할해 사방으로 발사
     for (int32 i = 0; i < CfgData->ProjectileCount; ++i)
     {
@@ -42,7 +46,7 @@ void AVSBossRanger::FireRadialBurst()
         const FRotator Dir(0.f, Angle, 0.f);
 
         AVSProjectile* Proj = World->SpawnActor<AVSProjectile>(
-            CfgData->ProjectileClass, SpawnLoc, Dir);
+            CfgData->ProjectileClass, SpawnLoc, Dir, Params);
         if (Proj)
         {
             Proj->Damage = CfgData->ProjectileDamage;

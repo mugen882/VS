@@ -91,7 +91,7 @@ private:
     void SetGameplaySpawnPaused(bool bPaused);
     void SetCombatEnabled(bool bEnabled);
 
-    static float Percentile(TArray<float>& Sorted, float Fraction);
+    static float Percentile(const TArray<float>& Sorted, float Fraction);
 
     void BeginSampling();
 

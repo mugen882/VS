@@ -24,7 +24,7 @@ struct FVSMultiShotConfig
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere) float SpreadAngle = 30.f;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0")) float SpreadAngle = 30.f;
 };
 
 USTRUCT(BlueprintType)
@@ -33,10 +33,10 @@ struct FVSOrbitConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere) TSubclassOf<AVSOrbitProjectile> BallClass;
-    UPROPERTY(EditAnywhere) int32 MaxCount = 6;
-    UPROPERTY(EditAnywhere) float Radius = 200.f;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="1")) int32 MaxCount = 6;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0")) float Radius = 200.f;
     UPROPERTY(EditAnywhere) float Speed = 180.f;
-    UPROPERTY(EditAnywhere) float HitRadius = 150.f;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0")) float HitRadius = 150.f;
 };
 
 USTRUCT(BlueprintType)
@@ -46,8 +46,8 @@ struct FVSDroneConfig
 
     UPROPERTY(EditAnywhere) TSubclassOf<AVSDrone> DroneClass;
     UPROPERTY(EditAnywhere) float Offset = 100.f;
-    UPROPERTY(EditAnywhere) float Scale = 0.2f;
-    UPROPERTY(EditAnywhere) int32 MaxProjCount = 5;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0")) float Scale = 0.2f;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="1")) int32 MaxProjCount = 5;
 };
 
 USTRUCT(BlueprintType)
@@ -56,8 +56,8 @@ struct FVSShieldConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere) TSubclassOf<AVSShieldAura> ShieldClass;
-    UPROPERTY(EditAnywhere) float Radius = 300.f;
-    UPROPERTY(EditAnywhere) float MaxRadius = 600.f;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0")) float Radius = 300.f;
+    UPROPERTY(EditAnywhere, meta=(ClampMin="0")) float MaxRadius = 600.f;
 };
 
 UCLASS(BlueprintType)
@@ -71,14 +71,14 @@ public:
         meta = (EditCondition = "FirePattern==EVSFirePattern::NearestTarget || FirePattern==EVSFirePattern::MultiShot || FirePattern==EVSFirePattern::SummonDrone",
         EditConditionHides))
     TSubclassOf<AVSProjectile> ProjectileClass;
-    UPROPERTY(EditAnywhere, Category="Weapon") float BaseDamage = 15.f;
-    UPROPERTY(EditAnywhere, Category="Weapon") float BaseCooldown = 0.5f;
-    UPROPERTY(EditAnywhere, Category="Weapon") float BaseRange = 1500.f;
-    UPROPERTY(EditAnywhere, Category="Weapon") int32 ProjectilesPerShot = 1;
+    UPROPERTY(EditAnywhere, Category="Weapon", meta=(ClampMin="0")) float BaseDamage = 15.f;
+    UPROPERTY(EditAnywhere, Category="Weapon", meta=(ClampMin="0.01")) float BaseCooldown = 0.5f;
+    UPROPERTY(EditAnywhere, Category="Weapon", meta=(ClampMin="0")) float BaseRange = 1500.f;
+    UPROPERTY(EditAnywhere, Category="Weapon", meta=(ClampMin="1")) int32 ProjectilesPerShot = 1;
     UPROPERTY(EditAnywhere, Category="Weapon") EVSFirePattern FirePattern = EVSFirePattern::NearestTarget;
 
-    UPROPERTY(EditAnywhere, Category="Upgrade") float DamagePerLevel = 5.f;
-	UPROPERTY(EditAnywhere, Category="Upgrade") float CooldownReductionPerLevel = 0.05f;    // 레벨당 쿨타임 감소량
+    UPROPERTY(EditAnywhere, Category="Upgrade", meta=(ClampMin="0")) float DamagePerLevel = 5.f;
+	UPROPERTY(EditAnywhere, Category="Upgrade", meta=(ClampMin="0")) float CooldownReductionPerLevel = 0.05f;    // 레벨당 쿨타임 감소량
 
     // 무기별 옵션 구조체-----------------------------------------
     UPROPERTY(EditAnywhere, Category="MultiShot", meta=(EditCondition="FirePattern==EVSFirePattern::MultiShot", EditConditionHides))

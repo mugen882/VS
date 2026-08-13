@@ -1,5 +1,5 @@
 #include "VSDrone.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 AVSDrone::AVSDrone()
 {

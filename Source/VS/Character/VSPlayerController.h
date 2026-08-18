@@ -8,6 +8,7 @@
 
 class UInputMappingContext;
 class UInputAction;
+class UVSPauseMenuWidget;
 
 UCLASS()
 class AVSPlayerController : public APlayerController
@@ -23,16 +24,23 @@ public:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> MoveAction;
 
-	// 게임오버/클리어 공용 결과 위젯 클래스
-	UPROPERTY(EditAnywhere, Category="UI")
-	TSoftClassPtr<class UVSResultWidget> ResultWidgetClass;
-
-	// 인게임 HUD 위젯 클래스
-	UPROPERTY(EditAnywhere, Category="UI")
-	TSoftClassPtr<class UVSHUDWidget> HUDWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> PauseAction;
 
 	// 결과 화면 표시 (게임오버·클리어 공용). bIsVictory로 승/패 구분
 	void ShowResult(bool bIsVictory);
+
+	UFUNCTION(BlueprintCallable, Category = "VS|UI")
+    void TogglePauseMenu();
+
+    void OpenPauseMenu();
+    void ClosePauseMenu();
+
+    UFUNCTION(BlueprintCallable, Category = "VS|Flow")
+    void RestartGame();
+
+    UFUNCTION(BlueprintCallable, Category = "VS|Flow")
+    void QuitGame();
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -45,6 +53,18 @@ protected:
 	virtual void BeginPlay() override;
 
 	void Move(const FInputActionValue& Value);
+
+protected:
+	// 게임오버/클리어 공용 결과 위젯 클래스
+	UPROPERTY(EditAnywhere, Category="VS|UI")
+	TSoftClassPtr<class UVSResultWidget> ResultWidgetClass;
+
+	// 인게임 HUD 위젯 클래스
+	UPROPERTY(EditAnywhere, Category="VS|UI")
+	TSoftClassPtr<class UVSHUDWidget> HUDWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "VS|UI")
+    TSubclassOf<UVSPauseMenuWidget> PauseMenuWidgetClass;
 
 private:
 	void HandlePlayerDied();
@@ -63,4 +83,12 @@ private:
 	TObjectPtr<class UVSHUDViewModel> HUDViewModel;
 
 	FDelegateHandle PlayerDiedHandle;
+
+	UPROPERTY(Transient)
+    TObjectPtr<UVSPauseMenuWidget> PauseMenuWidget;
+
+	bool bGameOver = false;
+
+	// 일시정지 메뉴를 열기 직전의 커서 표시 상태
+	bool bCursorVisibleBeforePause = false;
 };

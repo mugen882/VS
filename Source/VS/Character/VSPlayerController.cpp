@@ -12,6 +12,9 @@
 #include "ViewModel/VSHUDViewModel.h"
 #include "Debug/VSCheatManager.h"
 #include "Common/VSLog.h"
+#include "UI/VSPauseMenuWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AVSPlayerController::AVSPlayerController()
 {
@@ -98,6 +101,7 @@ void AVSPlayerController::ShowResult(bool bIsVictory)
 		}
 	}
 
+	bGameOver = true;	// 결과 화면 이후 ESC 메뉴 차단
 	bShowMouseCursor = true;
 	SetInputMode(FInputModeUIOnly());	// UI만 입력받기
 	SetPause(true);	// 일시정지
@@ -111,6 +115,11 @@ void AVSPlayerController::SetupInputComponent()
 	{
 		if (MoveAction)
 			EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVSPlayerController::Move);
+
+		if (PauseAction)
+		{
+			EIC->BindAction(PauseAction, ETriggerEvent::Started, this, &AVSPlayerController::TogglePauseMenu);
+		}
 	}
 }
 
@@ -185,4 +194,101 @@ void AVSPlayerController::TeardownHUD()
 void AVSPlayerController::HandleRunCleared()
 {
 	ShowResult(/*bIsVictory=*/true);
+}
+
+void AVSPlayerController::TogglePauseMenu()
+{
+	if (bGameOver)
+	{
+		return;   // 결과 화면 위에 메뉴가 겹치지 않게
+	}
+
+	if (PauseMenuWidget)
+	{
+		if (PauseMenuWidget->HandleBackPressed())
+		{
+			return;   // 종료 팝업만 닫힘, 메뉴는 유지
+		}
+		ClosePauseMenu();
+		return;
+	}
+
+	// 레벨업 업그레이드 선택 등 다른 UI가 이미 멈춰둔 상태면 개입하지 않는다
+	if (UGameplayStatics::IsGamePaused(this))
+	{
+		return;
+	}
+
+	OpenPauseMenu();
+}
+
+void AVSPlayerController::OpenPauseMenu()
+{
+	if (PauseMenuWidget || !PauseMenuWidgetClass)
+	{
+		return;
+	}
+
+	PauseMenuWidget = CreateWidget<UVSPauseMenuWidget>(this, PauseMenuWidgetClass);
+	if (!PauseMenuWidget)
+	{
+		return;
+	}
+
+	PauseMenuWidget->AddToViewport(10);
+
+	// 게임 중 커서 상태를 기억했다가 닫을 때 그대로 되돌린다
+	bCursorVisibleBeforePause = bShowMouseCursor;
+	bShowMouseCursor = true;
+
+	FInputModeUIOnly Mode;
+	Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	SetInputMode(Mode);
+
+	PauseMenuWidget->FocusMenu();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Diff->SetPauseGame(true);
+		}
+	}
+
+	SetPause(true);
+}
+
+void AVSPlayerController::ClosePauseMenu()
+{
+	if (PauseMenuWidget)
+	{
+		PauseMenuWidget->RemoveFromParent();
+		PauseMenuWidget = nullptr;
+	}
+
+	bShowMouseCursor = bCursorVisibleBeforePause;
+	SetInputMode(FInputModeGameOnly());
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Diff->SetPauseGame(false);
+		}
+	}
+
+	SetPause(false);	// 일시정지 해제
+}
+
+void AVSPlayerController::RestartGame()
+{
+	ClosePauseMenu();   // 일시정지 해제가 OpenLevel보다 먼저여야 한다
+
+	const FName CurrentLevel = FName(*UGameplayStatics::GetCurrentLevelName(this, true));
+	UGameplayStatics::OpenLevel(this, CurrentLevel);
+}
+
+void AVSPlayerController::QuitGame()
+{
+	UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
 }

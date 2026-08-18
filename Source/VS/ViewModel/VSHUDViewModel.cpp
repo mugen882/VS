@@ -9,7 +9,6 @@ void UVSHUDViewModel::BindModels(AVSPlayerCharacter* InCharacter, UVSDifficultyS
     if (InCharacter)
     {
         // 델리게이트 구독 (Model→ViewModel 단방향).
-        // 재바인딩 시 중복 구독되는 것을 막기 위해 먼저 해제한다.
         InCharacter->OnHealthChanged.RemoveAll(this);
         InCharacter->OnXPChanged.RemoveAll(this);
         InCharacter->OnLevelChanged.RemoveAll(this);

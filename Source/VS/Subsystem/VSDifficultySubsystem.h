@@ -87,6 +87,8 @@ public:
     void SetWaveSpawnDisabled(bool bDisabled) { bWaveSpawnDisabled = bDisabled; }
     bool IsWaveSpawnDisabled() const { return bWaveSpawnDisabled; }
 
+    void SetPauseGame(bool bPause) { bPauseGame = bPause; }
+
 public:
     FOnRunCleared OnRunCleared;
     FOnBossSpawned OnBossSpawned;
@@ -118,7 +120,7 @@ private:
 
     void HandlePlayerDied();
 
-    bool CanSpawn() const { return !bGameOver && !bUpgradeSelecting && !bGameClear && !bBenchmarkPaused; }
+    bool CanSpawn() const { return !bGameOver && !bUpgradeSelecting && !bGameClear && !bBenchmarkPaused && !bPauseGame; }
 
     void ApplyWaveTimers(const FVSWaveEntry& Wave);
 
@@ -143,6 +145,7 @@ private:
     bool bGameOver = false;
     bool bUpgradeSelecting = false;
     bool bGameClear = false;
+	bool bPauseGame = false;
 
     TWeakObjectPtr<AVSPlayerCharacter> PlayerCharacter;
 };

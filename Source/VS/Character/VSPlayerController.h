@@ -75,6 +75,8 @@ private:
 
 	void HandleRunCleared();
 
+	void OnPauseGame(bool bPause);
+
 private:
 	UPROPERTY()
 	TObjectPtr<class UVSHUDWidget> HUDWidget;

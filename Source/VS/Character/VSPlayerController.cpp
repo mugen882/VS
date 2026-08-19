@@ -196,6 +196,19 @@ void AVSPlayerController::HandleRunCleared()
 	ShowResult(/*bIsVictory=*/true);
 }
 
+void AVSPlayerController::OnPauseGame(bool bPause)
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
+		{
+			Diff->SetPauseGame(bPause);
+		}
+	}
+
+	SetPause(bPause);
+}
+
 void AVSPlayerController::TogglePauseMenu()
 {
 	if (bGameOver)
@@ -247,15 +260,7 @@ void AVSPlayerController::OpenPauseMenu()
 
 	PauseMenuWidget->FocusMenu();
 
-	if (UWorld* World = GetWorld())
-	{
-		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
-		{
-			Diff->SetPauseGame(true);
-		}
-	}
-
-	SetPause(true);
+	OnPauseGame(true);
 }
 
 void AVSPlayerController::ClosePauseMenu()
@@ -269,15 +274,7 @@ void AVSPlayerController::ClosePauseMenu()
 	bShowMouseCursor = bCursorVisibleBeforePause;
 	SetInputMode(FInputModeGameOnly());
 
-	if (UWorld* World = GetWorld())
-	{
-		if (UVSDifficultySubsystem* Diff = World->GetSubsystem<UVSDifficultySubsystem>())
-		{
-			Diff->SetPauseGame(false);
-		}
-	}
-
-	SetPause(false);	// 일시정지 해제
+	OnPauseGame(false);
 }
 
 void AVSPlayerController::RestartGame()
